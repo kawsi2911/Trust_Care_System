@@ -1,0 +1,19 @@
+.input-error {
+    border: 1px solid red;
+    background-color: #ffe6e6;
+    color: red; /* shows placeholder/error text in red */
+}
+
+.input-error::placeholder {
+    color: red;
+}
+
+.gender-error label{
+    color: red;
+    font-weight: 600;
+}
+
+.error-text{
+    color: red;
+    font-size: 14px;
+}

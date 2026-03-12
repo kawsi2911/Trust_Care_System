@@ -1,0 +1,127 @@
+.job-group{
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.job1{
+    width: 250px;
+    height: 200px;
+    border-radius: 8px;
+    background-color: #5db4f3;
+    font-size: 30px;
+    font-weight: 600;
+    color: white;
+    text-align: center;
+}
+
+.number{
+    font-size: 50px;
+    font-weight: 600;
+}
+
+.text{
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.job2{
+    width: 250px;
+    height: 200px;
+    border-radius: 8px;
+    background-color:lightgreen;
+    font-size: 30px;
+    font-weight: 600;
+    color: white;
+    text-align: center;
+}
+
+.job3{
+    width: 250px;
+    height: 200px;
+    border-radius: 8px;
+    background-color: red;
+    font-size: 30px;
+    font-weight: 600;
+    color: white;
+    text-align: center;
+}
+
+.NewService{
+    background-color: antiquewhite;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.service-content{
+    display : flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.views{
+    width: 150px;
+    padding:10px;
+    border-radius: 8px;
+    border: none;
+    background-color: greenyellow;
+    font-size: 20px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.QuickService{
+    background-color:aliceblue;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.services{
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.QServices{
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.viewall{
+    padding: 10px 20px;
+    font-size: 20px;
+    font-weight: 600;
+    color:white;
+    background-color: #5db4f3;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.updates{
+    padding: 10px 20px;
+    font-size: 20px;
+    font-weight: 600;
+    color:white;
+    background-color: orange;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.viewall:hover{
+    background-color: #4eadf1;
+}
+
+.updates:hover{
+    background-color: darkorange;
+}
+
+
+

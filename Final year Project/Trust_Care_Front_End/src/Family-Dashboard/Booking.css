@@ -1,0 +1,90 @@
+.container-image{
+    border: 1px solid #ddd;
+    padding: 25px;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+}
+
+
+.selected{
+    font-size: 30px;
+    font-weight: 800;
+    margin-bottom: 15px;
+}
+
+
+.containers0012{
+    display: flex;
+    align-items: flex-start;   
+    gap: 40px;                 
+}
+
+
+.profiles-image{
+    width: 250px;
+    height: 250px;
+    object-fit: cover;
+}
+
+.Text-image {
+    margin-left: 30px;
+}
+
+.provider-name{
+    font-size: 30px;
+    font-weight: 600;
+}
+
+.booking-container{
+    margin-top: 20px;
+    border:1px solid #ddd;
+    background:#fcf3f3;
+    padding:25px;
+    border-radius:8px;
+    margin-bottom:20px;
+}
+
+.cost{
+    border-top: 2px solid   #ddd;
+    display:flex;
+    margin-top:10px;
+    font-weight:600;
+}
+
+.confirm, .logout-btn{
+    font-size: 20px;
+    font-weight: 600;
+    color: white;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 8px;
+    border: none;
+}
+
+.confirm:hover{
+    background-color: greenyellow;
+}
+
+.confirm{
+    background-color: rgb(52, 180, 52);
+}
+
+.logout-btn:hover{
+    background-color: #e84c2d;
+}
+
+.logout-btn{
+    background-color: #ed8976;
+}
+
+
+.callprovider{
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 2px solid rgb(15, 184, 111);
+    background-color: rgba(13, 210, 82, 0.1); 
+    color: #555;
+    margin-bottom: 30px;
+    
+}

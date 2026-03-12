@@ -1,0 +1,177 @@
+.ServiceSection{
+    min-height: 100vh;
+    padding-top: 150px;
+    background-color: #f8f9fa;
+    display: flex;
+    justify-content: center;
+}
+
+.Service_container{
+    width: 100%;
+    max-width: 1225px; 
+    margin: 0 auto;
+    padding: 0 20px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.para{
+    background-color: #5db4f3;
+    padding: 20px;
+    border-radius: 8px;
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    color: white;
+    margin-bottom: 30px;
+}
+
+.form-fill{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.row{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.row label{
+    width: 20%;
+    font-weight: 600;
+}
+
+.row input[type="text"],
+.row input[type="number"]{
+    width: 85%;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.upload-icon{
+    width: 80%;
+    padding: 30px;
+    border: 2px dashed #555;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;     
+    justify-content: center;  
+}
+
+
+.row .duration-options{
+    flex: 1;         
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.complete {
+    padding: 12px 20px;
+    font-size: 18px;
+    font-weight: 600;
+    background-color: #5db4f3;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+
+.previous{
+    padding: 12px 20px;
+    font-size: 18px;
+    font-weight: 600;
+    background-color:#ccc;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.complete:hover,
+.previous:hover{
+    background-color: #4a9ad9;
+}
+
+.step{
+    text-align: center;
+    font-style: italic;
+    font-size: 14px;
+    color: #555;
+    margin-top: 10px;
+}
+
+.row .star{
+    color: red;
+}
+
+
+@media screen and (max-width: 768px) {
+
+    .ServiceSection {
+        padding-top: 100px;
+    }
+
+    .para {
+        font-size: 20px;
+        padding: 15px;
+    }
+
+    .form-fill {
+        padding: 15px;
+        gap: 15px;
+    }
+
+    /* Row column layout */
+    .row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    /* Label full width */
+    .row label {
+        width: 100%;
+    }
+
+    /* Inputs full width */
+    .row input[type="text"],
+    .row input[type="number"] {
+        width: 100%;
+    }
+
+    /* Upload box full width */
+    .upload-icon {
+        width: 100%;
+        padding: 20px;
+    }
+
+    /* Duration options vertical */
+    .row .duration-options {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+        gap: 10px;
+    }
+
+    /* Buttons full width */
+    .complete,
+    .previous {
+        width: 100%;
+        text-align: center;
+    }
+
+    .step {
+        font-size: 13px;
+    }
+}

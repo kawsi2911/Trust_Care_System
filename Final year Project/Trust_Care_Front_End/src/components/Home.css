@@ -1,0 +1,110 @@
+.HomeSection{
+  min-height: 100vh;
+  padding-top: 150px;
+  background-color: #f8f9fa;
+  display: flex;
+  justify-content: center;
+}
+
+.Home-Container{
+  width: 100%;
+  max-width: 1225px;   
+  margin: 0 auto;
+  padding: 0 20px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.Head-group{
+  background-color: #ECF0F1;
+  padding: 35px 25px;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.Head-group .para-01{
+  font-size: 30px;
+  font-weight: 600;
+  color:#000;
+  margin-bottom: 10px;
+}
+
+.Head-group .para-02{
+  font-size: 20px;
+  font-weight: 300;
+}
+
+.Button-group{
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.Button-group .Login-service{
+  flex: 1;
+  height: 60px;
+  font-size:24px;
+  font-weight: 600;
+  border-radius: 8px;
+  border:none;
+  cursor: pointer;
+  color:white;
+  background-color: #27AE61;
+}
+
+.Button-group .Login-family{
+  flex: 1;
+  height: 60px;
+  font-size:24px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  cursor:pointer;
+  color:white;
+  background-color: #27AE61;
+}
+
+.Button-group .Login-service:hover{
+  transform: translateY(-4px);
+  background-color: #5db4f3;
+}
+
+.Button-group .Login-family:hover{
+  transform:translate(-4px);
+  background-color: #5db4f3;
+}
+
+.Register .Register-btn{
+  background: #95A5A5;
+  height: 59px;
+  width: 100%;
+  border-radius: 8px;
+  font-size: 24px;
+  font-weight: 600;
+  color: white;
+  display: flex;
+  align-items: center;
+  border: none;
+  justify-content: center;
+  margin-bottom: 40px;
+  cursor: pointer;
+}
+
+.Register-btn:hover{
+  transform:translate(-4px);
+  background-color: #5db4f3;
+}
+
+.Service-heading{
+  font-size: 20px;
+  font-weight: 600;
+  color: #000;
+  text-align: center;
+}
+
+.Service-body{
+  font-size: 20px;
+  font-weight: 400;
+  color: #000;
+  text-align: center;
+}

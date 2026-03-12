@@ -1,0 +1,52 @@
+.profileImage {
+    margin-top: 10px;   
+    text-align: center;
+}
+
+.profile{
+    width: 120px;
+    height: 120px;
+}
+
+.profileText {
+    font-weight: 600;
+    font-size: 20px;
+    margin-top: 5px;
+}
+
+.ratings {
+    font-weight: 600;
+    font-size: 20px;
+    color: orange;
+    margin-top: 2px;
+}
+
+.rating-wording {
+    margin-top: 2px;
+}
+
+.logouts{
+    padding: 10px 20px;
+    font-size: 20px;
+    font-weight: 600;
+    color:white;
+    background-color: #d6543a;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.logouts:hover{
+    background-color: #ed2d07;
+}
+
+.containers01{
+    display: flex;
+    gap: 20px;
+}
+
+.contain-text{
+    background-color: #5db4f3;
+    border-radius: 8px;
+    padding: 10px 10px;
+}

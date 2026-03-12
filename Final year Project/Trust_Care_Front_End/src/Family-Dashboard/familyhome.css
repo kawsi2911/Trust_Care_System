@@ -1,0 +1,28 @@
+.container01{
+    margin-top: 10px;
+    background-color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+
+}
+
+.service-containers{
+   text-align: center;
+}
+
+.service-title, .requestnow{
+    font-size: 40px;
+}
+
+.requestnow{
+    background-color: green;
+    border-radius: 8px;
+    border: none;
+    padding: 10px 20px;
+    color: white;
+    cursor: pointer;
+}
+
+.requestnow:hover{
+    background-color: greenyellow;
+}

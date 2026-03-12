@@ -1,0 +1,209 @@
+/* Dashboard main section */
+.ServiceProviderSection {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding-top: 165px;
+    padding-left: 20%;
+    padding-right: 20%;
+    font-family: 'Poppins', sans-serif;
+}
+
+.ServiceProviderSection2 {
+    width: 100%;
+    max-width: 1225px; 
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header / Dashboard name */
+.name {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: 2px solid #5db4f3;
+    border-radius: 4px;
+    background-color: #5db4f3;
+    color: white;
+    margin-bottom: 10px;
+}
+
+.heading-head{
+    text-align: center;
+}
+
+.Heads {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+/* Welcome message */
+.First {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.Head {
+    font-size: 40px;
+    font-weight: 600;
+}
+
+/* Logout button */
+.Logout {
+    display: flex;
+    justify-content: flex-end;   
+    margin-bottom: 20px;
+}
+
+.Logout button {
+    border: none;        
+    outline: none;       
+    background: none;    
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 18px;
+}
+
+/* Top button section */
+.button-section {
+    display: flex;                     
+    justify-content: space-between;  
+    gap: 15px;                
+    border-radius: 8px;
+    padding: 15px;
+    background-color: lightgray;
+}
+
+.button-section button {
+    flex: 1;
+    padding: 10px 20px;
+    border-radius: 6px;
+    background-color: darkgray;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.button-section button:hover {
+    background-color: #5db4f3;
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Service Card */
+.container {
+    margin-top: 20px;
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    gap: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.containers{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.containers p{
+    margin: 0;
+}
+
+.service-title{
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+/* In Progress button */
+.inProgress {
+    margin-top: 10px;
+    background: #5cb85c;
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 50px;
+    font-weight: 600;
+    width: fit-content;
+    cursor: pointer;
+}
+
+.inProgress:hover{
+    background: greenyellow;
+}
+
+
+.button-row{
+    margin-top: 100px;
+    padding: 5px 10px;
+     display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Contact Family & Mark Complete buttons */
+.contactFamily{
+    background: #4eadf1;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.markComplete{
+    background: #5cb85c;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.contactFamily {
+    background-color: #4eadf1;
+}
+
+.contactFamily:hover {
+    background-color: #3b95d9;
+}
+
+.markComplete {
+    background-color: rgb(120, 193, 9);
+}
+
+.markComplete:hover {
+    background-color: rgb(100, 160, 8);
+}
+
+/* Individual service info */
+.Active, .Cname, .location, .Started, .Duration, .Rates {
+    font-size: 18px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .ServiceProviderSection {
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+    .button-section {
+        flex-direction: column;
+    }
+    .button-section button {
+        width: 100%;
+    }
+    .button-row {
+        flex-direction: column;
+        align-items: flex-end;
+    }
+}

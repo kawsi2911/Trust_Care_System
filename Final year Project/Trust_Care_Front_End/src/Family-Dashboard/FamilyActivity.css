@@ -1,0 +1,40 @@
+.contactprovider, .markCompletes{
+    font-size: 20px;
+    font-weight: 600;
+    color:white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.contactprovider{
+    background-color: #589fe6;
+}
+
+.contactprovider:hover{
+    background-color: #1f84e9;
+}
+
+.markCompletes{
+    background-color: rgb(221, 190, 133);
+}
+
+.markCompletes:hover{
+    background-color: orange;
+}
+
+.makepayment{
+    background-color: red;
+    border-radius: 10px;
+    padding: 10px 20px;
+    width: fit-content;
+    border: none;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.makepayment:hover{
+    background-color: rgb(213, 125, 125);
+}

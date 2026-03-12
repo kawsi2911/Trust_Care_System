@@ -1,0 +1,51 @@
+.heading-options{
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.card-options{
+    display: flex;
+    flex-direction: row;
+    font-size: 16px;
+    gap: 20px;
+}
+
+#cardnumber, #E-date, #cvv{
+    border: none;
+    width: 100%;
+    padding: 10px 20px;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.form-groups{
+    display: flex;
+    gap: 20px;
+    width: 100%;
+}
+
+.firstgroup, .secondgroup{
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    width: 100%;
+}
+
+.options{
+    background-color: rgb(249, 235, 235);
+    padding: 10px 20px;
+}
+
+.confirms{
+    background-color: rgb(63, 211, 63);
+    border: none;
+    padding: 10px 20px;
+    color: white;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.paymenthead{
+    text-align: center;
+}
+

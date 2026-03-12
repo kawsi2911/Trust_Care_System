@@ -1,0 +1,79 @@
+/* In Progress button */
+.pending {
+    margin-top: 10px;
+    background: rgb(215, 152, 33);
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 50px;
+    font-weight: 600;
+    width: fit-content;
+    cursor: pointer;
+}
+
+.pending:hover{
+    background-color: orange;
+}
+
+
+/* Contact Family & Mark Complete buttons */
+.cando{
+    background: #5cb85c;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.decline{
+    background: rgb(240, 120, 120);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.cando {
+    background-color: rgb(120, 193, 9);
+}
+
+.cando:hover {
+    background-color: rgb(145, 237, 6);
+}
+
+.decline {
+    background-color: rgb(240, 120, 120);
+}
+
+.decline:hover {
+    background-color: rgb(450, 120, 120);
+}
+
+.notifications{
+    margin-top: 20px;
+    background:  rgb(94, 214, 162);
+    border-radius: 12px;
+    padding: 25px;
+    gap: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.can{
+    background-color: #50a1db;
+    padding: 10px 20px;
+    border-radius: 8px;
+    color: white;
+    border: none;
+}
+
+.can:hover{
+    background-color: #1c7bbf;
+}

@@ -1,0 +1,124 @@
+.ServiceSection {
+    min-height: 120vh;
+    padding-top: 125px;
+    background-color: #f8f9fa;
+    display: flex;
+    justify-content: center;
+}
+
+.Service_container {
+    width: 100%;
+    max-width: 1225px; 
+    margin: 0 auto;
+    padding: 0 20px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.para {
+    background-color: #5db4f3;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    color: white;
+    margin-bottom: 30px;
+}
+
+.form-fill {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Row styling with flex */
+.row {
+    display: flex;
+    align-items: center;
+    gap: 15px;  
+}
+
+/* Label fixed width */
+.row label {
+    width: 150px;  
+    font-weight: 600;
+}
+
+/* Inputs take remaining space */
+.row input[type="text"],
+.row input[type="date"],
+.row input[type="email"] {
+    flex: 1;              /* fills remaining space */
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+}
+
+/* Gender options aligned with inputs */
+.gender-options {
+    display: flex;
+    gap: 10px;
+    flex: 1;    
+}
+
+.gender-options input {
+    margin-right: 5px;
+}
+
+.next {
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 18px;
+    font-weight: 600;
+    background-color: #5db4f3;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    align-self: flex-start;
+}
+
+.next:hover {
+    background-color: #4a9ad9;
+}
+
+.step {
+    text-align: center;
+    font-style: italic;
+    font-size: 14px;
+    color: #555;
+    margin-top: 10px;
+}
+
+/* Mobile responsiveness */
+@media screen and (max-width: 768px) {
+    .row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .row label {
+        width: 100%;
+    }
+
+    .row input[type="text"],
+    .row input[type="date"],
+    .row input[type="email"] {
+        width: 100%;
+    }
+
+    .gender-options {
+        width: 100%;
+    }
+
+    .next {
+        width: 100%;
+        text-align: center;
+    }
+}

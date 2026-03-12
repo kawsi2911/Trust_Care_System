@@ -1,0 +1,167 @@
+.ServiceSection{
+    min-height: 100vh;
+    padding-top: 150px;
+    background-color: #f8f9fa;
+    display: flex;
+    justify-content: center;
+}
+
+.Service_container{
+    width: 100%;
+    max-width: 1225px; 
+    margin: 0 auto;
+    padding: 0 20px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.para{
+    background-color: #5db4f3;
+    padding: 20px;
+    border-radius: 8px;
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    color: white;
+    margin-bottom: 30px;
+}
+
+.form-fill{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.row{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.row label,
+.rows label{
+    width: 20%;
+    font-weight: 600;
+}
+
+.row .star,
+.rows .star{
+    color:red;
+}
+
+.row .checkbox-options label{
+    width: 20%;
+    font-weight: 900;
+}
+
+.row input[type="text"],
+.row input[type="date"],
+.row input[type="email"],
+.row input[type="number"],
+.row textarea {
+    flex: 1;  
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+}
+
+.checkbox-options {
+    display: flex;
+    gap: 10px; 
+    flex-wrap: wrap;
+} 
+
+.checkbox-options label {
+    display: flex;
+    align-items: center;
+    gap: 15px; 
+    font-weight: 600;
+}
+
+
+.next{
+    padding: 12px 20px;
+    font-size: 18px;
+    font-weight: 600;
+    background-color: #5db4f3;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.next:hover{
+    background-color: #4a9ad9;
+}
+
+.step{
+    text-align: center;
+    font-style: italic;
+    font-size: 14px;
+    color: #555;
+    margin-top: 10px;
+}
+
+@media screen and (max-width: 768px) {
+
+    .ServiceSection {
+        padding-top: 100px;
+    }
+
+    .para {
+        font-size: 20px;
+        padding: 15px;
+    }
+
+    .form-fill {
+        padding: 15px;
+    }
+
+    /* Row column layout */
+    .row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    /* Labels full width */
+    .row label,
+    .rows label {
+        width: 100%;
+    }
+
+    /* Inputs full width */
+    .row input[type="text"],
+    .row input[type="date"],
+    .row input[type="email"],
+    .row input[type="number"],
+    .row textarea {
+        width: 100%;
+    }
+
+    /* Checkbox options column layout */
+    .checkbox-options {
+        flex-direction: column;
+        width: 100%;
+        gap: 8px;
+    }
+
+    .checkbox-options label {
+        width: 100%;
+    }
+
+    /* Button full width */
+    .next {
+        width: 100%;
+        text-align: center;
+    }
+
+    .step {
+        font-size: 13px;
+    }
+}

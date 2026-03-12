@@ -1,0 +1,49 @@
+.job11{
+    width: 250px;
+    height: 250px;
+    border-radius: 8px;
+    background-color: #2dde3c;
+    font-size: 30px;
+    font-weight: 600;
+    color: white;
+    text-align: center;
+}
+
+.job12{
+    width: 250px;
+    height: 250px;
+    border-radius: 8px;
+    background-color: #5db4f3;
+    font-size: 30px;
+    font-weight: 600;
+    color: white;
+    text-align: center;
+}
+
+.job13{
+    width: 250px;
+    height: 250px;
+    border-radius: 8px;
+    background-color: #f3b55d;
+    font-size: 30px;
+    font-weight: 600;
+    color: white;
+    text-align: center;
+}
+
+.numbers{
+    font-size: 50px;
+    font-weight: 600;
+}
+
+.texts{
+    font-size: 30px;
+    font-weight: 600;
+}
+
+.wording{
+    background-color: greenyellow;
+    width: 100%;
+    padding: 10px 20px;
+    font-weight: 600;
+}

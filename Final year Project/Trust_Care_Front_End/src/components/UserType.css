@@ -1,0 +1,60 @@
+.User-Home{
+    min-height: 100vh;
+    padding-top: 130px;
+    background-color: #f8f9fa;
+    display: flex;
+    justify-content: center;
+}
+
+.user-contain{
+    width: 100%;
+    max-width: 1225px;   
+    margin: 0 auto;
+    padding: 0 20px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.user-contain .para{
+    background-color: #5db4f3;
+    padding: 30px 40px;
+    border-radius: 8px;
+    font-size: 30px;
+    font-weight: 600;
+    text-align: center;
+    color: white;
+    max-width:100%;
+}
+
+.User-body{
+    display: flex;
+    flex-direction: column;   
+    gap: 30px;               
+    margin-top: 30px;
+}
+
+.User-body .Body1, .Body2{
+    background-color: white;
+    padding: 30px 30px;
+    border-style:groove;
+    border-radius: 8px;
+    text-align: center;
+    color: #000;
+    cursor: pointer;
+    max-width:100%;
+    transition: 0.3s;
+}
+
+.Body1 .head, .Body2 .head2{
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.Body1 .emoji, .Body2 .emoji{
+    font-size: 40px;      
+    margin-bottom: 10px; 
+}
+
+.Body1:hover, .Body2:hover{
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}

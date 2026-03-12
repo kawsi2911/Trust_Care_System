@@ -1,0 +1,55 @@
+body {
+  margin: 0;
+}
+
+/* Header Background */
+.header {
+  width: 100%;
+  background: linear-gradient(90deg, #5db4f3, #4eadf1);
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+
+  /*Fixed Header */
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+/* Container */
+.header-container {
+  margin: 0 100px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+
+/* Text Section */
+.header-text h1 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 600;
+  color: white;
+}
+
+.header-text p {
+  margin: 5px 0 0 0;
+  font-size: 16px;
+  color: #e6f2ff;
+}
+
+.header .heading {
+  color: white;
+  margin: 0;
+}
+
+.header .sentences {
+  color: white;
+}
+
+.header .logo {
+  height: 150px;
+  width: 150px;
+}
+

@@ -1,0 +1,34 @@
+.User-bodys{
+    display: flex;
+    flex-direction: column;   
+    gap: 30px;               
+    margin-top: 30px;
+}
+
+.Body11, .Body21, .Body3, .Body4{
+    border: 1px solid blue;
+    background-color: white;
+    padding: 30px 30px;
+    border-style:groove;
+    border-radius: 8px;
+    text-align: center;
+    color: #000;
+    cursor: pointer;
+    max-width:100%;
+    transition: 0.3s;
+    gap: 3px;
+}
+
+.heads{
+    font-weight: 600;
+    font-size: 30px;
+}
+
+.smalls{
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.emojis{
+    font-size: 30px;
+}
