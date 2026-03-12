@@ -71,51 +71,27 @@ function Familylogin() {
                             {/* Username */}
                             <div className='row'>
                                 <label htmlFor='username'>User Name : <span className='star'>*</span></label>
-                                <input
-                                    type='text'
-                                    id='username'
-                                    name='username'
-                                    placeholder='Enter your username'
-                                    value={formData.username}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    className={touched.username && errors.username ? 'input-error' : ''}
-                                />
+                                <input type='text' id='username'  name='username'  placeholder='Enter your username' value={formData.username} onChange={handleChange} onBlur={handleBlur}  className={touched.username && errors.username ? 'input-error' : ''} />
                                 {touched.username && errors.username && <p className="error-text">{errors.username}</p>}
                             </div>
 
                             {/* Password */}
                             <div className='row'>
                                 <label htmlFor='password'>Password : <span className='star'>*</span></label>
-                                <input
-                                    type='password'
-                                    id='password'
-                                    name='password'
-                                    placeholder='Enter your password'
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    className={touched.password && errors.password ? 'input-error' : ''}
-                                />
+                                <input type='password' id='password' name='password' placeholder='Enter your password' value={formData.password} onChange={handleChange} onBlur={handleBlur} className={touched.password && errors.password ? 'input-error' : ''} />
                                 {touched.password && errors.password && <p className="error-text">{errors.password}</p>}
                             </div>
 
                             {/* Remember Me */}
                             <div className='row checkbox-row'>
-                                <input
-                                    type='checkbox'
-                                    id='check'
-                                    name='check'
-                                    checked={formData.check}
-                                    onChange={handleChange}
-                                />
+                                <input type='checkbox' id='check' name='check'  checked={formData.check} onChange={handleChange} />
                                 <p className="checked">Remember Me</p>
                             </div>
 
                             <button className='next' onClick={handleLogin}>Login</button>
 
                             <p className='forgotpassword'>
-                                <Link to="/familyprofileedit">Forgot Password?</Link>
+                                <Link to="/familyforget">Forgot Password?</Link>
                             </p>
                             <p className='account'>
                                 Don't have an account? <Link to="/familyregister">Register as Service Taker</Link>

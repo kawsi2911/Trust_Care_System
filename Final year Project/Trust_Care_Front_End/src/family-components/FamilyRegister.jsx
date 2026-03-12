@@ -179,24 +179,18 @@ function FamilyRegister() {
                                 )}
                             </div>
 
-                            {/* Gender */}
                            {/* Gender */}
-<div className='row'>
-    <label>Gender : <span className='star'>*</span></label>
-    <div className={`gender-options ${touched.gender && errors.gender ? "input-error" : ""}`}>
-        <input type='radio' id='male' name='gender' value='Male' checked={formData.gender === "Male"} onChange={handleChange} />
-        <label htmlFor='male'>Male</label>
-
-        <input type='radio' id='female' name='gender' value='Female' checked={formData.gender === "Female"} onChange={handleChange} />
-        <label htmlFor='female'>Female</label>
-
-        <input type='radio' id='other' name='gender' value='Other' checked={formData.gender === "Other"} onChange={handleChange} />
-        <label htmlFor='other'>Other</label>
-    </div>
-    {touched.gender && errors.gender && (
-        <p className="error-text">{errors.gender}</p>
-    )}
-</div>
+                            <div className='row'>
+                                <label>Gender : <span className='star'>*</span></label>
+                                <div className={`gender-options ${touched.gender && errors.gender ? "input-error" : ""}`}>
+                                    <input type='radio' id='male' name='gender' value='Male' checked={formData.gender === "Male"} onChange={handleChange} /><label htmlFor='male'>Male</label>
+                                    <input type='radio' id='female' name='gender' value='Female' checked={formData.gender === "Female"} onChange={handleChange} /> <label htmlFor='female'>Female</label>
+                                    <input type='radio' id='other' name='gender' value='Other' checked={formData.gender === "Other"} onChange={handleChange} /><label htmlFor='other'>Other</label>
+                                </div>
+                                    {touched.gender && errors.gender && (
+                                        <p className="error-text">{errors.gender}</p>
+                                    )}
+                            </div>
 
                             {/* Address */}
                             <div className='row'>

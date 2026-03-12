@@ -32,6 +32,7 @@ import FamilyProfile from "./Family-Dashboard/familyprofile.jsx";
 import ServiceProviderForget from "./Provider-Login/ServiceProviderForget.jsx";
 import ServiceProviderProfileEdit from "./Provider-Login/ServiceProviderEdit.jsx";
 import FamilyProfileEdit from "./family-components/FamilyProfieEdit.jsx";
+import Familyforget from "./family-components/familyforget.jsx";
 
 
 function App() {
@@ -83,6 +84,7 @@ function App() {
         <Route path = "/rate" element = {<Rate/>}/>
         <Route path = "/familyprofiles" element ={<FamilyProfile/>}/>
         <Route path = "/familyprofileedit" element = {<FamilyProfileEdit/>}/>
+        <Route path = "/familyforget" element ={<Familyforget/>}/>
         
 
       </Routes>
