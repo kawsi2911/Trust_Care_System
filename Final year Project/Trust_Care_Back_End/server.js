@@ -3,6 +3,9 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import familyRoutes from "./routes/familyRoutes.js";
+import familyLoginRoute from "./routes/familyLoginRoutes.js";
+
+
 
 dotenv.config();
 
@@ -19,5 +22,7 @@ mongoose.connect(process.env.MONGO_URI)
 
 // routes
 app.use("/api/family", familyRoutes);
+
+app.use("/api/family", familyLoginRoute);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

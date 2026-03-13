@@ -1,6 +1,7 @@
 import Header from "../Header/Header";
 import { useNavigate } from "react-router-dom"; 
 import { useState } from "react";
+import Swal from "sweetalert2";
 import "./serviceTaken.css";
 
 function ServiceTaken() {
@@ -57,17 +58,58 @@ function ServiceTaken() {
         return newErrors;
     };
 
-    const handleNext = () => {
-        const validationErrors = validate();
-        setTouched({
-            username: true,
-            createpassword: true,
-            confirmpassword: true,
-            check: true
+    const handleNext = async () => {
+
+    const validationErrors = validate();
+
+    setTouched({
+        username: true,
+        createpassword: true,
+        confirmpassword: true,
+        check: true
+    });
+
+    if (Object.keys(validationErrors).length !== 0) return;
+
+    // get family form data
+    const familyData = JSON.parse(localStorage.getItem("familyData"));
+
+    // combine both forms
+    const finalData = {
+        ...familyData,
+        username: formData.username,
+        password: formData.createpassword
+
+    };
+
+    try {
+
+        const res = await fetch("http://localhost:5000/api/family/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(finalData)
         });
 
-        if (Object.keys(validationErrors).length === 0) {
-            navigate("/familylogin");
+            const data = await res.json();
+
+            if (res.ok) {
+                localStorage.removeItem("familyData");
+            
+                Swal.fire({
+                    icon: "success",
+                    title: "Registration Successful 🎉",
+                    text: "Your account has been created successfully!",
+                    confirmButtonText: "Go to Login"
+                }).then(() => {
+                    navigate("/familylogin");
+                });
+            } else {
+            alert(data.message);
+            }
+        } catch (error) {
+            console.log(error);
         }
     };
 
@@ -87,16 +129,7 @@ function ServiceTaken() {
                             {/* Username */}
                             <div className='row'>
                                 <label htmlFor='username'>Username : <span className='star'>*</span></label>
-                                <input
-                                    type='text'
-                                    id='username'
-                                    name='username'
-                                    placeholder='Enter your username'
-                                    value={formData.username}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    className={touched.username && errors.username ? 'input-error' : ''}
-                                />
+                                <input type='text' id='username'name='username' placeholder='Enter your username' value={formData.username} onChange={handleChange}  onBlur={handleBlur} className={touched.username && errors.username ? 'input-error' : ''} />
                                 {touched.username && errors.username && (
                                     <p className="error-text">{errors.username}</p>
                                 )}
@@ -105,16 +138,7 @@ function ServiceTaken() {
                             {/* Create Password */}
                             <div className='row'>
                                 <label htmlFor='create_password'>Create Password : <span className='star'>*</span></label>
-                                <input
-                                    type='password'
-                                    id='create_password'
-                                    name='createpassword'
-                                    placeholder='Enter a strong password'
-                                    value={formData.createpassword}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    className={touched.createpassword && errors.createpassword ? 'input-error' : ''}
-                                />
+                                <input type='password' id='create_password' name='createpassword' placeholder='Enter a strong password' value={formData.createpassword} onChange={handleChange} onBlur={handleBlur} className={touched.createpassword && errors.createpassword ? 'input-error' : ''} />
                                 {touched.createpassword && errors.createpassword && (
                                     <p className="error-text">{errors.createpassword}</p>
                                 )}
@@ -122,17 +146,8 @@ function ServiceTaken() {
 
                             {/* Confirm Password */}
                             <div className='row'>
-                                <label htmlFor='confirm_password'>Confirm Password : <span className='star'>*</span></label>
-                                <input
-                                    type='password'
-                                    id='confirm_password'
-                                    name='confirmpassword'
-                                    placeholder='Re-enter password'
-                                    value={formData.confirmpassword}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    className={touched.confirmpassword && errors.confirmpassword ? 'input-error' : ''}
-                                />
+                                <label htmlFor='confirmpassword'>Confirm Password : <span className='star'>*</span></label>
+                                <input type='password' id='confirmpassword' name='confirmpassword' placeholder='Re-enter password' value={formData.confirmpassword} onChange={handleChange} onBlur={handleBlur} className={touched.confirmpassword && errors.confirmpassword ? 'input-error' : ''}/>
                                 {touched.confirmpassword && errors.confirmpassword && (
                                     <p className="error-text">{errors.confirmpassword}</p>
                                 )}
@@ -140,13 +155,7 @@ function ServiceTaken() {
 
                             {/* Checkbox */}
                             <div className='row checkbox-row'>
-                                <input
-                                    type='checkbox'
-                                    id='check'
-                                    name='check'
-                                    checked={formData.check}
-                                    onChange={handleChange}
-                                />
+                                <input type='checkbox' id='check' name='check' checked={formData.check}  onChange={handleChange}/>
                                 <p className="checked">
                                     I agree to <a href="">Terms & Conditions</a> and <a href="">Privacy Policy</a>
                                 </p>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Header from '../Header/Header.jsx';
+import Swal from "sweetalert2";
 import { useNavigate, Link } from "react-router-dom";
 
 
@@ -43,18 +44,76 @@ function Familylogin() {
         return newErrors;
     };
 
-    const handleLogin = () => {
-        const validationErrors = validate();
-        setTouched({
-            username: true,
-            password: true,
-            check: true
-        });
-        if (Object.keys(validationErrors).length === 0) {
-            navigate("/familyhome");
-        }
-    };
+ const handleLogin = async () => {
+    console.log("Login clicked");
 
+    const validationErrors = validate();
+
+    setTouched({
+        username: true,
+        password: true,
+        check: true
+    });
+
+    if (Object.keys(validationErrors).length !== 0) return;
+
+    try {
+
+        const res = await fetch(
+            "http://localhost:5000/api/family/login",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    username: formData.username,
+                    password: formData.password
+                })
+            }
+        );
+
+        const data = await res.json();
+
+        console.log(data);
+
+        if (res.ok) {
+
+            // ✅ SweetAlert success popup
+            Swal.fire({
+                icon: "success",
+                title: "Login Successful 🎉",
+                text: "Welcome back!",
+                confirmButtonText: "Go to Dashboard"
+            }).then(() => {
+                navigate("/familyhome");
+            });
+
+        } else {
+
+            // ❌ SweetAlert error popup
+            Swal.fire({
+                icon: "error",
+                title: "Login Failed",
+                text: data.message,
+                confirmButtonText: "OK"
+            });
+
+        }
+
+    } catch (error) {
+
+        console.log(error);
+
+        Swal.fire({
+            icon: "error",
+            title: "Server Error",
+            text: "Something went wrong. Please try again later.",
+            confirmButtonText: "OK"
+        });
+
+    }
+};
     return (
         <>
             <Header />
