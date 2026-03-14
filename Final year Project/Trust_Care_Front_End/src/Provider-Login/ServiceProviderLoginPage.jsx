@@ -1,110 +1,123 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Header from '../Header/Header.jsx';
-import { useNavigate } from "react-router-dom"; 
-import { Link } from "react-router-dom";
-import "./ServiceProviderLoginPage.css"
+import { useNavigate, Link } from "react-router-dom";
+import "./ServiceProviderLoginPage.css";
+import Swal from 'sweetalert2';
 
-function ServiceProviderLoginPage(){
+function ServiceProviderLoginPage() {
+  const navigate = useNavigate();
 
-    const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",   // match backend field
+    check: false
+  });
 
-    const [formData, setFormData] = useState({
-            username: "",
-            passwords: "",
-            check: false
-        });
-    
-        const [errors, setErrors] = useState({});
-        const [touched, setTouched] = useState({});
-    
-        const handleChange = (e) => {
-            const { name, value, type, checked } = e.target;
-            setFormData({
-                ...formData,
-                [name]: type === "checkbox" ? checked : value
-            });
-        };
-    
-        const handleBlur = (e) => {
-            const { name } = e.target;
-            setTouched({ ...touched, [name]: true });
-            validate();
-        };
-    
-        const validate = () => {
-            let newErrors = {};
-            if (!formData.username.trim()) {
-                newErrors.username = "Username is required";
-            }
-            if (!formData.passwords.trim()) {
-                newErrors.passwords = "Password is required";
-            } else if (formData.passwords.length < 6) {
-                newErrors.passwords = "Password must be at least 6 characters";
-            }
-            setErrors(newErrors);
-            return newErrors;
-        };
-    
-        const handleLogin = () => {
-            const validationErrors = validate();
-            setTouched({
-                username: true,
-                passwords: true,
-                check: true
-            });
-            if (Object.keys(validationErrors).length === 0) {
-                navigate("/serviceproviderdashboard");
-            }
-        };
-    
-    
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
 
-    return(
-        <>
-            <Header/>
-        
-            <div className='ServiceProviderSection'>
-                <div className='ServiceContainer'>
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value
+    }));
+  };
 
-                      <div className = 'forms'>
-                        <div className = 'forms-fill'>
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    setTouched(prev => ({ ...prev, [name]: true }));
+    validate();
+  };
 
-                            <div className='Heading-row'>
-                                <p className='Heading'> Service Provider Login</p>
-                                <span className='Subbody'>Access your Cargiver Dashboard</span>
-                            </div>
+  const validate = () => {
+    let newErrors = {};
+    if (!formData.username.trim()) newErrors.username = "Username is required";
+    if (!formData.password.trim()) newErrors.password = "Password is required";
+    else if (formData.password.length < 6) newErrors.password = "Password must be at least 6 characters";
+    setErrors(newErrors);
+    return newErrors;
+  };
 
-                            <div className = 'row'>
-                                <label htmlFor = 'username'> User Name : <span className = 'star'>*</span></label>
-                                <input type = 'text' id = 'username' name = 'username' placeholder = 'Enter your username' value={formData.username} onChange={handleChange} onBlur={handleBlur} className={touched.username && errors.username ? 'input-error' : ''} />
-                                {touched.username && errors.username && <p className="error-text">{errors.username}</p>}
-                            </div>
+  const handleLogin = async () => {
+    const validationErrors = validate();
+    setTouched({ username: true, password: true, check: true });
+    if (Object.keys(validationErrors).length !== 0) return;
 
-                            <div className = 'row'>
-                                <label htmlFor = 'passwords'> Password : <label className = 'star'> * </label> </label>
-                                <input type = 'password' id = 'passwords' name = 'passwords' placeholder = 'Enter your password' value={formData.passwords}  onChange={handleChange} onBlur={handleBlur} className={touched.passwords && errors.passwords ? 'input-error' : ''} />
-                                {touched.passwords && errors.passwords && <p className="error-text">{errors.passwords}</p>}
-                            </div>
+    try {
+      const response = await fetch("http://localhost:5000/api/service/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: formData.username, password: formData.password })
+      });
 
-                            <div className = 'row'>
-                                <input type = 'checkbox' id = 'check' name = 'check' checked={formData.check} onChange={handleChange}/> <p className="checked">Remeber Me</p>
-                            </div>
+      const data = await response.json();
 
-                            <button className = 'next' onClick={handleLogin}> Login </button>
+      if (!response.ok) {
+        Swal.fire({ icon: "error", title: "Login Failed", text: data.message || data.error });
+        return;
+      }
 
-                            <p className='forgotpassword'><Link to="/serviceproviderforget">Forgot Password?</Link></p>
-                            <p className='account'> Don't have an account? <Link to="/serviceprovider1"> Register as Provider</Link></p>
-                            
-                        </div>
-                    </div>
+      // Store user info in localStorage if needed
+      localStorage.setItem("userId", data.userId);
+      localStorage.setItem("FullName", data.FullName);
 
-                </div>
+      Swal.fire({ icon: "success", title: "Login Successful", text: `Welcome ${data.FullName}` });
+      navigate("/serviceproviderdashboard");
+
+    } catch (err) {
+      Swal.fire({ icon: "error", title: "Server Error", text: err.message });
+    }
+  };
+
+  return (
+    <>
+      <Header />
+      <div className='ServiceProviderSection'>
+        <div className='ServiceContainer'>
+          <div className='forms'>
+            <div className='forms-fill'>
+              <div className='Heading-row'>
+                <p className='Heading'> Service Provider Login</p>
+                <span className='Subbody'>Access your Caregiver Dashboard</span>
+              </div>
+
+              <div className='row'>
+                <label htmlFor='username'> User Name : <span className='star'>*</span></label>
+                <input 
+                  type='text' id='username' name='username' 
+                  placeholder='Enter your username' 
+                  value={formData.username} onChange={handleChange} onBlur={handleBlur} 
+                  className={touched.username && errors.username ? 'input-error' : ''} 
+                />
+                {touched.username && errors.username && <p className="error-text">{errors.username}</p>}
+              </div>
+
+              <div className='row'>
+                <label htmlFor='password'> Password : <span className='star'>*</span></label>
+                <input 
+                  type='password' id='password' name='password' 
+                  placeholder='Enter your password' 
+                  value={formData.password} onChange={handleChange} onBlur={handleBlur} 
+                  className={touched.password && errors.password ? 'input-error' : ''} 
+                />
+                {touched.password && errors.password && <p className="error-text">{errors.password}</p>}
+              </div>
+
+              <div className='row'>
+                <input type='checkbox' id='check' name='check' checked={formData.check} onChange={handleChange}/> <p className="checked">Remember Me</p>
+              </div>
+
+              <button className='next' onClick={handleLogin}> Login </button>
+
+              <p className='forgotpassword'><Link to="/serviceproviderforget">Forgot Password?</Link></p>
+              <p className='account'> Don't have an account? <Link to="/serviceprovider1"> Register as Provider</Link></p>
             </div>
-        
-        </>
-    )
-
+          </div>
+        </div>
+      </div>
+    </>
+  )
 }
 
 export default ServiceProviderLoginPage;

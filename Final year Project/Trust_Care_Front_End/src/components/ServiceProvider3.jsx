@@ -8,7 +8,7 @@ function ServiceProvider3() {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    uploadprofile: null,
+    uploadprofile: '',  // store as base64 string
     location: '',
     workRadius: '',
     available: '',
@@ -25,36 +25,43 @@ function ServiceProvider3() {
     if (step2Data.fulladdress) setFullAddress(step2Data.fulladdress);
   }, []);
 
-  // Placeholder distance calculation (replace with real API if needed)
+  // Placeholder distance calculation
   const calculateDistance = (addr1, addr2) => {
-    // For demonstration, just return a fake number based on string length
     return Math.abs(addr1.length - addr2.length) + 5;
   };
 
+  // Handle text and number inputs
   const handleChange = (e) => {
-    const { name, value, type, files } = e.target;
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
 
-    if (type === "file") {
-      setFormData({ ...formData, uploadprofile: files[0] });
-      setErrors({ ...errors, uploadprofile: files[0] ? undefined : "Upload the profile image" });
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
-
-      // Auto calculate workRadius if location changes
-      if (name === "location" && fullAddress) {
-        const locationsArray = value.split(',').map(loc => loc.trim()).filter(Boolean);
-        const distances = locationsArray.map(loc => calculateDistance(fullAddress, loc));
-        const maxDistance = distances.length > 0 ? Math.max(...distances) : 0;
-        setFormData(prev => ({ ...prev, workRadius: maxDistance.toFixed(2) }));
-      }
-
-      if (value.trim() !== "") setErrors({ ...errors, [name]: undefined });
+    // Auto calculate workRadius if location changes
+    if (name === "location" && fullAddress) {
+      const locationsArray = value.split(',').map(loc => loc.trim()).filter(Boolean);
+      const distances = locationsArray.map(loc => calculateDistance(fullAddress, loc));
+      const maxDistance = distances.length > 0 ? Math.max(...distances) : 0;
+      setFormData(prev => ({ ...prev, workRadius: maxDistance.toFixed(2) }));
     }
+
+    if (value.trim() !== "") setErrors(prev => ({ ...prev, [name]: undefined }));
+  };
+
+  // Handle file input (convert to Base64)
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFormData(prev => ({ ...prev, uploadprofile: reader.result }));
+      setErrors(prev => ({ ...prev, uploadprofile: undefined }));
+    };
+    reader.readAsDataURL(file); // convert file to base64
   };
 
   const handleBlur = (e) => {
     const { name } = e.target;
-    setTouched({ ...touched, [name]: true });
+    setTouched(prev => ({ ...prev, [name]: true }));
     validate();
   };
 
@@ -109,7 +116,11 @@ function ServiceProvider3() {
                 <label htmlFor='Profile'> Upload your Image : <label className='star'> * </label> </label>
                 <div className="upload-icon" onClick={() => document.getElementById('uploadInput').click()}>
                   {formData.uploadprofile ? (
-                    <img src={URL.createObjectURL(formData.uploadprofile)} alt="Profile Preview" style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '8px' }} />
+                    <img 
+                      src={formData.uploadprofile} 
+                      alt="Profile Preview" 
+                      style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '8px' }} 
+                    />
                   ) : (
                     <>
                       📷<br />
@@ -118,20 +129,44 @@ function ServiceProvider3() {
                     </>
                   )}
                 </div>
-                <input type="file" id="uploadInput" name="uploadprofile" accept="image/png, image/jpeg" style={{ display: 'none' }} onChange={handleChange} onBlur={handleBlur} />
+                <input 
+                  type="file" 
+                  id="uploadInput" 
+                  name="uploadprofile" 
+                  accept="image/png, image/jpeg" 
+                  style={{ display: 'none' }} 
+                  onChange={handleFileChange} 
+                  onBlur={handleBlur} 
+                />
                 {touched.uploadprofile && errors.uploadprofile && <p className="error-text">{errors.uploadprofile}</p>}
               </div>
 
               {/* Locations */}
               <div className='row'>
                 <label htmlFor='Location'> Location able to Work : <label className='star'> * </label> </label>
-                <input type='text' id='Location' name='location' placeholder='Add multiple locations separated by commas' value={formData.location} onChange={handleChange} onBlur={handleBlur} className={touched.location && errors.location ? 'input-error' : ''} />
+                <input 
+                  type='text' 
+                  id='Location' 
+                  name='location' 
+                  placeholder='Add multiple locations separated by commas' 
+                  value={formData.location} 
+                  onChange={handleChange} 
+                  onBlur={handleBlur} 
+                  className={touched.location && errors.location ? 'input-error' : ''} 
+                />
               </div>
 
               {/* Work Radius (Read-only) */}
               <div className='row'>
                 <label htmlFor='WorkRadius'> Work Radius (Km) : <label className='star'> * </label> </label>
-                <input type='text' id='WorkRadius' name='workRadius' value={formData.workRadius} readOnly className={touched.workRadius && errors.workRadius ? 'input-error' : ''} />
+                <input 
+                  type='text' 
+                  id='WorkRadius' 
+                  name='workRadius' 
+                  value={formData.workRadius} 
+                  readOnly 
+                  className={touched.workRadius && errors.workRadius ? 'input-error' : ''} 
+                />
               </div>
 
               {/* Availability */}
@@ -148,11 +183,21 @@ function ServiceProvider3() {
               {/* Hourly Rate */}
               <div className='row'>
                 <label htmlFor='HourlyRate'> Hourly Rate (Rs) : <label className='star'> * </label> </label>
-                <input type='number' id='HourlyRate' name='hourlyRate' placeholder='e.g 500' value={formData.hourlyRate} onChange={handleChange} onBlur={handleBlur} className={touched.hourlyRate && errors.hourlyRate ? 'input-error' : ''} />
+                <input 
+                  type='number' 
+                  id='HourlyRate' 
+                  name='hourlyRate' 
+                  placeholder='e.g 500' 
+                  value={formData.hourlyRate} 
+                  onChange={handleChange} 
+                  onBlur={handleBlur} 
+                  className={touched.hourlyRate && errors.hourlyRate ? 'input-error' : ''} 
+                />
               </div>
 
               <button className='complete' onClick={handleNext}> Complete Registration </button>
               <button className='previous' onClick={() => navigate("/serviceprovider2")}> Previous </button>
+
             </div>
           </div>
         </div>

@@ -5,7 +5,11 @@ import { useNavigate, Link } from "react-router-dom";
 
 function Familylogin() {
     const navigate = useNavigate();
-    const [formData, setFormData] = useState({ username: "", password: "", check: false });
+    const [formData, setFormData] = useState({ 
+        username: "", 
+        password: "", 
+        check: false
+    });
     const [errors, setErrors] = useState({});
     const [touched, setTouched] = useState({});
 

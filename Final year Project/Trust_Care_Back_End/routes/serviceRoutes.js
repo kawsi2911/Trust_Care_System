@@ -5,11 +5,27 @@ const router = express.Router();
 
 router.post("/providerregister", async (req, res) => {
   try {
+
+    console.log("Incoming data:", req.body);
+
     const newService = new Service(req.body);
-    await newService.save();
-    res.json({ message: "Service Provider Registered Successfully" });
+
+    const saved = await newService.save();
+
+    console.log("Saved:", saved._id);
+
+    res.json({
+      message: "Service Provider Registered Successfully",
+      id: saved._id
+    });
+
   } catch (error) {
-    res.status(500).json({ error: error.message });
+
+    console.log("SAVE ERROR:", error);   // IMPORTANT
+
+    res.status(500).json({
+      error: error.message
+    });
   }
 });
 

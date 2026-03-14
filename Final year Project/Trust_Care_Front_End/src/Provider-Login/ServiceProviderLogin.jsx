@@ -1,5 +1,6 @@
 import { use, useState } from "react";
 import Header from "../Header/Header";
+import Swal from "sweetalert2"; 
 import { useNavigate } from "react-router-dom"; 
 import "./ServiceProviderLogin.css";
 
@@ -85,13 +86,11 @@ function ServiceProviderLogin(){
         };
 
         try{
-            const res = await fetch("http://localhost:8080/api/service/providerregister", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(combinedData)
-            });
+            const res = await fetch("http://localhost:5000/api/service/providerregister", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(combinedData)
+});
 
             const data = await res.json();
 
