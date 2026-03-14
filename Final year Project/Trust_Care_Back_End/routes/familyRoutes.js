@@ -3,8 +3,6 @@ import Family from "../models/familyModel.js";
 
 const router = express.Router();
 
-
-
 router.post("/register", async (req, res) => {
   try {
     const newFamily = new Family(req.body);

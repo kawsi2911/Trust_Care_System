@@ -4,6 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import familyRoutes from "./routes/familyRoutes.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
+import serviceRequestRoutes from "./routes/serviceRequestRoutes.js";
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ mongoose.connect(process.env.MONGO_URI)
 // routes
 app.use("/api/family", familyRoutes);
 app.use("/api/service", serviceRoutes);
+app.use("/api/service-request", serviceRequestRoutes);
 
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

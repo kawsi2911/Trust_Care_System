@@ -1,222 +1,301 @@
 import { useState } from "react";
 import Header from "../Header/Header";
 import "./FamilyServiceRequest2.css";
+import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axios from "axios"; 
 
 function FamilyServiceRequest2() {
-    const navigate = useNavigate();
 
-    const [formData, setFormData] = useState({
-        SLocation: "",
-        Address: "",
-        serviceOptions: "",
-        disabilityDetails: "",
-        Gender: "",
-        additionalRequirement: ""
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    SLocation: "",
+    Address: "",
+    serviceOptions: "",
+    disabilityDetails: "",
+    preferredGender: "",
+    additionalRequirement: ""
+  });
+
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
+
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    setTouched({ ...touched, [name]: true });
+    validate();
+  };
+
+  const validate = () => {
+
+    const newErrors = {};
+
+    if (!formData.SLocation.trim())
+      newErrors.SLocation = "City is Required";
+
+    if (!formData.Address.trim())
+      newErrors.Address = "Full Address is Required";
+
+    if (!formData.serviceOptions)
+      newErrors.serviceOptions = "Select the Services";
+
+    if (!formData.preferredGender)
+      newErrors.preferredGender = "Select preferred caregiver gender";
+
+    if (!formData.additionalRequirement.trim())
+      newErrors.additionalRequirement = "Additional Requirements is Required";
+
+    setErrors(newErrors);
+    return newErrors;
+  };
+
+
+  const handleNext = async () => {
+
+    const validationErrors = validate();
+
+    setTouched({
+      SLocation: true,
+      Address: true,
+      serviceOptions: true,
+      preferredGender: true,
+      additionalRequirement: true
     });
 
-    const [errors, setErrors] = useState({});
-    const [touched, setTouched] = useState({});
-    const [loading, setLoading] = useState(false);
+    if (Object.keys(validationErrors).length > 0) return;
 
-    const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData({
-            ...formData,
-            [name]: type === "checkbox" ? checked : value
-        });
-    };
+    setLoading(true);
 
-    const handleBlur = (e) => {
-        const { name } = e.target;
-        setTouched({ ...touched, [name]: true });
-        validate();
-    };
+    try {
 
-    const validate = () => {
-        const newErrors = {};
-        if (!formData.SLocation.trim()) newErrors.SLocation = "City is Required";
-        if (!formData.Address.trim()) newErrors.Address = "Full Address is Required";
-        if (!formData.serviceOptions.trim()) newErrors.serviceOptions = "Select the Services";
-        if (!formData.Gender) newErrors.Gender = "Select the Gender";
-        if (!formData.additionalRequirement.trim())
-            newErrors.additionalRequirement = "Additional Requirements is Required";
-        setErrors(newErrors);
-        return newErrors;
-    };
+      const form1Data = JSON.parse(localStorage.getItem("form1Data")) || {};
 
-    const handleNext = async () => {
-        const validationErrors = validate();
-        setTouched({
-            SLocation: true,
-            Address: true,
-            serviceOptions: true,
-            Gender: true,
-            additionalRequirement: true
-        });
+      const familyId =
+        localStorage.getItem("userId") ||
+        sessionStorage.getItem("userId");
 
-        if (Object.keys(validationErrors).length > 0) return;
+      if (!familyId) {
+        alert("User not logged in");
+        setLoading(false);
+        return;
+      }
 
-        setLoading(true);
+      const combinedData = {
+        ...form1Data,
+        ...formData,
+        familyId
+      };
 
-        try {
-            const form1Data = JSON.parse(localStorage.getItem("form1Data")) || {};
+      console.log("Sending Data:", combinedData);
 
-            const familyId = localStorage.getItem("userId") || sessionStorage.getItem("userId");
-            if (!familyId) {
-                alert("User not logged in. Please login again.");
-                setLoading(false);
-                return;
-            }
+      const response = await axios.post(
+        "http://localhost:5000/api/service-request/register",
+        combinedData
+      );
 
-            const combinedData = { ...form1Data, ...formData, familyId };
+      console.log("Service Request Saved:", response.data);
 
-            const response = await axios.post(
-                "http://localhost:5000/api/service-request/new-request",
-                combinedData
-            );
+      localStorage.removeItem("form1Data");
 
-            console.log("Service Request Saved:", response.data);
+      navigate("/findingcareprovider", { state: response.data });
 
-            // ✅ FIXED: save serviceRequestId so Booking.jsx can use it
-            localStorage.setItem("serviceRequestId", response.data._id);
+    } catch (error) {
 
-            // Clear form1 temp data
-            localStorage.removeItem("form1Data");
+      console.error("Error saving request:", error);
+      alert(error.response?.data?.error || "Failed to save request");
 
-            navigate("/findingcareprovider", { state: response.data });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        } catch (error) {
-            console.error("Error saving request:", error);
-            alert(error.response?.data?.error || "Failed to save request. Please try again.");
-        } finally {
-            setLoading(false);
-        }
-    };
+  return (
+    <>
+      <Header />
 
-    return (
-        <>
-            <Header />
-            <div className="ServiceSection">
-                <div className="Service_container">
-                    <p className="para">Service Request Form (2/2)</p>
-                    <div className="form">
-                        <div className="form-fill">
+      <div className="ServiceSection">
+        <div className="Service_container">
 
-                            <div className="row">
-                                <label htmlFor="SLocation">
-                                    Service Location (City): <span className="star">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    id="SLocation"
-                                    name="SLocation"
-                                    placeholder="Enter City"
-                                    value={formData.SLocation}
-                                    onBlur={handleBlur}
-                                    onChange={handleChange}
-                                    className={touched.SLocation && errors.SLocation ? "input-error" : ""}
-                                />
-                                {touched.SLocation && errors.SLocation && (
-                                    <p className="error-text">{errors.SLocation}</p>
-                                )}
-                            </div>
+          <p className="para">Service Request Form (2/2)</p>
 
-                            <div className="row">
-                                <label htmlFor="Address">
-                                    Full Address: <span className="star">*</span>
-                                </label>
-                                <textarea
-                                    id="Address"
-                                    name="Address"
-                                    placeholder="Enter full address"
-                                    value={formData.Address}
-                                    onBlur={handleBlur}
-                                    onChange={handleChange}
-                                    className={touched.Address && errors.Address ? "input-error" : ""}
-                                ></textarea>
-                                {touched.Address && errors.Address && (
-                                    <p className="error-text">{errors.Address}</p>
-                                )}
-                            </div>
+          <div className="form">
+            <div className="form-fill">
 
-                            <div className="row">
-                                <label>Any Disabilities: <span className="star">*</span></label>
-                                <div className={`Service-options ${touched.serviceOptions && errors.serviceOptions ? "input-error" : ""}`}>
-                                    <input type="radio" id="Yes" name="serviceOptions" value="Yes"
-                                        checked={formData.serviceOptions === "Yes"} onChange={handleChange} />
-                                    <label htmlFor="Yes">Yes</label>
-                                    <input type="radio" id="No" name="serviceOptions" value="No"
-                                        checked={formData.serviceOptions === "No"} onChange={handleChange} />
-                                    <label htmlFor="No">No</label>
-                                </div>
-                                {touched.serviceOptions && errors.serviceOptions && (
-                                    <p className="error-text">{errors.serviceOptions}</p>
-                                )}
-                            </div>
+              {/* City */}
+              <div className="row">
+                <label>Service Location (City) *</label>
 
-                            {formData.serviceOptions === "Yes" && (
-                                <div className="yess">
-                                    <textarea
-                                        name="disabilityDetails"
-                                        rows="5"
-                                        placeholder="Describe the disabilities or medical conditions"
-                                        value={formData.disabilityDetails}
-                                        onChange={handleChange}
-                                    ></textarea>
-                                </div>
-                            )}
+                <input
+                  type="text"
+                  name="SLocation"
+                  placeholder="Enter City"
+                  value={formData.SLocation}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  className={touched.SLocation && errors.SLocation ? "input-error" : ""}
+                />
 
-                            <div className="row">
-                                <label>Preferred Caregiver Gender: <span className="star">*</span></label>
-                                <div className={`gender-options ${touched.Gender && errors.Gender ? "input-error" : ""}`}>
-                                    <input type="radio" id="Male" name="Gender" value="Male"
-                                        checked={formData.Gender === "Male"} onChange={handleChange} />
-                                    <label htmlFor="Male">Male</label>
-                                    <input type="radio" id="Female" name="Gender" value="Female"
-                                        checked={formData.Gender === "Female"} onChange={handleChange} />
-                                    <label htmlFor="Female">Female</label>
-                                    <input type="radio" id="NoPreference" name="Gender" value="No Preference"
-                                        checked={formData.Gender === "No Preference"} onChange={handleChange} />
-                                    <label htmlFor="NoPreference">No Preference</label>
-                                </div>
-                                {touched.Gender && errors.Gender && (
-                                    <p className="error-text">{errors.Gender}</p>
-                                )}
-                            </div>
+                {touched.SLocation && errors.SLocation && (
+                  <p className="error-text">{errors.SLocation}</p>
+                )}
+              </div>
 
-                            <div className="row">
-                                <label htmlFor="A-Requirements">
-                                    Additional Requirements / Notes: <span className="star">*</span>
-                                </label>
-                                <textarea
-                                    id="A-Requirements"
-                                    name="additionalRequirement"
-                                    placeholder="Additional Requirements / Notes"
-                                    value={formData.additionalRequirement}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    className={touched.additionalRequirement && errors.additionalRequirement ? "input-error" : ""}
-                                ></textarea>
-                                {touched.additionalRequirement && errors.additionalRequirement && (
-                                    <p className="error-text">{errors.additionalRequirement}</p>
-                                )}
-                            </div>
+              {/* Address */}
+              <div className="row">
+                <label>Full Address *</label>
 
-                            <button className="finishes" onClick={handleNext} disabled={loading}>
-                                {loading ? "Submitting..." : "Submit Request"}
-                            </button>
-                            <button className="previous" onClick={() => navigate("/familyservicerequest")}>
-                                Previous
-                            </button>
+                <textarea
+                  name="Address"
+                  placeholder="Enter full address"
+                  value={formData.Address}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  className={touched.Address && errors.Address ? "input-error" : ""}
+                />
 
-                        </div>
-                    </div>
+                {touched.Address && errors.Address && (
+                  <p className="error-text">{errors.Address}</p>
+                )}
+              </div>
+
+              {/* Disabilities */}
+              <div className="row">
+                <label>Any Disabilities *</label>
+
+                <div className={`Service-options ${touched.serviceOptions && errors.serviceOptions ? "input-error" : ""}`}>
+
+                  <input
+                    type="radio"
+                    name="serviceOptions"
+                    value="Yes"
+                    checked={formData.serviceOptions === "Yes"}
+                    onChange={handleChange}
+                  />
+                  <label>Yes</label>
+
+                  <input
+                    type="radio"
+                    name="serviceOptions"
+                    value="No"
+                    checked={formData.serviceOptions === "No"}
+                    onChange={handleChange}
+                  />
+                  <label>No</label>
+
                 </div>
+
+                {touched.serviceOptions && errors.serviceOptions && (
+                  <p className="error-text">{errors.serviceOptions}</p>
+                )}
+              </div>
+
+              {/* Disability Details */}
+              {formData.serviceOptions === "Yes" && (
+                <div className="row">
+                  <textarea
+                    name="disabilityDetails"
+                    rows="4"
+                    placeholder="Describe the disabilities"
+                    value={formData.disabilityDetails}
+                    onChange={handleChange}
+                  />
+                </div>
+              )}
+
+              {/* Preferred Gender */}
+              <div className="row">
+
+                <label>Preferred Caregiver Gender *</label>
+
+                <div className={`gender-options ${touched.preferredGender && errors.preferredGender ? "input-error" : ""}`}>
+
+                  <input
+                    type="radio"
+                    name="preferredGender"
+                    value="Male"
+                    checked={formData.preferredGender === "Male"}
+                    onChange={handleChange}
+                  />
+                  <label>Male</label>
+
+                  <input
+                    type="radio"
+                    name="preferredGender"
+                    value="Female"
+                    checked={formData.preferredGender === "Female"}
+                    onChange={handleChange}
+                  />
+                  <label>Female</label>
+
+                  <input
+                    type="radio"
+                    name="preferredGender"
+                    value="Other"
+                    checked={formData.preferredGender === "Other"}
+                    onChange={handleChange}
+                  />
+                  <label>No Preference</label>
+
+                </div>
+
+                {touched.preferredGender && errors.preferredGender && (
+                  <p className="error-text">{errors.preferredGender}</p>
+                )}
+
+              </div>
+
+              {/* Additional Requirements */}
+              <div className="row">
+
+                <label>Additional Requirements *</label>
+
+                <textarea
+                  name="additionalRequirement"
+                  placeholder="Additional notes"
+                  value={formData.additionalRequirement}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  className={touched.additionalRequirement && errors.additionalRequirement ? "input-error" : ""}
+                />
+
+                {touched.additionalRequirement && errors.additionalRequirement && (
+                  <p className="error-text">{errors.additionalRequirement}</p>
+                )}
+
+              </div>
+
+              <button
+                className="finishes"
+                onClick={handleNext}
+                disabled={loading}
+              >
+                {loading ? "Submitting..." : "Submit Request"}
+              </button>
+
+              <button
+                className="previous"
+                onClick={() => navigate("/familyservicerequest")}
+              >
+                Previous
+              </button>
+
             </div>
-        </>
-    );
+          </div>
+        </div>
+      </div>
+    </>
+  );
 }
 
 export default FamilyServiceRequest2;
