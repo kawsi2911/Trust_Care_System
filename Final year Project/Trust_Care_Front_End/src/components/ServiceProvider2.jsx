@@ -2,6 +2,7 @@ import React from 'react';
 import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import Header from '../Header/Header.jsx';
+import Swal from "sweetalert2";
 import './ServiceProvider2.css';
 
 function ServiceProvider2(){
@@ -64,20 +65,35 @@ function ServiceProvider2(){
         return newErrors;
     };
     
-    const handleNext = () =>{
+    const handleNext = async(e) =>{
+
+        e.preventDefault();
+        
+        setTouched({
+            fulladdress:true,
+            serviceType:true,
+            year:true,
+            qualifications:true,
+        });
+        
         const validationErrors = validate();
-            setTouched({
-                fulladdress:true,
-                serviceType:true,
-                year:true,
-                qualifications:true,
- 
-            });
-    
-            if(Object.keys(validationErrors).length === 0){
-               navigate("/serviceprovider3")
-            }
-     }
+        if(Object.keys(validationErrors).length !== 0) return;
+
+        const data2 = JSON.parse(localStorage.getItem("serviceData")) || {};
+        const combinedData = { 
+            ...data2, 
+            ...formData 
+        };
+        localStorage.setItem("serviceData", JSON.stringify(combinedData));
+            
+        Swal.fire({
+            icon: 'success',
+            title: 'Step 2 Completed',
+        text: 'Proceed to next step'
+        });
+
+        navigate("/serviceprovider3");
+    };
     
 
     return(
@@ -94,7 +110,7 @@ function ServiceProvider2(){
 
                             <div className='row'>
                                 <label htmlFor = 'FullAddress'>Full Address : <label className='star'> * </label>  </label>
-                                <textarea id = 'Address' name = 'Address' placeholder='Enter your complete address with city and postal code'value={formData.fulladdress} onChange={handleChange} onBlur={handleBlur} className={touched.fulladdress && errors.fulladdress ? 'input-error':''}></textarea>
+                                <textarea id = 'FullAddress' name = 'fulladdress' placeholder='Enter your complete address with city and postal code'value={formData.fulladdress} onChange={handleChange} onBlur={handleBlur} className={touched.fulladdress && errors.fulladdress ? 'input-error':''}></textarea>
                             </div>
 
                             <div className='rows'>

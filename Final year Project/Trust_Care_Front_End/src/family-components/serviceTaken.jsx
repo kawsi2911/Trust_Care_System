@@ -111,7 +111,10 @@ function ServiceTaken() {
         Swal.fire({ icon: "error", title: "Error", text: data.message });
       }
     } catch (error) {
-      Swal.fire({ icon: "error", title: "Error", text: error.message || "Something went wrong" });
+      Swal.fire({ 
+        icon: "error", 
+        title: "Error", 
+        text: error.message || "Something went wrong" });
       console.error(error);
     }
   };

@@ -83,7 +83,6 @@ function ServiceProvider1(){
 
         const dataToStore = { 
             ...formData, 
-            createdAt: new Date().toLocaleDateString() 
         };
 
         localStorage.setItem("serviceData", JSON.stringify(dataToStore));

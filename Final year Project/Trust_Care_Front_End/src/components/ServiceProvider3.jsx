@@ -1,159 +1,164 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../Header/Header.jsx';
+import Swal from 'sweetalert2';
 import './ServiceProvider3.css';
 
-function ServiceProvider3(){
+function ServiceProvider3() {
+  const navigate = useNavigate();
 
-    const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    uploadprofile: null,
+    location: '',
+    workRadius: '',
+    available: '',
+    hourlyRate: ''
+  });
 
-    const [formData, setFormData] = useState({
-        uploadprofile:"",
-        location:"",
-        workRadius:"",
-        available:"",
-        hourlyRate:""
-    });
-        
-    const [errors, setErrors] = useState({});
-    const [touched, setTouched] = useState({});
-        
-    const handleChange = (e) => {
-    const { name, value, type, checked, files } = e.target;
-        if(type === "file"){
-            setFormData({...formData, uploadprofile: files[0]});
-            // live validate file
-            if(files[0]){
-                setErrors({...errors, uploadprofile: undefined});
-            } else {
-                setErrors({...errors, uploadprofile: "Upload the profile image"});
-            }
-    
-        } else {
-            setFormData({...formData,[name]: value});
-            // live validate text/radio/number
-            if(value.trim() !== ""){
-                setErrors({...errors, [name]: undefined});
-            }
-        }
-    };
-        
-    const handleBlur = (e) => {
-        const { name } = e.target;
-        setTouched({...touched,[name]:true});
-        validate();
-    };
-        
-    const validate = () =>{
-        let newErrors = {};
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+  const [fullAddress, setFullAddress] = useState(''); // Step 2 address
 
-        if(!formData.available.trim()){
-            newErrors.available = "Availabel is Required";
-        }
+  // Load fullAddress from localStorage (Step 2)
+  useEffect(() => {
+    const step2Data = JSON.parse(localStorage.getItem("serviceData")) || {};
+    if (step2Data.fulladdress) setFullAddress(step2Data.fulladdress);
+  }, []);
 
-        if(!formData.hourlyRate.trim()){
-            newErrors.hourlyRate = "Rate is Required";
-        }
-    
-        if(!formData.location.trim()){
-            newErrors.location = "Location is Required";
-        }
-    
-        if(!formData.uploadprofile){
-            newErrors.uploadprofile = "Upload the profile image";
-        }
-    
-        if(!formData.workRadius.trim()){
-            newErrors.workRadius = "Work Radius is Required";
-        }
-   
-        setErrors(newErrors);
-        return newErrors;
-    };
-        
-    const handleNext = () =>{
-    const validationErrors = validate();
-        setTouched({
-            uploadprofile:true,
-            location:true,
-            workRadius:true,
-            available:true,
-            hourlyRate:true
-        });
-        
-        if(Object.keys(validationErrors).length === 0){
-            navigate("/serviceproviderlogin")
-        }
+  // Placeholder distance calculation (replace with real API if needed)
+  const calculateDistance = (addr1, addr2) => {
+    // For demonstration, just return a fake number based on string length
+    return Math.abs(addr1.length - addr2.length) + 5;
+  };
+
+  const handleChange = (e) => {
+    const { name, value, type, files } = e.target;
+
+    if (type === "file") {
+      setFormData({ ...formData, uploadprofile: files[0] });
+      setErrors({ ...errors, uploadprofile: files[0] ? undefined : "Upload the profile image" });
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+
+      // Auto calculate workRadius if location changes
+      if (name === "location" && fullAddress) {
+        const locationsArray = value.split(',').map(loc => loc.trim()).filter(Boolean);
+        const distances = locationsArray.map(loc => calculateDistance(fullAddress, loc));
+        const maxDistance = distances.length > 0 ? Math.max(...distances) : 0;
+        setFormData(prev => ({ ...prev, workRadius: maxDistance.toFixed(2) }));
+      }
+
+      if (value.trim() !== "") setErrors({ ...errors, [name]: undefined });
     }
-    
+  };
 
-    return(
-        <>
-            <Header />
-            <div className = 'ServiceSection'>
-                <div className = 'Service_container'>
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    setTouched({ ...touched, [name]: true });
+    validate();
+  };
 
-                    <p className = 'para'>Service Provider Registration (3/3)</p>
+  const validate = () => {
+    let newErrors = {};
+    if (!formData.uploadprofile) newErrors.uploadprofile = "Upload the profile image";
+    if (!formData.location.trim()) newErrors.location = "Location is required";
+    if (!formData.workRadius.trim()) newErrors.workRadius = "Work radius is required";
+    if (!formData.available.trim()) newErrors.available = "Availability is required";
+    if (!formData.hourlyRate.trim()) newErrors.hourlyRate = "Hourly rate is required";
+    setErrors(newErrors);
+    return newErrors;
+  };
 
-                    <div className = 'form'>
-                        <div className = 'form-fill'>
+  const handleNext = async (e) => {
+    e.preventDefault();
+    setTouched({
+      uploadprofile: true,
+      location: true,
+      workRadius: true,
+      available: true,
+      hourlyRate: true
+    });
 
-                             <div className='row'>
-                                <label htmlFor='Profile'> Upload your Image : <label className='star'> * </label> </label>
-                                <div className="upload-icon" onClick={() => document.getElementById('uploadInput').click()} >
-                                    {formData.uploadprofile ? (
-                                        <img src={URL.createObjectURL(formData.uploadprofile)} alt="Profile Preview" style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '8px' }} /> ) : (
-                                        <>
-                                            📷<br/>
-                                            <span>Click to upload photo</span>
-                                            <small>JPG, PNG • max 5MB</small>
-                                        </>
-                                    )}
-                                </div>
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length !== 0) return;
 
-                                <input type="file" id="uploadInput" name="uploadprofile" accept="image/png, image/jpeg" style={{ display: 'none' }} onChange={handleChange}  onBlur={handleBlur} />
+    const data3 = JSON.parse(localStorage.getItem("serviceData")) || {};
+    const dataToStore = { ...data3, ...formData };
+    localStorage.setItem("serviceData", JSON.stringify(dataToStore));
 
-                                    {touched.uploadprofile && errors.uploadprofile && (
-                                        <p className="error-text">{errors.uploadprofile}</p>
-                                    )}
-                            </div>
+    Swal.fire({
+      icon: 'success',
+      title: 'Step 3 Completed',
+      text: 'You can now sign up your username and password for your account'
+    });
 
-                            <div className = 'row'>
-                                <label htmlFor = 'Location'> Location able to Work : <label className='star'> * </label> </label>
-                                <input type = 'text' id = 'Location' name = 'location' placeholder = 'You can add multiple locations separated by commas' value={formData.location} onChange={handleChange} onBlur={handleBlur} className={touched.location && errors.location ?'input-error':''} />
-                            </div>
+    navigate("/serviceproviderlogin");
+  };
 
-                            <div className = 'row'>
-                                <label htmlFor = 'Phone'> Work Radius(Km) : <label className='star'> * </label> </label>
-                                <input type = 'text' id = 'Phone' name = 'workRadius' placeholder = 'How far are you willing to travel ? (e.g 10)' value={formData.workRadius} onChange={handleChange} onBlur={handleBlur} className={touched.workRadius && errors.workRadius ?'input-error':''} />
-                            </div>
+  return (
+    <>
+      <Header />
+      <div className='ServiceSection'>
+        <div className='Service_container'>
+          <p className='para'>Service Provider Registration (3/3)</p>
+          <div className='form'>
+            <div className='form-fill'>
 
-                            <div className = 'row'>
-                                <label> Available Duration : <label className='star'> * </label> </label>
-                                <div className='duration-options ${touched.available && errors.available ? "input-error":""}'>
-                                    <input type = 'radio' id = 'Fulltime' name = 'available' value='Fulltime' checked={formData.available === "Fulltime"} onChange={handleChange}/> <label htmlFor = 'Fulltime'>Full Time</label>
-                                    <input type = 'radio' id = 'Parttime' name = 'available'  value = 'Parttime' checked={formData.available === "Parttime"} onChange={handleChange}/> <label htmlFor = 'Parttime'>Part Time</label>
-                                    <input type = 'radio' id = 'Flexible' name = 'available' value= 'Flexible' checked={formData.available === "Flexible"} onChange={handleChange}/> <label htmlFor = 'Flexible'>Flexible</label>
-                                </div>
-                                {touched.available && errors.available && (
-                                    <div className="error-text">{errors.available}</div>
-                                )}
-                            </div>
-
-                            <div className = 'row'>
-                                <label htmlFor = 'HoursRate'> Hourly Rate (Rs) : <label className='star'> * </label>  </label>
-                                <input type = 'Number' id = 'HourlyRate' name = 'hourlyRate' placeholder = 'e.g 500' value={formData.hourlyRate} onChange={handleChange} onBlur={handleBlur} className={touched.hourlyRate && errors.hourlyRate ? 'input-error':''}/>
-                            </div>
-
-                            <button className = 'complete' onClick={handleNext}> Compelete Registration </button>
-                            <button className = 'previous' onClick={()=> navigate("/serviceprovider2")}> Previous </button>
-                        </div>
-                    </div>
+              {/* Profile Upload */}
+              <div className='row'>
+                <label htmlFor='Profile'> Upload your Image : <label className='star'> * </label> </label>
+                <div className="upload-icon" onClick={() => document.getElementById('uploadInput').click()}>
+                  {formData.uploadprofile ? (
+                    <img src={URL.createObjectURL(formData.uploadprofile)} alt="Profile Preview" style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '8px' }} />
+                  ) : (
+                    <>
+                      📷<br />
+                      <span>Click to upload photo</span>
+                      <small>JPG, PNG • max 5MB</small>
+                    </>
+                  )}
                 </div>
+                <input type="file" id="uploadInput" name="uploadprofile" accept="image/png, image/jpeg" style={{ display: 'none' }} onChange={handleChange} onBlur={handleBlur} />
+                {touched.uploadprofile && errors.uploadprofile && <p className="error-text">{errors.uploadprofile}</p>}
+              </div>
+
+              {/* Locations */}
+              <div className='row'>
+                <label htmlFor='Location'> Location able to Work : <label className='star'> * </label> </label>
+                <input type='text' id='Location' name='location' placeholder='Add multiple locations separated by commas' value={formData.location} onChange={handleChange} onBlur={handleBlur} className={touched.location && errors.location ? 'input-error' : ''} />
+              </div>
+
+              {/* Work Radius (Read-only) */}
+              <div className='row'>
+                <label htmlFor='WorkRadius'> Work Radius (Km) : <label className='star'> * </label> </label>
+                <input type='text' id='WorkRadius' name='workRadius' value={formData.workRadius} readOnly className={touched.workRadius && errors.workRadius ? 'input-error' : ''} />
+              </div>
+
+              {/* Availability */}
+              <div className='row'>
+                <label> Available Duration : <label className='star'> * </label> </label>
+                <div className={`duration-options ${touched.available && errors.available ? "input-error" : ""}`}>
+                  <input type='radio' id='Fulltime' name='available' value='Fulltime' checked={formData.available === "Fulltime"} onChange={handleChange} /> <label htmlFor='Fulltime'>Full Time</label>
+                  <input type='radio' id='Parttime' name='available' value='Parttime' checked={formData.available === "Parttime"} onChange={handleChange} /> <label htmlFor='Parttime'>Part Time</label>
+                  <input type='radio' id='Flexible' name='available' value='Flexible' checked={formData.available === "Flexible"} onChange={handleChange} /> <label htmlFor='Flexible'>Flexible</label>
+                </div>
+                {touched.available && errors.available && <div className="error-text">{errors.available}</div>}
+              </div>
+
+              {/* Hourly Rate */}
+              <div className='row'>
+                <label htmlFor='HourlyRate'> Hourly Rate (Rs) : <label className='star'> * </label> </label>
+                <input type='number' id='HourlyRate' name='hourlyRate' placeholder='e.g 500' value={formData.hourlyRate} onChange={handleChange} onBlur={handleBlur} className={touched.hourlyRate && errors.hourlyRate ? 'input-error' : ''} />
+              </div>
+
+              <button className='complete' onClick={handleNext}> Complete Registration </button>
+              <button className='previous' onClick={() => navigate("/serviceprovider2")}> Previous </button>
             </div>
-        </>
-    )
+          </div>
+        </div>
+      </div>
+    </>
+  );
 }
 
 export default ServiceProvider3;
