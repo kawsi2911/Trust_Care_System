@@ -1,10 +1,51 @@
 import Header from "../Header/Header";
 import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 import profile from "../assets/profile.png";
 
 function familyprofile(){
 
     const navigate = useNavigate();
+     const [user, setUser] = useState({});
+
+    useEffect(() => {
+
+        const userId =
+            localStorage.getItem("userId") ||
+            sessionStorage.getItem("userId");
+
+        if (!userId) {
+            navigate("/familylogin");
+            return;
+        }
+
+        fetch(`http://localhost:5000/api/family/${userId}`)
+            .then(res => res.json())
+            .then(data => setUser(data))
+            .catch(err => console.log(err));
+
+    }, [navigate]);
+
+
+    const handleLogout = () => {
+        localStorage.removeItem("userId");
+        sessionStorage.removeItem("userId");
+        navigate("/familylogin");
+    };
+
+    const formatDate = (date) => {
+
+        if (!date) return "";
+
+        const d = new Date(date);
+
+        return d.toLocaleString("en-US", {
+            month: "short",
+            year: "numeric"
+        });
+    };
+
+
 
     return(
         <>
@@ -39,12 +80,12 @@ function familyprofile(){
                                                             
                             <div className = "Text-image">
                                 <p className = "provider-name"><strong>Personal Information</strong></p>
-                                <p><strong>Name : </strong> Zarah Mehar</p>
-                                <p><strong>Email : </strong> Zarah.mehar@gmail.com </p>
-                                <p><strong>Phone : </strong> +94 71 234 5678</p>
-                                <p><strong>NIC : </strong>923340750V</p>
-                                <p><strong>Address : </strong>456, Galle Fort, Galle</p>
-                                <p><strong>Member since : </strong> Jan 2025</p>
+                                <p><strong>Name : </strong> {user.familyFullName}</p>
+                                <p><strong>Email : </strong> {user.email}</p>
+                                <p><strong>Phone : </strong> {user.phone}</p>
+                                <p><strong>NIC : </strong>{user.familynic}</p>
+                                <p><strong>Address : </strong>{user.address}</p>
+                                <p><strong>Member since : </strong> {formatDate(user.createdAt)}</p>
                             </div>
           
                         </div>                    

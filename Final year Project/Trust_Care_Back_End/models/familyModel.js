@@ -4,12 +4,13 @@ const userSchema = new mongoose.Schema({
 
   familyFullName: {
     type: String,
-    required: true
+    required: true,
   },
 
   familynic: {
     type: String,
-    required: true
+    required: true,
+    unique: true
   },
 
   phone: {
@@ -45,9 +46,12 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true
-  }
-
+  },
+}
+, {
+  timestamps: true  
 });
+
 
 const familyModel = mongoose.model("Family", userSchema);
 
