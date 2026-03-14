@@ -81,7 +81,10 @@ function FamilyRegister() {
         const validationErrors = validate();
         if (Object.keys(validationErrors).length !== 0) return;
 
-        const dataToStore = { ...formData, createdAt: new Date().toLocaleDateString() };
+        const dataToStore = { 
+            ...formData, 
+            createdAt: new Date().toLocaleDateString() 
+        };
         localStorage.setItem("familyData", JSON.stringify(dataToStore));
         
         Swal.fire({

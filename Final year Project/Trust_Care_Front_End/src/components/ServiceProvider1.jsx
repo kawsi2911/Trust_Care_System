@@ -2,6 +2,7 @@ import React from 'react';
 import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import Header from '../Header/Header.jsx';
+import Swal from "sweetalert2";
 import './ServiceProvider1.css';
 
 function ServiceProvider1(){
@@ -64,8 +65,9 @@ function ServiceProvider1(){
         return newErrors;
     }
 
-    const handleNext = () =>{
-        const validationErrors = validate();
+    const handleNext = async (e) =>{
+
+        e.preventDefault();
     
         setTouched({
             FullName:true,
@@ -76,10 +78,25 @@ function ServiceProvider1(){
             dob:true,     
         });
     
-        if(Object.keys(validationErrors).length === 0){
-            navigate("/serviceprovider2")
-        }
-    }
+        const validationErrors = validate();
+        if (Object.keys(validationErrors).length !== 0) return;
+
+        const dataToStore = { 
+            ...formData, 
+            createdAt: new Date().toLocaleDateString() 
+        };
+
+        localStorage.setItem("serviceData", JSON.stringify(dataToStore));
+
+        Swal.fire({
+            icon: "success",
+            title: "Step 1 Completed",
+            text: "Proceed to next step"
+        });
+        
+        navigate("/serviceprovider2");
+
+    };
 
     return(
         <>
