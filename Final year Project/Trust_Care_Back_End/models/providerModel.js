@@ -17,12 +17,12 @@ const providerSchema = new mongoose.Schema({
         required: true
     },
 
-    email : {
+    email: {
         type: String,
         required: true
     },
 
-    gender : {
+    gender: {
         type: String,
         required: true
     },
@@ -32,63 +32,66 @@ const providerSchema = new mongoose.Schema({
         required: true
     },
 
-    fulladdress:{
+    fulladdress: {
         type: String,
         required: true
-    },  
+    },
 
+    // ✅ FIXED: was type: ["ElderCare", ...] which is invalid mongoose syntax
     serviceType: {
-        type: ["ElderCare", "ChildCare", "HospitalPatientCare", "HomePatientCare"],
+        type: [String],
         required: true
     },
 
-    year:{
-        type: String,
-        required: true
-    },
-
-    qualifications:{
+    year: {
         type: String,
         required: true
     },
 
-    uploadprofile:{
-        type: String,
-        required: true
-    },  
-    
-    location:{
-        type: String,
-        required: true
-    },
-    
-    workRadius:{
-        type: String,
-        required: true
-    },
-    
-    available:{
+    qualifications: {
         type: String,
         required: true
     },
 
-    hourlyRate:{
+    uploadprofile: {
         type: String,
         required: true
     },
+
+    location: {
+        type: String,
+        required: true
+    },
+
+    workRadius: {
+        type: String,
+        required: true
+    },
+
+    available: {
+        type: String,
+        required: true
+    },
+
+    hourlyRate: {
+        type: String,
+        required: true
+    },
+
     username: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
+
     password: {
         type: String,
         required: true
     },
-},
- {
-  timestamps: true  
-});
 
+}, {
+    timestamps: true
+});
 
 const providerModel = mongoose.model("ServiceProvider", providerSchema);
 
