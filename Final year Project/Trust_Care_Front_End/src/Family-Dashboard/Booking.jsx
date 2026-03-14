@@ -1,81 +1,146 @@
 import Header from "../Header/Header";
 import profile from "../assets/profile.png";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./Booking.css";
 
-function Booking(){
+function Booking() {
 
     const navigate = useNavigate();
+    const location = useLocation();
 
-    return(
+    const provider = location.state || {};
+
+    return (
         <>
-            <Header/>
-              <div className = 'ServiceSection'>
-                <div className = 'Service_container'>
+            <Header />
 
-                    <p className = 'para'>Confirm for your Booking</p>
+            <div className='ServiceSection'>
+                <div className='Service_container'>
 
-                    <div className = "container-image">
+                    <p className='para'>Confirm for your Booking</p>
 
-                        <p className = "selected">Selected Caregiver</p>
-                        
-                        <div className = "containers0012">   
-                    
-                            <img src = {profile} alt = 'profile' className = 'profiles-image' />
-                    
-                            <div className = "Text-image">
-                                <p className = "provider-name"><strong>Zain Fernando</strong></p>
-                                <p><strong>⭐⭐⭐⭐⭐</strong></p>
-                                <p>Experience : 5 years </p>
-                                <p>Location : 2.5 km away </p>
+                    {/* Selected caregiver */}
+                    <div className="container-image">
+
+                        <p className="selected">Selected Caregiver</p>
+
+                        <div className="containers0012">
+
+                            <img
+                                src={provider.uploadprofile || profile}
+                                alt="profile"
+                                className="profiles-image"
+                            />
+
+                            <div className="Text-image">
+
+                                <p className="provider-name">
+                                    <strong>{provider.FullName}</strong>
+                                </p>
+
+                                <p>⭐⭐⭐⭐⭐</p>
+
+                                <p>
+                                    Experience : {provider.year} years
+                                </p>
+
+                                <p>
+                                    Location : {provider.location}
+                                </p>
+
                             </div>
 
                         </div>
 
                     </div>
 
-                    <div className = "booking-container">
-                            
-                            <p className = "provider-name"><strong>Service Summary</strong></p>
 
-                            <div className="summary">
-                                <p><strong>Service Type : </strong>Elder Care</p>
-                                <p><strong>Patient : </strong>Mother (75 years) </p>
-                                <p><strong>Duration : </strong>Monthly </p>
-                                <p><strong>Location : </strong>Galle</p>
-                            </div>
+                    {/* Service summary */}
+                    <div className="booking-container">
 
-                            <div className="cost">
-                                <span>Estimated Cost:</span>
-                                <span className="price">Rs. 75,000 / month</span>
-                            </div>
-                           
+                        <p className="provider-name">
+                            <strong>Service Summary</strong>
+                        </p>
+
+                        <div className="summary">
+
+                            <p>
+                                <strong>Service Type : </strong>
+                                {provider.serviceType?.join(", ")}
+                            </p>
+
+                            <p>
+                                <strong>Location : </strong>
+                                {provider.location}
+                            </p>
+
+                        </div>
+
+                        <div className="cost">
+
+                            <span>Estimated Cost:</span>
+
+                            <span className="price">
+                                Rs. {provider.hourlyRate} / hour
+                            </span>
+
+                        </div>
+
                     </div>
 
-                    <div className = "callprovider">
-                            <p className = "provider-name"><strong> 📞 Next Steps :</strong></p>
 
-                            <div className="summary">
-                                <p> After confirmation, the caregiver will contact you within 24 hours to arrange meeting time and discuss final details</p>
-                            </div>
+                    {/* Next step */}
+                    <div className="callprovider">
+
+                        <p className="provider-name">
+                            <strong>📞 Next Steps :</strong>
+                        </p>
+
+                        <div className="summary">
+
+                            <p>
+                                After confirmation, the caregiver will contact you
+                                within 24 hours
+                            </p>
+
+                        </div>
+
                     </div>
 
 
-                    <div className = 'row'>
-                        <input type = 'checkbox' id = 'check' name = 'check'/> <p className="checked">I agree to <a href="">Terms & Conditions</a> and <a href="">Privacy Policy</a></p>
+                    <div className='row'>
+
+                        <input type='checkbox' />
+
+                        <p className="checked">
+                            I agree to Terms & Conditions
+                        </p>
+
                     </div>
 
-                    <div className = "QServices">
-                        <button className = "confirm" onClick={()=>navigate("/bookingconfirm")}> ✔️ Confirm & Hire </button>
-                        <button className = "logout-btn" onClick = {()=>navigate("/availableprovider")}> Cancel</button>
+
+                    <div className="QServices">
+
+                        <button
+                            className="confirm"
+                            onClick={() => navigate("/bookingconfirm", { state: provider })}
+                        >
+                            ✔️ Confirm & Hire
+                        </button>
+
+                        <button
+                            className="logout-btn"
+                            onClick={() => navigate("/availableprovider")}
+                        >
+                            Cancel
+                        </button>
+
                     </div>
 
                 </div>
             </div>
         </>
-
-    )
-
+    );
 }
 
 export default Booking;

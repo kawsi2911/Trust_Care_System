@@ -2,6 +2,7 @@
 import express from "express";
 import ServiceRequest from "../models/serviceRequestModel.js";
 
+
 const router = express.Router();
 
 router.post("/new-request", async (req, res) => {
@@ -38,5 +39,6 @@ router.post("/new-request", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 export default router;

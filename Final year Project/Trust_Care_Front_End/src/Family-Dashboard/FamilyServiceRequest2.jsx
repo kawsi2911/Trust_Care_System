@@ -2,7 +2,7 @@ import { useState } from "react";
 import Header from "../Header/Header";
 import "./FamilyServiceRequest2.css";
 import { useNavigate } from "react-router-dom";
-import axios from "axios"; // install axios if not done: npm i axios
+import axios from "axios"; 
 
 function FamilyServiceRequest2() {
   const navigate = useNavigate();
@@ -48,6 +48,7 @@ function FamilyServiceRequest2() {
     return newErrors;
   };
 const handleNext = async () => {
+  // Run validation
   const validationErrors = validate();
   setTouched({
     SLocation: true,
@@ -57,13 +58,16 @@ const handleNext = async () => {
     additionalRequirement: true
   });
 
-  if (Object.keys(validationErrors).length === 0) {
-    setLoading(true);
+  // Stop if there are validation errors
+  if (Object.keys(validationErrors).length > 0) return;
 
-    // Retrieve form1 data
+  setLoading(true);
+
+  try {
+    // Get form1 data
     const form1Data = JSON.parse(localStorage.getItem("form1Data")) || {};
 
-    // Always include familyId
+    // Ensure familyId is included
     const familyId = localStorage.getItem("userId") || sessionStorage.getItem("userId");
     if (!familyId) {
       alert("User not logged in or familyId missing");
@@ -73,20 +77,24 @@ const handleNext = async () => {
 
     const combinedData = { ...form1Data, ...formData, familyId };
 
-    try {
-      const response = await axios.post(
-        "http://localhost:5000/api/service-request/new-request",
-        combinedData
-      );
-      console.log("Service Request Saved:", response.data);
-      localStorage.removeItem("form1Data");
-      navigate("/findingcareprovider");
-    } catch (error) {
-      console.error("Error saving request:", error);
-      alert(error.response?.data?.error || "Failed to save request");
-    } finally {
-      setLoading(false);
-    }
+    // Send to backend
+    const response = await axios.post(
+      "http://localhost:5000/api/service-request/new-request",
+      combinedData
+    );
+
+    console.log("Service Request Saved:", response.data);
+
+    // Clear temp storage
+    localStorage.removeItem("form1Data");
+
+    // Navigate to caregiver page and pass the request data
+    navigate("/findingcareprovider", { state: response.data });
+  } catch (error) {
+    console.error("Error saving request:", error);
+    alert(error.response?.data?.error || "Failed to save request");
+  } finally {
+    setLoading(false);
   }
 };
 
