@@ -9,32 +9,36 @@ function FamilyNotification(){
     const navigate = useNavigate();
     const [notifications,setNotifications] = useState([]);
 
-    useEffect(()=>{
+   useEffect(()=>{
 
-        const fetchNotifications = async () => {
+    const fetchNotifications = async () => {
 
-            try{
+        const familyId =
+          localStorage.getItem("userId") ||
+          sessionStorage.getItem("userId");
 
-                const familyId =
-                  localStorage.getItem("userId") ||
-                  sessionStorage.getItem("userId");
+        if(!familyId){
+            console.log("No familyId found");
+            return;
+        }
 
-                const response = await axios.get(
-                  `http://localhost:5000/api/notifications/${familyId}`
-                );
+        try{
 
-                // latest notification first
-                setNotifications(response.data);
+            const response = await axios.get(
+              `http://localhost:5000/api/notifications/${familyId}`
+            );
 
-            }catch(error){
-                console.error("Error fetching notifications",error);
-            }
+            setNotifications(response.data);
 
-        };
+        }catch(error){
+            console.error("Error fetching notifications",error);
+        }
 
-        fetchNotifications();
+    };
 
-    },[]);
+    fetchNotifications();
+
+},[]);
 
 
     return(

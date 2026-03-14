@@ -7,39 +7,42 @@ function ServiceProviderDashboard() {
 
     const navigate = useNavigate();
 
-    const [fullName, setFullName] = useState("");
+    const [fullName, setFullName] = useState();
     const [totalJobs, setTotalJobs] = useState(0);
     const [activeJobs, setActiveJobs] = useState(0);
     const [pendingJobs, setPendingJobs] = useState(0);
     const [latestRequest, setLatestRequest] = useState(null);
 
-    useEffect(() => {
+   useEffect(() => {
 
-        const userId =
-            localStorage.getItem("userId") ||
-            sessionStorage.getItem("userId");
+    const userId =
+        localStorage.getItem("userId") ||
+        sessionStorage.getItem("userId");
 
-        if (!userId) {
-            navigate("/serviceproviderlogin");
-            return;
-        }
+    const name =
+        localStorage.getItem("FullName") ||
+        sessionStorage.getItem("FullName");
 
-        fetch(`http://localhost:5000/api/service-request/dashboard/${userId}`)
-            .then(res => res.json())
-            .then(data => {
+    setFullName(name);
 
-                setFullName(data.FullName);
+    if (!userId) {
+        navigate("/serviceproviderlogin");
+        return;
+    }
 
-                setTotalJobs(data.totalJobs || 0);
-                setActiveJobs(data.activeJobs || 0);
-                setPendingJobs(data.pendingJobs || 0);
+    fetch(`http://localhost:5000/api/service-request/dashboard/${userId}`)
+        .then(res => res.json())
+        .then(data => {
 
-                setLatestRequest(data.latestRequest || null);
+            setTotalJobs(data.totalJobs || 0);
+            setActiveJobs(data.activeJobs || 0);
+            setPendingJobs(data.pendingJobs || 0);
+            setLatestRequest(data.latestRequest || null);
 
-            })
-            .catch(err => console.log(err));
+        })
+        .catch(err => console.log(err));
 
-    }, [navigate]);
+}, [navigate]);
 
 
     const handleLogout = () => {

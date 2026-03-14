@@ -1,17 +1,17 @@
-import express from "express";
-import Notification from "../models/notificationModel.js";
+import express from "express"; 
+import Notification from "../models/notificationModel.js"; 
 
 const router = express.Router();
 
-/* Create Notification */
+/* Create Notification 
 router.post("/create", async (req, res) => {
 
   try {
 
-    const { familyId, title, message } = req.body;
+    const { receiverId, title, message } = req.body;
 
     const notification = new Notification({
-      familyId,
+      receiverId,
       title,
       message
     });
@@ -26,26 +26,21 @@ router.post("/create", async (req, res) => {
 
   }
 
-});
+});*/
 
-
-/* Get Notifications for Family */
-router.get("/:familyId", async (req, res) => {
+router.get("/:receiverId", async (req, res) => {
 
   try {
 
     const notifications = await Notification
-      .find({ familyId: req.params.familyId })
+      .find({ receiverId: req.params.receiverId })
       .sort({ createdAt: -1 });
 
     res.json(notifications);
 
   } catch (error) {
-
     res.status(500).json({ error: error.message });
-
   }
 
 });
-
 export default router;

@@ -2,8 +2,14 @@ import mongoose from "mongoose";
 
 const NotificationSchema = new mongoose.Schema({
 
-  familyId: {
+  receiverId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true
+  },
+
+  role: {
     type: String,
+    enum: ["family","provider"],
     required: true
   },
 

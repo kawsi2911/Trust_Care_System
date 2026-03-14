@@ -1,10 +1,29 @@
 import Header from "../Header/Header.jsx";
 import { useNavigate } from "react-router-dom"; 
+import { useEffect, useState } from "react";
+import axios from "axios";
 import "./NotificationDashboard.css";
 
 function NotificationDashboard(){
 
     const navigate = useNavigate();
+
+     const [notifications,setNotifications] = useState([]);
+
+    useEffect(()=>{
+
+        const providerId = localStorage.getItem("providerId");
+
+        axios.get(`http://localhost:5000/api/notifications/${providerId}`)
+        .then(res=>{
+            setNotifications(res.data);
+        })
+        .catch(err=>{
+            console.log(err);
+        });
+
+    },[]);
+
 
     return(
         <>
@@ -31,23 +50,41 @@ function NotificationDashboard(){
                         <button onClick={()=>navigate("/profiledashboard")}> Profile </button>
                     </div>
 
-                    <div className = "container">
+                   {/* Dynamic Notifications */}
 
-                        <div className = "containers">
-                           <p className="service-title">🔔 New Request – Elder Care</p>
-                            <p><strong>Location :</strong> Galle</p>
-                            <p><strong>Patient :</strong> 75 years old</p>
-                            <p><strong>Duration :</strong> Full time (Monthly)</p>
-                            <p><strong>Rate Offered:</strong> Rs.75000/month</p>
-                            <p><strong>Posted:</strong> 2 hours ago</p>
+                    {notifications.map((note)=>(
+                        <div className="container" key={note._id}>
+
+                            <div className="containers">
+
+                                <p className="service-title">
+                                    🔔 {note.title}
+                                </p>
+
+                                <p>{note.message}</p>
+
+                                <p>
+                                    <strong>Posted :</strong> 
+                                    {new Date(note.createdAt).toLocaleString()}
+                                </p>
+
+                            </div>
+
+                            <div className="button-row">
+
+                                <button className="cando">
+                                    ✔️ I Can Do
+                                </button>
+
+                                <button className="decline">
+                                    ❌ Decline
+                                </button>
+
+                            </div>
+
                         </div>
+                    ))}
 
-                        <div className="button-row">
-                            <button className="cando">✔️ &nbsp; I Can Do </button>
-                            <button className="decline">❌ &nbsp; Decline </button>
-                        </div>
-
-                    </div>
                     
                     <div className = "container">
 
