@@ -46,18 +46,18 @@ function BookingConfirm() {
                             <strong>🗒️ What Happens Next :</strong>
                         </p>
 
-                        <div className="summary">
+                            <div className="summary">
 
-                            <ol>
-                                <li>The Caregiver will contact you within 24 hours</li>
-                                <li>Arrange meeting time</li>
-                                <li>Service will begin as scheduled</li>
-                                <li>You can track progress in Activity</li>
-                            </ol>
+                                <ol>
+                                    <li>The Caregiver will contact you within 24 hours</li>
+                                    <li>Arrange meeting time</li>
+                                    <li>Service will begin as scheduled</li>
+                                    <li>You can track progress in Activity</li>
+                                </ol>
+
+                            </div>
 
                         </div>
-
-                    </div>
 
 
 

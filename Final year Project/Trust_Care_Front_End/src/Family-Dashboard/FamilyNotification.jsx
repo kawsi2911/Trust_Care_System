@@ -1,11 +1,41 @@
 import Header from "../Header/Header";
 import { useNavigate } from "react-router-dom";
 import "./Familynotification.css";
-
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 function FamilyNotification(){
 
     const navigate = useNavigate();
+    const [notifications,setNotifications] = useState([]);
+
+    useEffect(()=>{
+
+        const fetchNotifications = async () => {
+
+            try{
+
+                const familyId =
+                  localStorage.getItem("userId") ||
+                  sessionStorage.getItem("userId");
+
+                const response = await axios.get(
+                  `http://localhost:5000/api/notifications/${familyId}`
+                );
+
+                // latest notification first
+                setNotifications(response.data);
+
+            }catch(error){
+                console.error("Error fetching notifications",error);
+            }
+
+        };
+
+        fetchNotifications();
+
+    },[]);
+
 
     return(
         <>
@@ -32,14 +62,30 @@ function FamilyNotification(){
                         <button onClick = {()=>navigate("/familyprofiles")}> Profile </button>
                     </div>
 
-                    <div className = "callprovider">
-                            <p className = "provider-name"><strong> ✔️Request Received !</strong></p>
+                    
+                    {/* Dynamic Notifications */}
+
+                    {notifications.map((note)=>(
+                        <div className="callprovider" key={note._id}>
+
+                            <p className="provider-name">
+                                <strong>🔔 {note.title}</strong>
+                            </p>
 
                             <div className="summary">
-                                <p> Your Service request has been sent to nearby provider</p>
-                                <p>5 minutes ago</p>
+                                <p>{note.message}</p>
+                                <p>{new Date(note.createdAt).toLocaleString()}</p>
                             </div>
-                    </div>
+
+                        </div>
+                    ))}
+
+                    {notifications.length === 0 && (
+                        <p style={{textAlign:"center",marginTop:"20px"}}>
+                            No Notifications Yet
+                        </p>
+                    )}
+
 
                     <div className = "NewService">
                         <div className = "service-content">

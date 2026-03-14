@@ -108,7 +108,7 @@ function FamilyServiceRequest2() {
 
       localStorage.removeItem("form1Data");
 
-      navigate("/findingcareprovider", { state: response.data });
+      navigate("/findingcareprovider", { state: combinedData });
 
     } catch (error) {
 
