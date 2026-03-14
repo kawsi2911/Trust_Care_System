@@ -123,10 +123,10 @@ function ServiceProvider2(){
                                         <input type = 'checkbox' name = 'serviceType' value = 'ChildCare' checked={formData.serviceType.includes("ChildCare")} onChange={handleChange}/> Child Care
                                     </label>
                                     <label>
-                                        <input type = 'checkbox' name = 'serviceType' value = 'Hospital Patient Care' checked={formData.serviceType.includes("HospitalPatientCare")} onChange={handleChange}/> Hospital Patient Care
+                                        <input type = 'checkbox' name = 'serviceType' value = 'HospitalPatientCare' checked={formData.serviceType.includes("HospitalPatientCare")} onChange={handleChange}/> Hospital Patient Care
                                     </label>
                                     <label>
-                                        <input type = 'checkbox' name = 'serviceType' value = 'Home Patient Care' checked={formData.serviceType.includes("HomePatientCare")} onChange={handleChange}/> Home Patient Care
+                                        <input type = 'checkbox' name = 'serviceType' value = 'HomePatientCare' checked={formData.serviceType.includes("HomePatientCare")} onChange={handleChange}/> Home Patient Care
                                     </label>
                                     {touched.serviceType && errors.serviceType && (
                                         <p className="error-text">{errors.serviceType}</p>

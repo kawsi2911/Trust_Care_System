@@ -6,14 +6,51 @@ const router = express.Router();
 // Registration
 router.post("/providerregister", async (req, res) => {
   try {
-    const { username, password, FullName, email, phone } = req.body;
+    const {
+      FullName,
+      NIC,
+      phone,
+      email,
+      gender,
+      dob,
+      fulladdress,
+      serviceType,
+      year,
+      qualifications,
+      uploadprofile,
+      location,
+      workRadius,
+      available,
+      hourlyRate,
+      username,
+      password
+    } = req.body;
 
     const existing = await Service.findOne({ username });
     if (existing) {
       return res.status(400).json({ message: "Username already taken" });
     }
 
-    const newService = new Service({ username, password, FullName, email, phone });
+    const newService = new Service({
+      FullName,
+      NIC,
+      phone,
+      email,
+      gender,
+      dob,
+      fulladdress,
+      serviceType,
+      year,
+      qualifications,
+      uploadprofile,
+      location,
+      workRadius,
+      available,
+      hourlyRate,
+      username,
+      password
+    });
+
     const saved = await newService.save();
 
     res.json({

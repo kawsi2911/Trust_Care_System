@@ -37,9 +37,8 @@ const providerSchema = new mongoose.Schema({
         required: true
     },
 
-    // ✅ FIXED: was type: ["ElderCare", ...] which is invalid mongoose syntax
     serviceType: {
-        type: [String],
+        type: ["ElderCare", "ChildCare", "HospitalPatientCare", "HomePatientCare"],
         required: true
     },
 

@@ -1,4 +1,4 @@
-import { use, useState } from "react";
+import { useState } from "react";
 import Header from "../Header/Header";
 import Swal from "sweetalert2"; 
 import { useNavigate } from "react-router-dom"; 
@@ -55,67 +55,67 @@ function ServiceProviderLogin(){
         return newErrors;
     }
 
-    const handleNext = async (e) => {
-        e.preventDefault();
+   const handleNext = async (e) => {
+    e.preventDefault();
 
-        setTouched({ 
-            username: true, 
-            createpassword: true, 
-            confirmpassword: true, 
-            check: true 
+    setTouched({ 
+        username: true, 
+        createpassword: true, 
+        confirmpassword: true, 
+        check: true 
+    });
+
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length !== 0) return;
+
+    const previousData = JSON.parse(localStorage.getItem("serviceData"));
+    if(!previousData){ 
+        Swal.fire({
+            icon: 'error',
+            title: 'No Service Data Found',
+            text: 'Please complete the previous steps before creating login credentials'
+        });
+        navigate("/serviceprovider1");
+        return;
+    }
+
+    const combinedData = { 
+        ...previousData, 
+        username: formData.username,
+        password: formData.createpassword    
+    };
+
+    console.log("Sending to backend:", combinedData); // check data
+
+    try{
+        const res = await fetch("http://localhost:5000/api/service/providerregister", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(combinedData)
         });
 
-        const validationErrors = validate();
-        if (Object.keys(validationErrors).length !== 0) return;
+        const data = await res.json();
 
-        const previousData = JSON.parse(localStorage.getItem("serviceData"));
-        if(!previousData){ 
+        if(res.ok){
+            localStorage.removeItem("serviceData");
             Swal.fire({
-                icon: 'error',
-                title: 'No Service Data Found',
-                text: 'Please complete the previous steps before creating login credentials'
-            });
-            navigate("/serviceprovider1");
-            return;
+                icon: "success",
+                title: "Registration Successful 🎉",
+                text: "Your account has been created successfully!",
+                confirmButtonText: "Go to Login"
+            }).then(() => navigate("/serviceproviderloginpage"));
+        } else {
+            Swal.fire({ icon: "error", title: "Error", text: data.message });
         }
-
-        const combinedData = { 
-            ...previousData, 
-            username: formData.username,
-            password: formData.createpassword    
-        };
-
-        try{
-            const res = await fetch("http://localhost:5000/api/service/providerregister", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(combinedData)
-            });
-
-            const data = await res.json();
-
-            if(res.ok){
-                localStorage.removeItem("serviceData");
-                Swal.fire({
-                    icon: "success",
-                    title: "Registration Successful 🎉",
-                    text: "Your account has been created successfully!",
-                    confirmButtonText: "Go to Login"
-                }).then(() => navigate("/serviceproviderloginpage"));
-                    } else {
-                        Swal.fire({ icon: "error", title: "Error", text: data.message });
-                    }
-        } catch (error) {
-            Swal.fire({ 
-                icon: "error", 
-                title: "Error", 
-                text: error.message || "Something went wrong" });
-            console.error(error);
-        }
-
-    
-
-    };
+    } catch (error) {
+        Swal.fire({ 
+            icon: "error", 
+            title: "Error", 
+            text: error.message || "Something went wrong" 
+        });
+        console.error(error);
+    }
+};
 
     return(
         <>
