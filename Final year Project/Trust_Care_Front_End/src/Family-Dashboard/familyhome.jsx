@@ -54,7 +54,7 @@ function FamilyHome() {
             <div className="service-containers">
               <p className="service-title">Need a Care Service?</p>
               <p>Find the qualified caregivers near you in minutes</p>
-              <button className="requestnow" onClick={() => navigate("/familyservicerequest")}>
+              <button className="requestnow" onClick={() => navigate("/familyservice")}>
                 Request Service Now
               </button>
             </div>

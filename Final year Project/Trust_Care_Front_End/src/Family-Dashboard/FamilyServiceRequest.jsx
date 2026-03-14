@@ -41,7 +41,7 @@ function FamilyServiceRequest(){
         }
 
         if(!formData.PName.trim()){
-            newErrors.PName = "Age is Required";
+            newErrors.PName = "Patient Name is Required";
         }
 
         if(!formData.relationship.trim()){
@@ -64,22 +64,17 @@ function FamilyServiceRequest(){
         return newErrors;
     };
 
-    const handleNext = () =>{
-        const validationErrors = validate();
+    // FamilyServiceRequest.jsx (form1)
+const handleNext = () => {
+    const validationErrors = validate();
+    setTouched({Page:true, PName:true, relationship:true, Gender:true, Service:true, PatientType:true});
 
-        setTouched({
-            Page:true,
-            PName:true,
-            relationship:true,
-            Gender:true,
-            Service:true,
-            PatientType:true
-        });
-
-        if(Object.keys(validationErrors).length === 0){
-           navigate("/familyservicerequest2")
-        }
+    if(Object.keys(validationErrors).length === 0){
+        // Save form1 data to localStorage
+        localStorage.setItem("form1Data", JSON.stringify(formData));
+        navigate("/familyservicerequest2");
     }
+};
 
     return(
         <>
@@ -123,15 +118,14 @@ function FamilyServiceRequest(){
                             </div>
 
                             <div className='row'>
-                                <label>Duration Service Wanted : <span className='star'>*</span></label>
-                                <div className={`Service-options ${touched.Service && errors.Service ? "input-error" : ""}`}>
-                                    <input type='radio'  id='Hourly' name='Service' value='Hourly' checked={formData.Service === "Hourly"} onChange={handleChange} /> <label htmlFor='Hourly'>Hourly</label>
-                                    <input type='radio' id='Day' name='Service' value='Day' checked={formData.Service === "Day"} onChange={handleChange} /> <label htmlFor='Day'>Day</label>
-                                    <input type='radio' id='Weekly' name='Service' value='Weekly' checked={formData.Service === "Weekly"} onChange={handleChange} /> <label htmlFor='Weekly'>Weekly</label>
-                                    <input type='radio' id='Monthly' name='Service' value='Monthly' checked={formData.Service === "Monthly"} onChange={handleChange} /> <label htmlFor='Monthly'>Monthly</label>
+                                <label>Gender : <span className='star'>*</span></label>
+                                <div className={`gender-options ${touched.Gender && errors.Gender ? "input-error" : ""}`}>
+                                    <input type='radio'  id='Male' name='Gender' value='Male' checked={formData.Gender === "Male"} onChange={handleChange} /> <label htmlFor='Male'>Male</label>
+                                    <input type='radio' id='Female' name='Gender' value='Female' checked={formData.Gender === "Female"} onChange={handleChange} /> <label htmlFor='Female'>Female</label>
+                                    <input type='radio' id='Other' name='Gender' value='Other' checked={formData.Gender === "Other"} onChange={handleChange} /> <label htmlFor='Other'>Other</label>
                                 </div>
-                                {touched.Service && errors.Service && (
-                                    <p className="error-text">{errors.Service}</p>
+                                {touched.Gender && errors.Gender && (
+                                    <p className="error-text">{errors.Gender}</p>
                                 )}
                             </div>
 
