@@ -5,6 +5,7 @@ import "./ServiceProviderLogin.css";
 function ServiceProviderForget(){
     
     const navigate = useNavigate();
+    
 
     return(
         <>
@@ -13,7 +14,7 @@ function ServiceProviderForget(){
                 <div className = "login_Container">
 
                      <div className = "name">
-                        <p className = "Head">Forget Password Credentials</p>
+                        <p className = "Head" style={{ textAlign: "center" }}>Forget Password Credentials</p>
                     </div>
 
                     <div className = 'form'>

@@ -1,72 +1,301 @@
+import { useState } from "react";
 import Header from "../Header/Header";
 import "./FamilyServiceRequest2.css";
+import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import axios from "axios"; 
 
-function FamilyServiceRequest2(){
+function FamilyServiceRequest2() {
 
-    const navigate = useNavigate();
-    
-    return(
-         <>
-            <Header />
+  const navigate = useNavigate();
 
-            <div className = 'ServiceSection'>
-                <div className = 'Service_container'>
+  const [formData, setFormData] = useState({
+    SLocation: "",
+    Address: "",
+    serviceOptions: "",
+    disabilityDetails: "",
+    preferredGender: "",
+    additionalRequirement: ""
+  });
 
-                    <p className = 'para'>Service Request Form (2/2)</p>
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+  const [loading, setLoading] = useState(false);
 
-                    <div className = 'form'>
-                        <div className = 'form-fill'>
+  const handleChange = (e) => {
+    const { name, value } = e.target;
 
-                            <div className = 'row'>
-                                <label htmlFor = 'S-Location'>Service Location (City): <label className='star'> * </label> </label>
-                                <input type = 'text' id = 'S-Location' name = 'S-Location' placeholder = 'Enter the Patient Name' />
-                            </div>
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
 
-                            <div className = 'row'>
-                                <label htmlFor = 'Full-Address'>Full Address : <label className='star'> * </label> </label>
-                                <textarea id = 'Address' name = 'Address' placeholder='Enter your complete address where is needed'></textarea>
-                            </div>
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    setTouched({ ...touched, [name]: true });
+    validate();
+  };
 
-                            <div className = 'row'>
-                                <label>Any Disabilities : <label className='star'> * </label> </label>
-                                <div className = 'Service-options'>
-                                    <input type = 'radio' id = 'Yes' name = 'Yes' /> <label htmlFor = 'Yes'>Yes</label>
-                                    <input type = 'radio' id = 'No'  name = 'No' /> <label htmlFor = 'No'>No</label>
-                                </div>
-                            </div>
-                            
-                            <div className = "yess">
-                                <textarea id = 'Address' name = 'Address' cols="118"  rows ="5" placeholder = 'Any special requirements, timing preferences, or additional information'></textarea>
-                            </div>
-                 
+  const validate = () => {
 
-                            <div className = 'row'>
-                                <label> Preferred Caregiver Gender : <label className='star'> * </label> </label>
-                                <div className = 'gender-options'>
-                                    <input type = 'radio' id = 'Male' name = 'Gender' /> <label htmlFor = 'Male'>Male</label>
-                                    <input type = 'radio' id = 'Female' name = 'Gender' /> <label htmlFor = 'Female'>Female</label>
-                                    <input type = 'radio' id = 'Other' name = 'Gender' /> <label htmlFor = 'Other'>No Preferences</label>
-                                </div>
-                            </div>
+    const newErrors = {};
 
-                            <div className = 'row'>
-                                <label htmlFor = 'A-Requirements'>Additional Requirements / Notes : <label className='star'> * </label> </label>
-                                <textarea id = 'Address' name = 'additionalRequirement' placeholder='If yes, Describe the Disabilities or medical conditions'></textarea>
-                            </div>
+    if (!formData.SLocation.trim())
+      newErrors.SLocation = "City is Required";
 
-    
-                           
+    if (!formData.Address.trim())
+      newErrors.Address = "Full Address is Required";
 
-                            <button className = 'finishes' onClick={() => navigate("/findingcareprovider")} > Submit Request </button>
-                            <button className = 'previous' onClick={()=> navigate("/familyservicerequest")}> Previous </button>
-                            
-                        </div>
-                    </div>
+    if (!formData.serviceOptions)
+      newErrors.serviceOptions = "Select the Services";
+
+    if (!formData.preferredGender)
+      newErrors.preferredGender = "Select preferred caregiver gender";
+
+    if (!formData.additionalRequirement.trim())
+      newErrors.additionalRequirement = "Additional Requirements is Required";
+
+    setErrors(newErrors);
+    return newErrors;
+  };
+
+
+  const handleNext = async () => {
+
+    const validationErrors = validate();
+
+    setTouched({
+      SLocation: true,
+      Address: true,
+      serviceOptions: true,
+      preferredGender: true,
+      additionalRequirement: true
+    });
+
+    if (Object.keys(validationErrors).length > 0) return;
+
+    setLoading(true);
+
+    try {
+
+      const form1Data = JSON.parse(localStorage.getItem("form1Data")) || {};
+
+      const familyId =
+        localStorage.getItem("userId") ||
+        sessionStorage.getItem("userId");
+
+      if (!familyId) {
+        alert("User not logged in");
+        setLoading(false);
+        return;
+      }
+
+      const combinedData = {
+        ...form1Data,
+        ...formData,
+        familyId
+      };
+
+      console.log("Sending Data:", combinedData);
+
+      const response = await axios.post(
+        "http://localhost:5000/api/service-request/register",
+        combinedData
+      );
+
+      console.log("Service Request Saved:", response.data);
+
+      localStorage.removeItem("form1Data");
+
+      navigate("/findingcareprovider", { state: response.data });
+
+    } catch (error) {
+
+      console.error("Error saving request:", error);
+      alert(error.response?.data?.error || "Failed to save request");
+
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <Header />
+
+      <div className="ServiceSection">
+        <div className="Service_container">
+
+          <p className="para">Service Request Form (2/2)</p>
+
+          <div className="form">
+            <div className="form-fill">
+
+              {/* City */}
+              <div className="row">
+                <label>Service Location (City) *</label>
+
+                <input
+                  type="text"
+                  name="SLocation"
+                  placeholder="Enter City"
+                  value={formData.SLocation}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  className={touched.SLocation && errors.SLocation ? "input-error" : ""}
+                />
+
+                {touched.SLocation && errors.SLocation && (
+                  <p className="error-text">{errors.SLocation}</p>
+                )}
+              </div>
+
+              {/* Address */}
+              <div className="row">
+                <label>Full Address *</label>
+
+                <textarea
+                  name="Address"
+                  placeholder="Enter full address"
+                  value={formData.Address}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  className={touched.Address && errors.Address ? "input-error" : ""}
+                />
+
+                {touched.Address && errors.Address && (
+                  <p className="error-text">{errors.Address}</p>
+                )}
+              </div>
+
+              {/* Disabilities */}
+              <div className="row">
+                <label>Any Disabilities *</label>
+
+                <div className={`Service-options ${touched.serviceOptions && errors.serviceOptions ? "input-error" : ""}`}>
+
+                  <input
+                    type="radio"
+                    name="serviceOptions"
+                    value="Yes"
+                    checked={formData.serviceOptions === "Yes"}
+                    onChange={handleChange}
+                  />
+                  <label>Yes</label>
+
+                  <input
+                    type="radio"
+                    name="serviceOptions"
+                    value="No"
+                    checked={formData.serviceOptions === "No"}
+                    onChange={handleChange}
+                  />
+                  <label>No</label>
+
                 </div>
+
+                {touched.serviceOptions && errors.serviceOptions && (
+                  <p className="error-text">{errors.serviceOptions}</p>
+                )}
+              </div>
+
+              {/* Disability Details */}
+              {formData.serviceOptions === "Yes" && (
+                <div className="row">
+                  <textarea
+                    name="disabilityDetails"
+                    rows="4"
+                    placeholder="Describe the disabilities"
+                    value={formData.disabilityDetails}
+                    onChange={handleChange}
+                  />
+                </div>
+              )}
+
+              {/* Preferred Gender */}
+              <div className="row">
+
+                <label>Preferred Caregiver Gender *</label>
+
+                <div className={`gender-options ${touched.preferredGender && errors.preferredGender ? "input-error" : ""}`}>
+
+                  <input
+                    type="radio"
+                    name="preferredGender"
+                    value="Male"
+                    checked={formData.preferredGender === "Male"}
+                    onChange={handleChange}
+                  />
+                  <label>Male</label>
+
+                  <input
+                    type="radio"
+                    name="preferredGender"
+                    value="Female"
+                    checked={formData.preferredGender === "Female"}
+                    onChange={handleChange}
+                  />
+                  <label>Female</label>
+
+                  <input
+                    type="radio"
+                    name="preferredGender"
+                    value="Other"
+                    checked={formData.preferredGender === "Other"}
+                    onChange={handleChange}
+                  />
+                  <label>No Preference</label>
+
+                </div>
+
+                {touched.preferredGender && errors.preferredGender && (
+                  <p className="error-text">{errors.preferredGender}</p>
+                )}
+
+              </div>
+
+              {/* Additional Requirements */}
+              <div className="row">
+
+                <label>Additional Requirements *</label>
+
+                <textarea
+                  name="additionalRequirement"
+                  placeholder="Additional notes"
+                  value={formData.additionalRequirement}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  className={touched.additionalRequirement && errors.additionalRequirement ? "input-error" : ""}
+                />
+
+                {touched.additionalRequirement && errors.additionalRequirement && (
+                  <p className="error-text">{errors.additionalRequirement}</p>
+                )}
+
+              </div>
+
+              <button
+                className="finishes"
+                onClick={handleNext}
+                disabled={loading}
+              >
+                {loading ? "Submitting..." : "Submit Request"}
+              </button>
+
+              <button
+                className="previous"
+                onClick={() => navigate("/familyservicerequest")}
+              >
+                Previous
+              </button>
+
             </div>
-        </>
-    )
+          </div>
+        </div>
+      </div>
+    </>
+  );
 }
 
 export default FamilyServiceRequest2;

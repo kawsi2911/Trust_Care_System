@@ -1,6 +1,7 @@
 import Header from "../Header/Header.jsx";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import Swal from "sweetalert2";
 import "./familyRegister.css";
 
 function FamilyRegister() {
@@ -19,6 +20,7 @@ function FamilyRegister() {
     const [errors, setErrors] = useState({});
     const [touched, setTouched] = useState({});
 
+    // Update form state
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData({
@@ -27,27 +29,24 @@ function FamilyRegister() {
         });
     };
 
+    // Mark field as touched
     const handleBlur = (e) => {
         const { name } = e.target;
         setTouched({ ...touched, [name]: true });
         validate();
     };
 
+    // Validation logic
     const validate = () => {
         let newErrors = {};
 
-        if (!formData.familyFullName.trim()) {
-            newErrors.familyFullName = "Full Name is required";
-        }
-
-        if (!formData.familynic.trim()) {
-            newErrors.familynic = "NIC is required";
-        }
+        if (!formData.familyFullName.trim()) newErrors.familyFullName = "Full Name is required";
+        if (!formData.familynic.trim()) newErrors.familynic = "NIC is required";
 
         if (!formData.phone.trim()) {
             newErrors.phone = "Contact Number is required";
-        } else if (!/^[0-9]{10}$/.test(formData.phone)) {
-            newErrors.phone = "Enter a valid 10-digit number";
+        } else if (!/^(\+94|0)\d{9}$/.test(formData.phone)) {
+            newErrors.phone = "Enter a valid phone number";
         }
 
         if (!formData.email.trim()) {
@@ -56,24 +55,18 @@ function FamilyRegister() {
             newErrors.email = "Enter a valid email address";
         }
 
-        if (!formData.gender) {
-            newErrors.gender = "Gender is required";
-        }
-
-        if (!formData.address.trim()) {
-            newErrors.address = "Address is required";
-        }
-
-        if (!formData.city.trim()) {
-            newErrors.city = "City is required";
-        }
+        if (!formData.gender) newErrors.gender = "Gender is required";
+        if (!formData.address.trim()) newErrors.address = "Address is required";
+        if (!formData.city.trim()) newErrors.city = "City is required";
 
         setErrors(newErrors);
         return newErrors;
     };
 
-    const handleNext = () => {
-        const validationErrors = validate();
+    // Submit form
+    // FamilyRegister.jsx (partial)
+    const handleNext = async (e) => {
+        e.preventDefault();
 
         setTouched({
             familyFullName: true,
@@ -85,9 +78,22 @@ function FamilyRegister() {
             city: true
         });
 
-        if (Object.keys(validationErrors).length === 0) {
-            navigate("/servicetaken");
-        }
+        const validationErrors = validate();
+        if (Object.keys(validationErrors).length !== 0) return;
+
+        const dataToStore = { 
+            ...formData, 
+            createdAt: new Date().toLocaleDateString() 
+        };
+        localStorage.setItem("familyData", JSON.stringify(dataToStore));
+        
+        Swal.fire({
+            icon: "success",
+            title: "Step 1 Completed",
+            text: "Proceed to next step"
+        });
+
+        navigate("/servicetaken");
     };
 
     return (
@@ -96,64 +102,31 @@ function FamilyRegister() {
             <div className='ServiceSection'>
                 <div className='Service_container'>
                     <p className='para'>Service Taker Registration</p>
-                    <div className='form'>
+                    <form className='form' onSubmit={handleNext}>
                         <div className='form-fill'>
 
                             {/* Full Name */}
                             <div className='row'>
-                                <label htmlFor='familyFullName'>
-                                    Full Name : <span className='star'>*</span>
-                                </label>
-                                <input
-                                    type='text'
-                                    id='familyFullName'
-                                    name='familyFullName'
-                                    placeholder='Enter your Full Name'
-                                    value={formData.familyFullName}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    className={touched.familyFullName && errors.familyFullName ? 'input-error' : ''}
-                                />
+                                <label htmlFor='familyFullName'>Full Name : <span className='star'>*</span></label>
+                                <input type='text' id='familyFullName'  name='familyFullName' placeholder='Enter your Full Name' value={formData.familyFullName} onChange={handleChange} onBlur={handleBlur} className={touched.familyFullName && errors.familyFullName ? 'input-error' : ''}/>
                                 {touched.familyFullName && errors.familyFullName && (
                                     <p className="error-text">{errors.familyFullName}</p>
                                 )}
                             </div>
 
-                            {/* NIC */}
+                            {/* NIC*/}
                             <div className='row'>
-                                <label htmlFor='family-nic'>
-                                    NIC Number : <span className='star'>*</span>
-                                </label>
-                                <input
-                                    type='text'
-                                    id='family-nic'
-                                    name='familynic'
-                                    placeholder='Enter your NIC'
-                                    value={formData.familynic}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    className={touched.familynic && errors.familynic ? 'input-error' : ''}
-                                />
+                                <label htmlFor='familynic'>NIC Number : <span className='star'>*</span></label>
+                                <input type='text' id='familynic' name='familynic'  placeholder='Enter your NIC' value={formData.familynic} onChange={handleChange} onBlur={handleBlur} className={touched.familynic && errors.familynic ? 'input-error' : ''}/>
                                 {touched.familynic && errors.familynic && (
                                     <p className="error-text">{errors.familynic}</p>
                                 )}
                             </div>
 
-                            {/* Phone */}
+                            {/* Phone*/}
                             <div className='row'>
-                                <label htmlFor='Family-Phone'>
-                                    Contact Number : <span className='star'>*</span>
-                                </label>
-                                <input
-                                    type='text'
-                                    id='Family-Phone'
-                                    name='phone'
-                                    placeholder='Enter your Contact Number'
-                                    value={formData.phone}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    className={touched.phone && errors.phone ? 'input-error' : ''}
-                                />
+                                <label htmlFor='phone'>Contact Number : <span className='star'>*</span></label>
+                                <input type='text' id='phone' name='phone' placeholder='Enter your Contact Number' value={formData.phone} onChange={handleChange} onBlur={handleBlur} className={touched.phone && errors.phone ? 'input-error' : ''} />
                                 {touched.phone && errors.phone && (
                                     <p className="error-text">{errors.phone}</p>
                                 )}
@@ -161,85 +134,45 @@ function FamilyRegister() {
 
                             {/* Email */}
                             <div className='row'>
-                                <label htmlFor='Family-Email'>
-                                    Email Address : <span className='star'>*</span>
-                                </label>
-                                <input
-                                    type='email'
-                                    id='Family-Email'
-                                    name='email'
-                                    placeholder='Enter your Email'
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    className={touched.email && errors.email ? 'input-error' : ''}
-                                />
+                                <label htmlFor='email'>Email Address : <span className='star'>*</span></label>
+                                <input type='email' id='email' name='email' placeholder='Enter your Email' value={formData.email} onChange={handleChange} onBlur={handleBlur} className={touched.email && errors.email ? 'input-error' : ''}/>
                                 {touched.email && errors.email && (
                                     <p className="error-text">{errors.email}</p>
                                 )}
                             </div>
 
                             {/* Gender */}
-                           {/* Gender */}
-<div className='row'>
-    <label>Gender : <span className='star'>*</span></label>
-    <div className={`gender-options ${touched.gender && errors.gender ? "input-error" : ""}`}>
-        <input type='radio' id='male' name='gender' value='Male' checked={formData.gender === "Male"} onChange={handleChange} />
-        <label htmlFor='male'>Male</label>
-
-        <input type='radio' id='female' name='gender' value='Female' checked={formData.gender === "Female"} onChange={handleChange} />
-        <label htmlFor='female'>Female</label>
-
-        <input type='radio' id='other' name='gender' value='Other' checked={formData.gender === "Other"} onChange={handleChange} />
-        <label htmlFor='other'>Other</label>
-    </div>
-    {touched.gender && errors.gender && (
-        <p className="error-text">{errors.gender}</p>
-    )}
-</div>
+                            <div className='row'>
+                                <label>Gender : <span className='star'>*</span></label>
+                                <div className={`gender-options ${touched.gender && errors.gender ? "input-error" : ""}`}>
+                                    <input type='radio' id='male' name='gender' value='Male' checked={formData.gender === "Male"} onChange={handleChange} /><label htmlFor='male'>Male</label>
+                                    <input type='radio' id='female' name='gender' value='Female' checked={formData.gender === "Female"} onChange={handleChange} /><label htmlFor='female'>Female</label>
+                                    <input type='radio' id='other' name='gender' value='Other' checked={formData.gender === "Other"} onChange={handleChange} /><label htmlFor='other'>Other</label>
+                                </div>
+                                {touched.gender && errors.gender && (
+                                    <p className="error-text">{errors.gender}</p>
+                                )}
+                            </div>
 
                             {/* Address */}
                             <div className='row'>
-                                <label htmlFor='Family-Address'>
-                                    Full Address : <span className='star'>*</span>
-                                </label>
-                                <textarea
-                                    id='Family-Address'
-                                    name='address'
-                                    placeholder='Enter your Full Address'
-                                    value={formData.address}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    className={touched.address && errors.address ? 'input-error' : ''}
-                                ></textarea>
+                                <label htmlFor='address'>Full Address : <span className='star'>*</span></label>
+                                <textarea id='address'  name='address'  placeholder='Enter your Full Address' value={formData.address} onChange={handleChange}onBlur={handleBlur} className={touched.address && errors.address ? 'input-error' : ''} ></textarea>
                                 {touched.address && errors.address && <p className="error-text">{errors.address}</p>}
                             </div>
 
                             {/* City */}
                             <div className='row'>
-                                <label htmlFor='Family-City'>
-                                    City / Location : <span className='star'>*</span>
-                                </label>
-                                <input
-                                    type='text'
-                                    id='Family-City'
-                                    name='city'
-                                    placeholder='Enter the City'
-                                    value={formData.city}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    className={touched.city && errors.city ? 'input-error' : ''}
-                                />
+                                <label htmlFor='city'>City / Location : <span className='star'>*</span></label>
+                                <input type='text' id='city'name='city'placeholder='Enter the City' value={formData.city} onChange={handleChange}onBlur={handleBlur} className={touched.city && errors.city ? 'input-error' : ''}/>
                                 {touched.city && errors.city && <p className="error-text">{errors.city}</p>}
                             </div>
 
-                            {/* Next Button */}
-                            <button className='next' onClick={handleNext}>
-                                Next Step
-                            </button>
+                            {/* Submit */}
+                            <button className='next' type="submit">Next Step</button>
 
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </>

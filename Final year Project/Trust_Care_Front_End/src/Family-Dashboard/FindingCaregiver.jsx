@@ -1,17 +1,23 @@
 import Header from "../Header/Header";
 import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import "./FindingCaregiver.css";
 import { useEffect } from "react";
 
 function FindingCaregiver(){
 
     const navigate = useNavigate();
+    const location = useLocation();
+    const requestData = location.state || {};
 
     useEffect(() =>{
         const timer = setTimeout(()=>{
-            navigate("/availableprovider");
+            navigate("/availableprovider", {
+                state: {
+                    userLocation: requestData.SLocation // matches Availableprovider
+                }
+            });
         },60000);
-
         return() =>clearTimeout(timer);
     }, [navigate]);
 
@@ -32,8 +38,8 @@ function FindingCaregiver(){
                         <p className = "paragraph">Searching for provider near you.............</p>
 
                         <div className="details">
-                            <p><strong>Location :</strong> Jaffna</p>
-                            <p><strong>Service Type :</strong> Elder Care</p>
+                            <p><strong>Location :</strong> {requestData.SLocation || "N/A"}</p>
+                            <p><strong>Service Type :</strong> {requestData.Service || "N/A"}</p>
                             <p><strong>Search Radius :</strong> 10 km</p>
                         </div>
                     
