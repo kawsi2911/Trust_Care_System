@@ -6,14 +6,12 @@ const router = express.Router();
 // Registration
 router.post("/providerregister", async (req, res) => {
   try {
-    const { username, password, FullName, email, phone } = req.body;
-
-    const existing = await Service.findOne({ username });
+    const existing = await Service.findOne({ username: req.body.username });
     if (existing) {
       return res.status(400).json({ message: "Username already taken" });
     }
 
-    const newService = new Service({ username, password, FullName, email, phone });
+    const newService = new Service(req.body);
     const saved = await newService.save();
 
     res.json({
@@ -69,7 +67,6 @@ router.get("/:id", async (req, res) => {
 
 router.put("/:id", async (req, res) => {
   try {
-
     const { id } = req.params;
 
     const updatedUser = await Service.findByIdAndUpdate(
@@ -99,10 +96,10 @@ router.put("/:id", async (req, res) => {
 
 router.post("/nearby-providers", async (req, res) => {
   try {
-    const { userLocation } = req.body; // e.g., "jaffna"
+    const { userLocation } = req.body;
     console.log("Searching providers near:", userLocation);
     const providers = await Service.find({
-      location: { $regex: new RegExp(userLocation, "i") } // case-insensitive match
+      location: { $regex: new RegExp(userLocation, "i") }
     });
     res.json({ providers });
   } catch (error) {
@@ -110,15 +107,9 @@ router.post("/nearby-providers", async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────────────────────
-// ADD THIS ROUTE to your serviceRoutes.js
-// (paste at the bottom before "export default router")
-// ─────────────────────────────────────────────────────────────
-
 
 // ─────────────────────────────────────────
 // PUT /api/service/reset-password
-// ServiceProviderForget — reset password by username
 // ─────────────────────────────────────────
 router.put("/reset-password", async (req, res) => {
     try {
@@ -133,7 +124,6 @@ router.put("/reset-password", async (req, res) => {
             return res.status(404).json({ message: "No account found with that username" });
         }
 
-        // Update password (plain for now — add bcrypt hash when you add it to register)
         provider.password = newPassword;
         await provider.save();
 

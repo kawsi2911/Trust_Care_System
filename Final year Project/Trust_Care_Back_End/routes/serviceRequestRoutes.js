@@ -47,7 +47,6 @@ router.get("/dashboard/:userId", async (req, res) => {
     try {
         const { userId } = req.params;
 
-        // ✅ FIXED: ServiceProvider now imported correctly
         const provider = await ServiceProvider.findById(userId);
         if (!provider) return res.status(404).json({ error: "Provider not found" });
 
@@ -55,7 +54,6 @@ router.get("/dashboard/:userId", async (req, res) => {
         const activeJobs  = await Booking.countDocuments({ providerId: userId, status: "active" });
         const pendingJobs = await Booking.countDocuments({ providerId: userId, status: "pending" });
 
-        // ✅ FIXED: status field now exists in serviceRequestModel
         const latestRequest = await ServiceRequest.findOne({
             SLocation: { $regex: new RegExp(provider.location, "i") },
             status: "pending"
@@ -80,11 +78,9 @@ router.get("/dashboard/:userId", async (req, res) => {
 
 // ─────────────────────────────────────────
 // GET /api/service-request/provider-notifications/:providerId
-// Provider notifications — all pending requests near their city
 // ─────────────────────────────────────────
 router.get("/provider-notifications/:providerId", async (req, res) => {
     try {
-        // ✅ FIXED: ServiceProvider now imported correctly
         const provider = await ServiceProvider.findById(req.params.providerId);
         if (!provider) return res.status(404).json({ error: "Provider not found" });
 
@@ -105,7 +101,6 @@ router.get("/provider-notifications/:providerId", async (req, res) => {
 
 // ─────────────────────────────────────────
 // POST /api/service-request/accept/:requestId
-// Family confirms a provider → booking created, status updated
 // ─────────────────────────────────────────
 router.post("/accept/:requestId", async (req, res) => {
     try {
@@ -117,12 +112,11 @@ router.post("/accept/:requestId", async (req, res) => {
         const provider = await ServiceProvider.findById(providerId);
         if (!provider) return res.status(404).json({ error: "Provider not found" });
 
-        // Create booking
         const booking = new Booking({
             serviceRequestId: request._id,
             providerId,
             familyId: familyId || request.familyId,
-            status: "active",                    // confirmed by family = active
+            status: "active",
             patientType: request.PatientType,
             location: request.SLocation,
             duration: request.Service,
@@ -132,7 +126,6 @@ router.post("/accept/:requestId", async (req, res) => {
 
         await booking.save();
 
-        // ✅ FIXED: update request status so it no longer shows in pending list
         await ServiceRequest.findByIdAndUpdate(req.params.requestId, {
             status: "matched"
         });
@@ -147,7 +140,6 @@ router.post("/accept/:requestId", async (req, res) => {
 
 // ─────────────────────────────────────────
 // POST /api/service-request/decline/:requestId
-// Provider declines — request stays open for others
 // ─────────────────────────────────────────
 router.post("/decline/:requestId", async (req, res) => {
     try {
@@ -160,7 +152,6 @@ router.post("/decline/:requestId", async (req, res) => {
 
 // ─────────────────────────────────────────
 // GET /api/service-request/family-bookings/:familyId
-// Family activity page — all bookings for this family
 // ─────────────────────────────────────────
 router.get("/family-bookings/:familyId", async (req, res) => {
     try {
@@ -183,7 +174,6 @@ router.get("/family-bookings/:familyId", async (req, res) => {
 
 // ─────────────────────────────────────────
 // GET /api/service-request/family-dashboard/:familyId
-// Family home dashboard stats
 // ─────────────────────────────────────────
 router.get("/family-dashboard/:familyId", async (req, res) => {
     try {
@@ -203,15 +193,9 @@ router.get("/family-dashboard/:familyId", async (req, res) => {
     }
 });
 
-// ─────────────────────────────────────────────────────────────
-// ADD THESE 3 ROUTES to your serviceRequestRoutes.js
-// (paste at the bottom before "export default router")
-// ─────────────────────────────────────────────────────────────
-
 
 // ─────────────────────────────────────────
 // GET /api/service-request/provider-services/:providerId
-// ServicesDashboard — active bookings for this provider
 // ─────────────────────────────────────────
 router.get("/provider-services/:providerId", async (req, res) => {
     try {
@@ -232,7 +216,6 @@ router.get("/provider-services/:providerId", async (req, res) => {
 
 // ─────────────────────────────────────────
 // PUT /api/service-request/complete/:bookingId
-// ServicesDashboard — provider marks job as complete
 // ─────────────────────────────────────────
 router.put("/complete/:bookingId", async (req, res) => {
     try {
@@ -252,7 +235,6 @@ router.put("/complete/:bookingId", async (req, res) => {
 
 // ─────────────────────────────────────────
 // GET /api/service-request/provider-activity/:providerId
-// ActivityDashboard — completed bookings + stats
 // ─────────────────────────────────────────
 router.get("/provider-activity/:providerId", async (req, res) => {
     try {
@@ -264,16 +246,33 @@ router.get("/provider-activity/:providerId", async (req, res) => {
         .populate("serviceRequestId", "PatientType")
         .sort({ updatedAt: -1 });
 
-        // Calculate stats
         const completed   = bookings.length;
         const totalEarned = bookings.reduce((sum, b) => sum + (Number(b.rate) || 0), 0);
-        // avgRating placeholder — add a Review model later for real ratings
         const avgRating   = 0;
 
         res.json({
             stats: { completed, totalEarned, avgRating },
             bookings
         });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
+// ─────────────────────────────────────────
+// PUT /api/service-request/mark-paid/:bookingId  ← mumthaj change 
+// MakePayment — mark booking as paid (cash/bank)
+// ─────────────────────────────────────────
+router.put("/mark-paid/:bookingId", async (req, res) => {
+    try {
+        const booking = await Booking.findByIdAndUpdate(
+            req.params.bookingId,
+            { status: "paid" },
+            { new: true }
+        );
+        if (!booking) return res.status(404).json({ error: "Booking not found" });
+        res.json({ message: "Payment marked successfully", booking });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
