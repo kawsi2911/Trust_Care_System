@@ -3,29 +3,51 @@ import Service from "../models/providerModel.js";
 
 const router = express.Router();
 
+// Registration
 router.post("/providerregister", async (req, res) => {
   try {
+    const { username, password, FullName, email, phone } = req.body;
 
-    console.log("Incoming data:", req.body);
+    const existing = await Service.findOne({ username });
+    if (existing) {
+      return res.status(400).json({ message: "Username already taken" });
+    }
 
-    const newService = new Service(req.body);
-
+    const newService = new Service({ username, password, FullName, email, phone });
     const saved = await newService.save();
-
-    console.log("Saved:", saved._id);
 
     res.json({
       message: "Service Provider Registered Successfully",
-      id: saved._id
+      userId: saved._id,
+      FullName: saved.FullName,
     });
 
   } catch (error) {
+    console.log("SAVE ERROR:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
-    console.log("SAVE ERROR:", error);   // IMPORTANT
+// Login
+router.post("/providerlogin", async (req, res) => {
+  try {
+    const { username, password } = req.body;
 
-    res.status(500).json({
-      error: error.message
+    const user = await Service.findOne({ username });
+    if (!user) return res.status(400).json({ message: "User not found" });
+
+    if (user.password !== password) return res.status(400).json({ message: "Wrong password" });
+
+    res.json({
+      message: "Login success",
+      userId: user._id,
+      username: user.username,
+      FullName: user.FullName,
     });
+
+  } catch (error) {
+    console.log("LOGIN ERROR:", error);
+    res.status(500).json({ error: error.message });
   }
 });
 
