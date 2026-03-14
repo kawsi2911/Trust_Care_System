@@ -54,7 +54,9 @@ function ServiceProviderLoginPage() {
       const response = await fetch("http://localhost:5000/api/service/providerlogin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: formData.username, password: formData.password })
+        body: JSON.stringify({ 
+            username: formData.username, 
+            password: formData.password })
       });
 
       // Safe parsing of response
