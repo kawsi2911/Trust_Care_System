@@ -87,10 +87,10 @@ function ServiceProviderLogin(){
 
         try{
             const res = await fetch("http://localhost:5000/api/service/providerregister", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(combinedData)
-});
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(combinedData)
+            });
 
             const data = await res.json();
 

@@ -110,38 +110,4 @@ router.post("/nearby-providers", async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────────────────────
-// ADD THIS ROUTE to your serviceRoutes.js
-// (paste at the bottom before "export default router")
-// ─────────────────────────────────────────────────────────────
-
-
-// ─────────────────────────────────────────
-// PUT /api/service/reset-password
-// ServiceProviderForget — reset password by username
-// ─────────────────────────────────────────
-router.put("/reset-password", async (req, res) => {
-    try {
-        const { username, newPassword } = req.body;
-
-        if (!username || !newPassword) {
-            return res.status(400).json({ message: "Username and new password are required" });
-        }
-
-        const provider = await Service.findOne({ username });
-        if (!provider) {
-            return res.status(404).json({ message: "No account found with that username" });
-        }
-
-        // Update password (plain for now — add bcrypt hash when you add it to register)
-        provider.password = newPassword;
-        await provider.save();
-
-        res.json({ message: "Password reset successfully" });
-
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
 export default router;
