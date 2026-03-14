@@ -45,8 +45,6 @@ function familyprofile(){
         });
     };
 
-
-
     return(
         <>
             <Header/>
@@ -115,9 +113,7 @@ function familyprofile(){
                     </div>
 
                     <div className = "QServices">
-                        <button className = "viewall" onClick = {()=>navigate("/familyhome")}> Edit Profile </button>
-                        <button className = "updates" onClick = {()=>navigate("/familyhome")}>Change Password </button>
-                        <button className = "confirm" onClick={()=>navigate("/")}> Privacy Settings </button>
+                        <button className = "viewall" onClick = {()=>navigate("/familyprofieedit")}> Edit Profile </button>
                         <button className = "logout-btn" onClick = {()=>navigate("/")}> Logout </button>
                     </div>
 
