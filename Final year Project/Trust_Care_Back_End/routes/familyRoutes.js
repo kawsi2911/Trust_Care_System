@@ -3,19 +3,28 @@ import Family from "../models/familyModel.js";
 
 const router = express.Router();
 
+/* Register Family */
 router.post("/register", async (req, res) => {
   try {
+
     const newFamily = new Family(req.body);
     await newFamily.save();
+
     res.json({ message: "Family Registered Successfully" });
+
   } catch (error) {
+
     res.status(500).json({ error: error.message });
+
   }
 });
 
 
+/* Login */
 router.post("/login", async (req, res) => {
+
   try {
+
     const { username, password } = req.body;
 
     const user = await Family.findOne({ username });
@@ -35,14 +44,19 @@ router.post("/login", async (req, res) => {
     });
 
   } catch (error) {
+
     res.status(500).json({ error: error.message });
+
   }
+
 });
 
 
-
+/* Get Profile */
 router.get("/:id", async (req, res) => {
+
   try {
+
     const user = await Family.findById(req.params.id);
 
     if (!user) {
@@ -52,18 +66,21 @@ router.get("/:id", async (req, res) => {
     res.json(user);
 
   } catch (error) {
+
     res.status(500).json({ error: error.message });
+
   }
+
 });
 
 
+/* Update Profile */
 router.put("/:id", async (req, res) => {
+
   try {
 
-    const { id } = req.params;
-
     const updatedUser = await Family.findByIdAndUpdate(
-      id,
+      req.params.id,
       req.body,
       { new: true }
     );
@@ -74,16 +91,19 @@ router.put("/:id", async (req, res) => {
       });
     }
 
-    res.status(200).json({
+    res.json({
       message: "Profile updated successfully",
       user: updatedUser
     });
 
   } catch (error) {
+
     res.status(500).json({
       message: error.message
     });
+
   }
+
 });
 
 export default router;
