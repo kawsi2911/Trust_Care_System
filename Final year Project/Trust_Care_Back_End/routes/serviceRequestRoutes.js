@@ -40,5 +40,17 @@ router.post("/new-request", async (req, res) => {
   }
 });
 
+router.post("/nearby-providers", async (req, res) => {
+  try {
+    const { userLocation } = req.body; // e.g., "jaffna"
+    console.log("Searching providers near:", userLocation);
+    const providers = await Service.find({
+      location: { $regex: new RegExp(userLocation, "i") } // case-insensitive match
+    });
+    res.json({ providers });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 export default router;
