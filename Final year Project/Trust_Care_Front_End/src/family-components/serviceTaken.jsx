@@ -29,17 +29,32 @@ function ServiceTaken() {
   };
 
   const validate = () => {
+
     const newErrors = {};
-    if (!formData.username.trim()) newErrors.username = "Username is required";
-    if (!formData.createpassword.trim()) newErrors.createpassword = "Password is required";
-    else if (formData.createpassword.length < 6)
+
+    if (!formData.username.trim()) {
+      newErrors.username = "Username is required";
+    }
+
+    if (!formData.createpassword.trim()) {
+      newErrors.createpassword = "Password is required";
+    }
+    else if (formData.createpassword.length < 6){
       newErrors.createpassword = "Password must be at least 6 characters";
+    }
+      
 
-    if (!formData.confirmpassword.trim()) newErrors.confirmpassword = "Please confirm your password";
-    else if (formData.createpassword !== formData.confirmpassword)
+    if (!formData.confirmpassword.trim()) {
+      newErrors.confirmpassword = "Please confirm your password";
+    } 
+    else if (formData.createpassword !== formData.confirmpassword) {
       newErrors.confirmpassword = "Passwords do not match";
+    }
+      
 
-    if (!formData.check) newErrors.check = "You must agree to Terms & Conditions";
+    if (!formData.check) {
+       newErrors.check = "You must agree to Terms & Conditions";
+    } 
 
     setErrors(newErrors);
     return newErrors;
@@ -48,7 +63,12 @@ function ServiceTaken() {
   const handleNext = async (e) => {
     e.preventDefault();
 
-    setTouched({ username: true, createpassword: true, confirmpassword: true, check: true });
+    setTouched({ 
+      username: true, 
+      createpassword: true, 
+      confirmpassword: true, 
+      check: true 
+    });
 
     const validationErrors = validate();
     if (Object.keys(validationErrors).length !== 0) return;
