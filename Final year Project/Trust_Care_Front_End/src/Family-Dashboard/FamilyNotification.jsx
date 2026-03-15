@@ -101,37 +101,49 @@ function FamilyNotification() {
           )}
 
           {/* Provider Accepted Section */}
-
           {notifications
             .filter(note => note.title === "Booking Confirmed")
             .map((note) => (
 
-              <div className="booking-container" key={note._id}>
+            <div className="booking-container" key={note._id}>
 
-                <p className="provider-name">
-                  <strong>📞 Provider Accepted Your Request</strong>
-                </p>
+            <p className="provider-name">
+              <strong>📞 Provider Accepted Your Request</strong>
+            </p>
 
-                <div className="summary">
-                  <p>{note.message}</p>
+            <div className="summary">
+              <p>{note.message}</p>
 
-                  {note.providerName && (
-                    <p><strong>Provider:</strong> {note.providerName}</p>
-                  )}
+              {note.providerName && (
+                <p><strong>Provider:</strong> {note.providerName}</p>
+              )}
 
-                  {note.providerPhone && (
-                    <p><strong>Phone:</strong> {note.providerPhone}</p>
-                  )}
+              {note.providerPhone && (
+                <p><strong>Phone:</strong> {note.providerPhone}</p>
+              )}
 
-                  {note.createdAt && (
-                    <p>{new Date(note.createdAt).toLocaleString()}</p>
-                  )}
+              {note.createdAt && (
+                <p>{new Date(note.createdAt).toLocaleString()}</p>
+              )}
+            </div>
 
-                </div>
+            {/* NEW BUTTON */}
+            <div className="inprogress">
 
-              </div>
-
-            ))}
+              <button
+                  className="confirm"
+                  onClick={() =>
+                    navigate("/booking", { 
+                      state:{
+                        providerId: note.providerId,
+                      } 
+                    })
+                  }
+                > View Request
+              </button>
+          </div>
+        </div>
+      ))}
 
         </div>
       </div>
