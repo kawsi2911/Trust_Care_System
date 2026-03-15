@@ -2,6 +2,7 @@ import React from "react";
 import Header from "../Header/Header";
 import { useNavigate, useLocation } from "react-router-dom";
 import profile from "../assets/profile.png";
+import axios from "axios";
 import "./caregiver.css";
 
 function Caregiver() {
@@ -105,12 +106,31 @@ function Caregiver() {
                     </div>
 
 
-                    <button
-                        className='finishes'
-                        onClick={() => navigate("/booking", { state: provider })}
-                    >
-                        Select This Provider
-                    </button>
+                   <button
+  className='finishes'
+  onClick={async () => {
+
+    const familyId =
+      localStorage.getItem("userId") ||
+      sessionStorage.getItem("userId");
+
+    const requestId =
+      localStorage.getItem("requestId");
+
+    await axios.post(
+      "http://localhost:5000/api/select/select",
+      {
+        familyId,
+        providerId: provider._id,
+        requestId
+      }
+    );
+
+    navigate("/booking", { state: provider });
+  }}
+>
+  Select This Provider
+</button>
 
                     <button
                         className='previous'

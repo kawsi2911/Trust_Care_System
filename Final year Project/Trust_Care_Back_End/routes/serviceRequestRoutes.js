@@ -14,11 +14,13 @@ router.post("/register", async (req, res) => {
       familyId: req.body.familyId
     });
 
-    await newServiceRequest.save();
+   const savedRequest = await newServiceRequest.save(); 
 
     /* notification for family */
     const familyNotification = new Notification({
       receiverId: req.body.familyId,
+      familyId: req.body.familyId,
+      requestId: savedRequest._id,
       role: "family",
       title: "Request Sent",
       message: `Your service request in ${req.body.SLocation} has been sent to nearby caregivers`
@@ -29,7 +31,7 @@ router.post("/register", async (req, res) => {
 
     /* find providers in same location */
     const providers = await Provider.find({
-      city: req.body.SLocation
+      location: req.body.SLocation
     });
 
     /* notify providers */
@@ -37,6 +39,9 @@ router.post("/register", async (req, res) => {
 
       const notification = new Notification({
         receiverId: provider._id,
+        providerId: provider._id,
+        familyId: req.body.familyId,
+        requestId: savedRequest._id,
         role: "provider",
         title: "New Service Request",
         message: `New request in ${req.body.SLocation}. Click to view request`
@@ -46,7 +51,8 @@ router.post("/register", async (req, res) => {
     }
 
     res.json({
-      message: "Service Request Submitted Successfully"
+      message: "Service Request Submitted Successfully",
+      requestId: savedRequest._id
     });
 
   } catch (error) {

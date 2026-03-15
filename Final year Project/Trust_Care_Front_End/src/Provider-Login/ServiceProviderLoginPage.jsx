@@ -71,11 +71,15 @@ function ServiceProviderLoginPage() {
 
       // Store user info depending on "Remember Me"
       if (formData.check) {
-        localStorage.setItem("userId", data.userId);
+        localStorage.setItem("providerId", data.userId);
         localStorage.setItem("FullName", data.FullName);
+        localStorage.setItem("role", "provider");
+
       } else {
-        sessionStorage.setItem("userId", data.userId);
+
+        sessionStorage.setItem("providerId", data.userId);
         sessionStorage.setItem("FullName", data.FullName);
+        sessionStorage.setItem("role", "provider");
       }
 
       Swal.fire({

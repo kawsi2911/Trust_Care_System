@@ -13,42 +13,46 @@ function ServiceProviderDashboard() {
     const [pendingJobs, setPendingJobs] = useState(0);
     const [latestRequest, setLatestRequest] = useState(null);
 
-   useEffect(() => {
 
-    const userId =
-        localStorage.getItem("userId") ||
-        sessionStorage.getItem("userId");
+    useEffect(() => {
 
-    const name =
-        localStorage.getItem("FullName") ||
-        sessionStorage.getItem("FullName");
+        const providerId =
+            localStorage.getItem("providerId") ||
+            sessionStorage.getItem("providerId");
 
-    setFullName(name);
+        const name =
+            localStorage.getItem("FullName") ||
+            sessionStorage.getItem("FullName");
 
-    if (!userId) {
-        navigate("/serviceproviderlogin");
-        return;
-    }
+        setFullName(name);
 
-    fetch(`http://localhost:5000/api/service-request/dashboard/${userId}`)
-        .then(res => res.json())
-        .then(data => {
+        if (!providerId) {
+            navigate("/serviceproviderlogin");
+            return;
+        }
 
-            setTotalJobs(data.totalJobs || 0);
-            setActiveJobs(data.activeJobs || 0);
-            setPendingJobs(data.pendingJobs || 0);
-            setLatestRequest(data.latestRequest || null);
+        fetch(`http://localhost:5000/api/service-request/dashboard/${providerId}`)
+            .then(res => res.json())
+            .then(data => {
 
-        })
-        .catch(err => console.log(err));
+                setTotalJobs(data.totalJobs || 0);
+                setActiveJobs(data.activeJobs || 0);
+                setPendingJobs(data.pendingJobs || 0);
+                setLatestRequest(data.latestRequest || null);
 
-}, [navigate]);
+            })
+            .catch(err => console.log(err));
+
+    }, [navigate]);
 
 
     const handleLogout = () => {
-        localStorage.removeItem("userId");
-        sessionStorage.removeItem("userId");
+
+        localStorage.clear();
+        sessionStorage.clear();
+
         navigate("/");
+
     };
 
 
@@ -161,8 +165,8 @@ function ServiceProviderDashboard() {
 
                                     <p className="Family">
 
-                                        A Family in {latestRequest.location}
-                                        needs {latestRequest.service}
+                                        A Family in {latestRequest.SLocation}
+                                        needs {latestRequest.Service}
 
                                     </p>
 

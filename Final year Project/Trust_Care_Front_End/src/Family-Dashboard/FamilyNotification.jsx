@@ -9,7 +9,7 @@ function FamilyNotification(){
     const navigate = useNavigate();
     const [notifications,setNotifications] = useState([]);
 
-   useEffect(()=>{
+    useEffect(()=>{
 
     const fetchNotifications = async () => {
 
@@ -39,7 +39,6 @@ function FamilyNotification(){
     fetchNotifications();
 
 },[]);
-
 
     return(
         <>

@@ -7,6 +7,18 @@ const NotificationSchema = new mongoose.Schema({
     required: true
   },
 
+  familyId: {
+    type: mongoose.Schema.Types.ObjectId
+  },
+
+  providerId: {
+    type: mongoose.Schema.Types.ObjectId
+  },
+
+  requestId: {
+    type: mongoose.Schema.Types.ObjectId
+  },
+
   role: {
     type: String,
     enum: ["family","provider"],
@@ -30,6 +42,4 @@ const NotificationSchema = new mongoose.Schema({
 
 });
 
-const Notification = mongoose.model("Notification", NotificationSchema);
-
-export default Notification;
+export default mongoose.model("Notification", NotificationSchema);

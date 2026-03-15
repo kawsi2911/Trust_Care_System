@@ -26,7 +26,7 @@ router.post("/create", async (req, res) => {
 
   }
 
-});*/
+});
 
 router.get("/:receiverId", async (req, res) => {
 
@@ -42,5 +42,24 @@ router.get("/:receiverId", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 
+});*/
+
+router.get("/:id", async (req, res) => {
+
+  try {
+
+    const notifications = await Notification.find({
+      receiverId: req.params.id
+    }).sort({ createdAt: -1 });
+
+    res.json(notifications);
+
+  } catch (error) {
+
+    res.status(500).json({ error: error.message });
+
+  }
+
 });
 export default router;
+
