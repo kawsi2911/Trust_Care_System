@@ -35,6 +35,11 @@ const NotificationSchema = new mongoose.Schema({
     required: true
   },
 
+  status:  { type: String, 
+    enum: ["pending", "accepted", "declined"], 
+    default: "pending" 
+  },
+
   createdAt: {
     type: Date,
     default: Date.now
