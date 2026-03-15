@@ -17,7 +17,7 @@ const bookingSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["pending", "active", "completed", "cancelled", "paid"],
+    enum: ["pending", "active", "completed", "cancelled", "paid", "reviewed"],
     default: "pending",
   },
   patientType: {
@@ -39,6 +39,23 @@ const bookingSchema = new mongoose.Schema({
   },
   endDate: {
     type: Date,
+  },
+  // ✅ Review fields
+  rating: {
+    type: Number,
+    default: 0,
+  },
+  review: {
+    type: String,
+  },
+  recommend: {
+    type: String,
+  },
+  aspects: {
+    professionalism: { type: Number, default: 0 },
+    punctuality:     { type: Number, default: 0 },
+    communication:   { type: Number, default: 0 },
+    qualityOfCare:   { type: Number, default: 0 },
   },
 }, {
   timestamps: true,

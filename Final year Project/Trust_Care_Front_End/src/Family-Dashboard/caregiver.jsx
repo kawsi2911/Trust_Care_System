@@ -106,38 +106,41 @@ function Caregiver() {
                     </div>
 
 
-                   <button
-  className='finishes'
-  onClick={async () => {
+                    <button
+                        className='finishes'
+                        onClick={async () => {
+                            try {
+                                const familyId =
+                                    localStorage.getItem("userId") ||
+                                    sessionStorage.getItem("userId");
 
- try {
+                                const requestId = localStorage.getItem("requestId");
 
-   const familyId =
-     localStorage.getItem("userId") ||
-     sessionStorage.getItem("userId");
+                                if (!requestId || requestId === "undefined") {
+                                    alert("Service request not found. Please submit a service request first.");
+                                    return;
+                                }
 
-   const requestId = localStorage.getItem("requestId");
+                                // ✅ FIXED: changed single quotes to backticks
+                                await axios.post(
+                                    `http://localhost:5000/api/service-request/accept/${requestId}`,
+                                    {
+                                        familyId,
+                                        providerId: provider._id,
+                                    }
+                                );
 
-   await axios.post(
-     "http://localhost:5000/api/service-request/accept/${requestId}",
-     {
-       familyId,
-       providerId: provider._id,
-       requestId
-     }
-   );
+                                localStorage.removeItem("requestId");
+                                navigate("/booking", { state: provider });
 
-   navigate("/booking", { state: provider });
-
- } catch (error) {
-   console.error(error);
-   alert("Failed to select provider");
- }
-
-}}
->
-  Select This Provider
-</button>
+                            } catch (error) {
+                                console.error(error);
+                                alert("Failed to select provider");
+                            }
+                        }}
+                    >
+                        Select This Provider
+                    </button>
 
                     <button
                         className='previous'

@@ -76,6 +76,9 @@ function MakePayment() {
 
             const { payhereData, checkoutUrl } = res.data;
 
+            // ✅ Save booking ID so PaymentSuccess can mark it as paid
+            localStorage.setItem("lastBookingId", booking._id);
+
             if (paymentMethod === "cash") {
                 // ── Cash payment — mark directly as paid ─────────────────────
                 await axios.put(

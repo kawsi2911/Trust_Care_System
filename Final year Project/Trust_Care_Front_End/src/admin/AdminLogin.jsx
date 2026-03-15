@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AdminLogin.css";
+import logo from "../assets/logo.png";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -31,7 +32,6 @@ const AdminLogin = () => {
       const data = await response.json();
 
       if (data.success) {
-        // Save token and admin info
         localStorage.setItem("adminToken", data.token);
         localStorage.setItem("adminInfo", JSON.stringify(data.admin));
         navigate("/admin/dashboard");
@@ -47,9 +47,11 @@ const AdminLogin = () => {
 
   return (
     <div className="admin-login-page">
+
+      {/* ✅ Logo on left corner, TRUST CARE centered */}
       <div className="admin-login-header">
-        <div className="logo-icon">🛡️</div>
-        <h1>Trust Care</h1>
+        <img src={logo} alt="Trust Care Logo" className="admin-login-logo" />
+        <h1 className="admin-login-title">TRUST CARE</h1>
       </div>
 
       <div className="admin-login-card">
@@ -61,9 +63,7 @@ const AdminLogin = () => {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>
-              Username <span className="required">*</span>
-            </label>
+            <label>Username <span className="required">*</span></label>
             <input
               type="text"
               name="username"
@@ -75,9 +75,7 @@ const AdminLogin = () => {
           </div>
 
           <div className="form-group">
-            <label>
-              Password <span className="required">*</span>
-            </label>
+            <label>Password <span className="required">*</span></label>
             <input
               type="password"
               name="password"

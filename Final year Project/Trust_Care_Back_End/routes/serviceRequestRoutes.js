@@ -279,4 +279,34 @@ router.put("/mark-paid/:bookingId", async (req, res) => {
 });
 
 
+// ─────────────────────────────────────────
+// POST /api/service-request/submit-review
+// Family submits a review for a completed booking
+// ─────────────────────────────────────────
+router.post("/submit-review", async (req, res) => {
+    try {
+        const { bookingId, providerId, rating, review, recommend, aspects } = req.body;
+
+        // Update booking with review
+        const booking = await Booking.findByIdAndUpdate(
+            bookingId,
+            {
+                status: "reviewed",
+                rating,
+                review,
+                recommend,
+                aspects,
+            },
+            { new: true }
+        );
+
+        if (!booking) return res.status(404).json({ error: "Booking not found" });
+
+        res.json({ message: "Review submitted successfully", booking });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
 export default router;

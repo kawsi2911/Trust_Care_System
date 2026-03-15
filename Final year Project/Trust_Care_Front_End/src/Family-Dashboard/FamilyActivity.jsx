@@ -12,8 +12,8 @@ function FamilyActivity(){
     const [stats, setStats] = useState({ totalServices: 0, activeNow: 0, completed: 0 });
     const [loading, setLoading] = useState(true);
 
-    // ✅ CHANGED: check both localStorage and sessionStorage for userId
-    const familyId = localStorage.getItem("userId") || sessionStorage.getItem("userId");
+    const familyData = JSON.parse(localStorage.getItem("familyData") || "{}");
+    const familyId = familyData._id || familyData.id || localStorage.getItem("userId");
 
     useEffect(() => {
         const fetchBookings = async () => {
@@ -120,7 +120,7 @@ function FamilyActivity(){
                                         </div>
                                     )}
 
-                                    {/* ✅ Completed - show Make Payment button */}
+                                    {/* Pending payment */}
                                     {booking.status === "completed" && (
                                         <button className="makepayment" onClick={() => navigate("/makepayment", {
                                             state: booking
@@ -129,13 +129,20 @@ function FamilyActivity(){
                                         </button>
                                     )}
 
-                                    {/* Already paid */}
+                                    {/* Already paid - show rate button */}
                                     {booking.status === "paid" && (
                                         <button className="makepayment" onClick={() => navigate("/rate", {
                                             state: booking
                                         })}>
                                             ⭐ Rate Service
                                         </button>
+                                    )}
+
+                                    {/* Already reviewed - show completed */}
+                                    {booking.status === "reviewed" && (
+                                        <p style={{ color: "#4caf50", fontWeight: "600" }}>
+                                            ✅ Review Submitted
+                                        </p>
                                     )}
                                 </div>
                             </div>
