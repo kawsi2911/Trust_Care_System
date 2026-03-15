@@ -89,7 +89,7 @@ function ProfileDashboard() {
                         <button className="logouts" onClick={() => {
                             localStorage.removeItem("userId");
                             sessionStorage.removeItem("userId");
-                            navigate("/serviceproviderlogin");
+                            navigate("/");
                         }}> Logout</button>
                     </div>
 
