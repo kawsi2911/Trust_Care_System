@@ -12,6 +12,7 @@ import selectRoutes from "./routes/select.js";
 
 // ── Admin routes ──────────────────────────────────────────────────────────────
 import adminRoutes from "./routes/adminRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
 
 dotenv.config();
 
@@ -39,5 +40,6 @@ app.use("/api/select", selectRoutes);
 
 // ── Admin API routes ──────────────────────────────────────────────────────────
 app.use("/api/admin", adminRoutes);
+app.use("/api/payments", paymentRoutes);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
