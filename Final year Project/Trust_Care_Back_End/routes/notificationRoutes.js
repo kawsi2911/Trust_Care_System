@@ -61,5 +61,15 @@ router.get("/:id", async (req, res) => {
   }
 
 });
+
+// routes/notificationRoutes.js
+router.post("/decline/:id", async (req, res) => {
+  try {
+    await Notification.findByIdAndDelete(req.params.id);
+    res.json({ message: "Notification declined" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 export default router;
 

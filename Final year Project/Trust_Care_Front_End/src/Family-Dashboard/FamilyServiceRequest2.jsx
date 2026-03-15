@@ -105,6 +105,7 @@ function FamilyServiceRequest2() {
       );
 
       console.log("Service Request Saved:", response.data);
+      localStorage.setItem("requestId", response.data.requestId);
 
       localStorage.removeItem("form1Data");
 

@@ -12,7 +12,7 @@ function NotificationDashboard(){
 
     useEffect(()=>{
 
-        const providerId = localStorage.getItem("providerId");
+       const providerId = localStorage.getItem("userId") || sessionStorage.getItem("userId");
 
         axios.get(`http://localhost:5000/api/notifications/${providerId}`)
         .then(res=>{
