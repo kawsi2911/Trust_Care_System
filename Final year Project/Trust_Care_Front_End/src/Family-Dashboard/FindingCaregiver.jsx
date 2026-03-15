@@ -21,7 +21,7 @@ function FindingCaregiver() {
         }
       });
 
-    }, 60000); // 1 minute
+    }, 5000); // 1 minute
 
     return () => clearTimeout(timer);
 

@@ -83,20 +83,6 @@ router.get("/provider/:providerId", async (req, res) => {
 
 });
 
-// Get notifications with request info
-router.get("/:providerId", async (req, res) => {
-  try {
-    const notifications = await Notification.find({
-      providerId: req.params.providerId
-    }).populate("requestId"); // populate service request
-
-    res.json(notifications);
-
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 
 
 

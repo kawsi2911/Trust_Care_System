@@ -8,15 +8,18 @@ const NotificationSchema = new mongoose.Schema({
   },
 
   familyId: {
-    type: mongoose.Schema.Types.ObjectId
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Family"
   },
 
   providerId: {
-    type: mongoose.Schema.Types.ObjectId
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Provider"
   },
 
   requestId: {
-    type: mongoose.Schema.Types.ObjectId
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "ServiceRequest"
   },
 
   role: {
