@@ -8,13 +8,20 @@ function NotificationDashboard() {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
 
-  useEffect(() => {
-    const providerId = localStorage.getItem("userId") || sessionStorage.getItem("userId");
+ useEffect(() => {
 
-    axios.get(`http://localhost:5000/api/notifications/${providerId}`)
-      .then(res => setNotifications(res.data))
-      .catch(err => console.log(err));
-  }, []);
+ const providerId =
+   localStorage.getItem("userId") ||
+   sessionStorage.getItem("userId");
+
+ if (!providerId) return;
+
+ axios.get(`http://localhost:5000/api/notifications/${providerId}`)
+   .then(res => setNotifications(res.data))
+   .catch(err => console.log(err));
+
+}, []);
+
 
   // Mark notification as accepted
   const handleAccept = async (noteId) => {
@@ -27,14 +34,16 @@ function NotificationDashboard() {
   };
 
   // Decline notification
-  const handleDecline = async (noteId) => {
-    try {
-      await axios.put(`http://localhost:5000/api/notifications/${noteId}/decline`);
-      setNotifications(notifications.filter(n => n._id !== noteId));
-    } catch (err) {
-      console.error("Error declining notification:", err);
-    }
-  };
+ const handleDecline = async (noteId) => {
+  try {
+    await axios.put(`http://localhost:5000/api/notifications/decline/${noteId}`);
+    
+    setNotifications(notifications.filter(n => n._id !== noteId));
+
+  } catch (err) {
+    console.error("Error declining notification:", err);
+  }
+};
 
   return (
     <>

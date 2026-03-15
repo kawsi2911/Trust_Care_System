@@ -32,7 +32,7 @@ import FamilyProfile from "./Family-Dashboard/familyprofile.jsx";
 import ServiceProviderForget from "./Provider-Login/ServiceProviderForget.jsx";
 import ServiceProviderProfileEdit from "./Provider-Login/ServiceProviderEdit.jsx";
 import Familyforget from "./family-components/familyforget.jsx";
-import FamilyProfieEdit from "./family-components/FamilyProfieEdit.jsx"
+import FamilyProfieEdit from "./family-components/FamilyProfieEdit.jsx";
 // Admin imports
 import AdminLogin from "./admin/AdminLogin.jsx";
 import AdminDashboard from "./admin/AdminDashboard.jsx";

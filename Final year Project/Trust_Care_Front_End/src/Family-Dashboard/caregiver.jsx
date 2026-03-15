@@ -110,24 +110,31 @@ function Caregiver() {
   className='finishes'
   onClick={async () => {
 
-    const familyId =
-      localStorage.getItem("userId") ||
-      sessionStorage.getItem("userId");
+ try {
 
-    const requestId =
-      localStorage.getItem("requestId");
+   const familyId =
+     localStorage.getItem("userId") ||
+     sessionStorage.getItem("userId");
 
-    await axios.post(
-      "http://localhost:5000/api/select/select",
-      {
-        familyId,
-        providerId: provider._id,
-        requestId
-      }
-    );
+   const requestId = localStorage.getItem("requestId");
 
-    navigate("/booking", { state: provider });
-  }}
+   await axios.post(
+     "http://localhost:5000/api/select/select",
+     {
+       familyId,
+       providerId: provider._id,
+       requestId
+     }
+   );
+
+   navigate("/booking", { state: provider });
+
+ } catch (error) {
+   console.error(error);
+   alert("Failed to select provider");
+ }
+
+}}
 >
   Select This Provider
 </button>

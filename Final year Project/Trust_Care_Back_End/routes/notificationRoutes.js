@@ -1,5 +1,6 @@
 import express from "express"; 
-import Notification from "../models/notificationModel.js"; 
+import Notification from "../models/notificationModel.js";
+import providerModel from "../models/providerModel.js";
 
 const router = express.Router();
 
@@ -34,18 +35,7 @@ router.post("/create", async (req, res) => {
   }
 });
 
-// Accept a notification
-router.put("/accept/:id", async (req, res) => {
-  try {
-    const notification = await Notification.findById(req.params.id);
-    if (!notification) return res.status(404).json({ message: "Notification not found" });
-    notification.status = "accepted";
-    await notification.save();
-    res.json({ message: "Notification accepted" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+
 
 // Decline a notification
 router.put("/decline/:id", async (req, res) => {
@@ -60,29 +50,41 @@ router.put("/decline/:id", async (req, res) => {
   }
 });
 
-// Accept notification and notify family
+// Accept a notification
 router.put("/accept/:id", async (req, res) => {
   try {
-    // 1. Find provider notification
-    const providerNotif = await Notification.findById(req.params.id);
-    if (!providerNotif) return res.status(404).json({ message: "Notification not found" });
 
-    providerNotif.status = "accepted";
-    await providerNotif.save();
+    const note = await Notification.findById(req.params.id);
 
-    // 2. Create a notification for the family
-    const familyNotification = new Notification({
-      receiverId: providerNotif.familyId, // make sure your notification has a familyId
-      title: "Provider Accepted Your Request",
-      message: `Provider ${providerNotif.providerName} has accepted your service request.`,
+    if (!note) {
+      return res.status(404).json({ message: "Notification not found" });
+    }
+
+    note.status = "accepted";
+    await note.save();
+
+    // Get provider details
+    const provider = await providerModel.findById(note.providerId);
+
+    if (!provider) {
+      return res.status(404).json({ message: "Provider not found" });
+    }
+
+    // Create booking confirmation notification for family
+    await Notification.create({
+      receiverId: note.familyId,
+      role: "family",
+      title: "Booking Confirmed",
+      message: `${provider.FullName} accepted your ${note.serviceType} request`,
       status: "pending"
     });
-    await familyNotification.save();
 
-    res.json({ message: "Notification accepted and family notified!" });
+    res.json({ success: true });
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 export default router;

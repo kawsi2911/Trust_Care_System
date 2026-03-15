@@ -25,7 +25,7 @@ function FindingCaregiver() {
 
     return () => clearTimeout(timer);
 
-  }, [navigate, requestData]);
+  }, [navigate, requestData.SLocation]);
 
   return (
     <>

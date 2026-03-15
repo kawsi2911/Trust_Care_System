@@ -1,5 +1,5 @@
 import express from "express";
-import Notification from "../models/notificationModel.js";
+import Notification from "../models/Notificationmodel.js";
 
 const router = express.Router();
 
@@ -7,7 +7,7 @@ router.post("/select", async (req, res) => {
 
   try {
 
-    const { familyId, providerId, requestId } = req.body;
+    const { familyId, providerId, requestId, serviceType } = req.body;
 
     // notify provider
     await Notification.create({
@@ -15,6 +15,7 @@ router.post("/select", async (req, res) => {
       providerId,
       familyId,
       requestId,
+      serviceType: req.body.serviceType,
       role: "provider",
       title: "Booking Request",
       message: "Family selected you"

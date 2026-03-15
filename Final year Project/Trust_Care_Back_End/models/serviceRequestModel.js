@@ -1,75 +1,27 @@
 import mongoose from "mongoose";
 
-const ServiceRequestSchema = new mongoose.Schema({
+const serviceRequestSchema = new mongoose.Schema({
 
-    familyId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Family",
-        required: true
-    },
+  Page: String,
+  PName: String,
+  relationship: String,
+  Gender: String,
+  Service: String,
+  PatientType: String,
 
-    // Form 1
-    PatientType: {
-        type: String,
-        required: true
-    },
+  SLocation: String,
+  Address: String,
+  serviceOptions: String,
+  disabilityDetails: String,
+  preferredGender: String,
+  additionalRequirement: String,
 
-    PName: {
-        type: String,
-        required: true
-    },
-
-    relationship: {
-        type: String,
-        required: true
-    },
-
-    Page: {
-        type: Number,
-        required: true
-    },
-
-    Gender: {
-        type: String,
-        required: true
-    },
-
-    Service: {
-        type: String,
-        required: true
-    },
-
-    // Form 2
-
-    SLocation: {
-        type: String,
-        required: true
-    },
-
-    Address: {
-        type: String,
-        required: true
-    },
-
-    serviceOptions: {
-        type: String,
-        required: true
-    },
-
-    disabilityDetails: {
-        type: String
-    },
-
-    preferredGender: {
-        type: String,
-        required: true
-    },
-
-    additionalRequirement: {
-        type: String,
-        required: true
-    },
+  familyId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Family",
+    required: true
+  }
 
 }, { timestamps: true });
 
-export default mongoose.model("ServiceRequest", ServiceRequestSchema);
+export default mongoose.model("ServiceRequest", serviceRequestSchema);

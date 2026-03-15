@@ -35,6 +35,10 @@ const NotificationSchema = new mongoose.Schema({
     required: true
   },
 
+  serviceType:{
+    type:String
+  },
+
   status:  { type: String, 
     enum: ["pending", "accepted", "declined"], 
     default: "pending" 
@@ -47,4 +51,6 @@ const NotificationSchema = new mongoose.Schema({
 
 });
 
-export default mongoose.model("Notification", NotificationSchema);
+const Notification = mongoose.models.Notification || mongoose.model("Notification", NotificationSchema);
+
+export default Notification;
