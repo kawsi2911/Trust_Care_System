@@ -6,59 +6,12 @@ const router = express.Router();
 // Registration
 router.post("/providerregister", async (req, res) => {
   try {
-<<<<<<< HEAD
-    const {
-      FullName,
-      NIC,
-      phone,
-      email,
-      gender,
-      dob,
-      fulladdress,
-      serviceType,
-      year,
-      qualifications,
-      uploadprofile,
-      location,
-      workRadius,
-      available,
-      hourlyRate,
-      username,
-      password
-    } = req.body;
-
-    const existing = await Service.findOne({ username });
-=======
     const existing = await Service.findOne({ username: req.body.username });
->>>>>>> mumthaj
     if (existing) {
       return res.status(400).json({ message: "Username already taken" });
     }
 
-<<<<<<< HEAD
-    const newService = new Service({
-      FullName,
-      NIC,
-      phone,
-      email,
-      gender,
-      dob,
-      fulladdress,
-      serviceType,
-      year,
-      qualifications,
-      uploadprofile,
-      location,
-      workRadius,
-      available,
-      hourlyRate,
-      username,
-      password
-    });
-
-=======
     const newService = new Service(req.body);
->>>>>>> mumthaj
     const saved = await newService.save();
 
     res.json({
@@ -141,12 +94,14 @@ router.put("/:id", async (req, res) => {
 });
 
 
+// ✅ CHANGED: only show Active (admin-approved) providers to families
 router.post("/nearby-providers", async (req, res) => {
   try {
     const { userLocation } = req.body;
     console.log("Searching providers near:", userLocation);
     const providers = await Service.find({
-      location: { $regex: new RegExp(userLocation, "i") }
+      location: { $regex: new RegExp(userLocation, "i") },
+      status: "Active"  // ✅ ADDED: only admin-approved providers visible
     });
     res.json({ providers });
   } catch (error) {
@@ -154,8 +109,6 @@ router.post("/nearby-providers", async (req, res) => {
   }
 });
 
-<<<<<<< HEAD
-=======
 
 // ─────────────────────────────────────────
 // PUT /api/service/reset-password
@@ -183,5 +136,4 @@ router.put("/reset-password", async (req, res) => {
     }
 });
 
->>>>>>> mumthaj
 export default router;

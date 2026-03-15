@@ -119,7 +119,7 @@ function Caregiver() {
    const requestId = localStorage.getItem("requestId");
 
    await axios.post(
-     "http://localhost:5000/api/select/select",
+     "http://localhost:5000/api/service-request/accept/${requestId}",
      {
        familyId,
        providerId: provider._id,

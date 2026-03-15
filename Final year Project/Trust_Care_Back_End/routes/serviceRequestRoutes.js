@@ -1,91 +1,44 @@
 import express from "express";
 import ServiceRequest from "../models/serviceRequestModel.js";
-import Notification from "../models/notificationModel.js";
-import Provider from "../models/providerModel.js";
+import Booking from "../models/bookingModel.js";
+// ✅ FIXED: was missing — caused ServiceProvider.findById() to crash
+import ServiceProvider from "../models/providerModel.js";
 
 const router = express.Router();
 
-router.post("/register", async (req, res) => {
 
-  try {
+// ─────────────────────────────────────────
+// POST /api/service-request/new-request
+// Family submits a new service request
+// ─────────────────────────────────────────
+router.post("/new-request", async (req, res) => {
+    try {
+        const familyId = req.body.familyId || req.userId;
+        if (!familyId) return res.status(400).json({ error: "familyId is required" });
 
-    const newServiceRequest = new ServiceRequest({
-      ...req.body,
-      familyId: req.body.familyId
-    });
+        const requiredFields = [
+            "PatientType", "PName", "relationship", "Page", "Service",
+            "SLocation", "Address", "serviceOptions", "Gender", "additionalRequirement"
+        ];
 
-   const savedRequest = await newServiceRequest.save(); 
+        for (const field of requiredFields) {
+            if (!req.body[field] || !req.body[field].toString().trim()) {
+                return res.status(400).json({ error: `${field} is required` });
+            }
+        }
 
-    /* notification for family */
-    const familyNotification = new Notification({
-      receiverId: req.body.familyId,
-      familyId: req.body.familyId,
-      requestId: savedRequest._id,
-      role: "family",
-      title: "Request Sent",
-      message: `Your service request in ${req.body.SLocation} has been sent to nearby caregivers`
-    });
+        const newRequest = new ServiceRequest({ familyId, ...req.body });
+        const savedRequest = await newRequest.save();
 
-    await familyNotification.save();
+        res.status(201).json(savedRequest);
 
-
-    /* find providers in same location */
-    const providers = await Provider.find({
-      location: req.body.SLocation
-    });
-
-    /* notify providers */
-    for (const provider of providers) {
-
-      const notification = new Notification({
-        receiverId: provider._id,
-        providerId: provider._id,
-        familyId: req.body.familyId,
-        requestId: savedRequest._id,
-        role: "provider",
-        title: "New Service Request",
-        message: `New request in ${req.body.SLocation}. Click to view request`
-      });
-
-      await notification.save();
+    } catch (err) {
+        console.error("Error saving service request:", err);
+        res.status(500).json({ error: err.message });
     }
-
-    res.json({
-      message: "Service Request Submitted Successfully",
-      requestId: savedRequest._id
-    });
-
-  } catch (error) {
-
-    console.log(error);
-
-    res.status(500).json({ error: error.message });
-
-  }
-
-});
-
-router.get("/provider/:providerId", async (req, res) => {
-
-  try {
-
-    const notifications = await Notification.find({
-      providerId: req.params.providerId
-    }).populate("requestId");
-
-    res.json(notifications);
-
-  } catch (error) {
-
-    res.status(500).json({ error: error.message });
-
-  }
-
 });
 
 
-<<<<<<< HEAD
-=======
 // ─────────────────────────────────────────
 // GET /api/service-request/dashboard/:userId
 // Provider dashboard — job counts + latest request
@@ -305,11 +258,10 @@ router.get("/provider-activity/:providerId", async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
->>>>>>> mumthaj
 
 
 // ─────────────────────────────────────────
-// PUT /api/service-request/mark-paid/:bookingId  ← mumthaj change 
+// PUT /api/service-request/mark-paid/:bookingId  ← NEW
 // MakePayment — mark booking as paid (cash/bank)
 // ─────────────────────────────────────────
 router.put("/mark-paid/:bookingId", async (req, res) => {

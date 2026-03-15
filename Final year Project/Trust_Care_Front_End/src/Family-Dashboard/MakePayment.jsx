@@ -1,20 +1,11 @@
 import Header from "../Header/Header";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./MakePayment.css";
-<<<<<<< HEAD
-=======
 import { useState, useEffect } from "react";
 import axios from "axios";
->>>>>>> mumthaj
 
+function MakePayment() {
 
-function MakePayment(){
-
-<<<<<<< HEAD
-    const navigate = useNavigate();
-
-    return(
-=======
     const navigate  = useNavigate();
     const location  = useLocation();
 
@@ -135,58 +126,36 @@ function MakePayment(){
     };
 
     return (
->>>>>>> mumthaj
         <>
             <Header />
 
-            <div className = "ServiceProviderSection">
-                <div className = "ServiceProviderSection2">
+            <div className="ServiceProviderSection">
+                <div className="ServiceProviderSection2">
 
-                    <div className = "name">
-                        
+                    <div className="name">
                         <div className="heading-head">
-                            <p className = "Head">Make the Payment</p>
+                            <p className="Head">Make the Payment</p>
                         </div>
-
-                        <div className = "Logout">
-                            <button onClick = {()=>navigate("/")}>➜] Logout</button>
+                        <div className="Logout">
+                            <button onClick={handleLogout}>➜ Logout</button>
                         </div>
                     </div>
 
-<<<<<<< HEAD
-                    <div className = "booking-container">
-                            
-                        <p className = "provider-name"><strong>Service Summary</strong></p>
-
-=======
                     {/* Service Summary */}
                     <div className="booking-container">
                         <p className="provider-name"><strong>Service Summary</strong></p>
->>>>>>> mumthaj
                         <div className="summary">
-                            <p><strong>Service Type : </strong>Hospital Patient Care</p>
-                            <p><strong>Provider : </strong>Mr.kaerhick</p>
-                            <p><strong>Duration : </strong>1 week </p>
-                            <p><strong>Rate : </strong>Rs.24000/week</p>
+                            <p><strong>Service Type: </strong>{booking.serviceRequestId?.PatientType || booking.patientType || "N/A"}</p>
+                            <p><strong>Provider: </strong>{provider.FullName || "N/A"}</p>
+                            <p><strong>Duration: </strong>{booking.duration || "N/A"}</p>
+                            <p><strong>Rate: </strong>Rs. {booking.rate || "N/A"}</p>
                         </div>
-
                         <div className="cost">
-                            <span>Total Cost:</span>
-                            <span className="price">Rs. 24,000 / month</span>
+                            <span>Total Amount:</span>
+                            <span className="price">Rs. {booking.rate || "0"}</span>
                         </div>
-                           
                     </div>
 
-<<<<<<< HEAD
-                    <div className = "options">
-                        
-                        <p className = "heading-options">Preferred Caregiver Payment</p>
-                        
-                        <div className = 'card-options'>
-                            <input type = 'radio' id = 'card' name = 'payment' /> <label htmlFor = 'card'>Credit / Debit Card</label>
-                            <input type = 'radio' id = 'online' name = 'payment' /> <label htmlFor = 'online'>Bank Transfer</label>
-                            <input type = 'radio' id = 'cash' name = 'payment' /> <label htmlFor = 'cash'>Cash on Services</label>
-=======
                     {/* Payment Method Selector */}
                     <div className="options">
                         <p className="heading-options">Select Payment Method</p>
@@ -202,18 +171,9 @@ function MakePayment(){
                             <input type="radio" id="cash"   name="payment" value="cash"
                                 checked={paymentMethod === "cash"}   onChange={() => setPaymentMethod("cash")} />
                             <label htmlFor="cash">Cash on Service</label>
->>>>>>> mumthaj
                         </div>
-
                     </div>
 
-<<<<<<< HEAD
-                    <div className = "options">
-
-                        <div className="form-group">
-                            <p className = "heading-options">Card Number</p>
-                            <input type = 'text' id = 'cardnumber' name = 'cardnumber' placeholder = '1234 5678 0972 3456' /> 
-=======
                     {/* Card Fields */}
                     {paymentMethod === "card" && (
                         <div className="options">
@@ -263,40 +223,37 @@ function MakePayment(){
                             <div style={{ background: "#e8f5e9", padding: "10px", borderRadius: "8px", marginTop: "8px", fontSize: "0.82rem", color: "#2e7d32" }}>
                                 🧪 <strong>Test Card:</strong> 4916217501611292 | Expiry: 12/25 | CVV: 100
                             </div>
->>>>>>> mumthaj
                         </div>
+                    )}
 
-                        <div className="form-groups">
-
-                            <div className = "firstgroup">
-                                <p className = "heading-options">Expiry Date</p>
-                                <input type="text" id="E-date" name="E-date" placeholder="MM/YY" pattern="\d{2}/\d{2}" maxLength="5"/>
-                            </div>  
-
-                            <div className = "secondgroup">
-                                <p className = "heading-options">CVV</p>
-                                <input type="text" id="cvv" name ="seconds" placeholder="123" maxLength={3}/>   
-                            </div>                          
-                        
+                    {paymentMethod === "online" && (
+                        <div className="options">
+                            <p className="heading-options">Bank Transfer Details</p>
+                            <p>Bank: People's Bank</p>
+                            <p>Account: 0012345678</p>
+                            <p>Reference: TRUSTCARE-{booking._id?.slice(-6)?.toUpperCase()}</p>
                         </div>
+                    )}
 
-                        <div className="form-group">
-                            <p className = "heading-options">Card Holder Name</p>
-                            <input type = 'text' id = 'cardnumber' name = 'cardnumber' placeholder = 'name of the card' /> 
+                    {paymentMethod === "cash" && (
+                        <div className="options">
+                            <p className="heading-options">Cash on Service</p>
+                            <p>Pay the caregiver directly at the time of service.</p>
                         </div>
+                    )}
 
-                        <div className = "QServices">
-                            <button className = "confirms" onClick = {()=>navigate("/bookingconfirm")}> 💳Pay Rs.75000.00</button>
-                        </div>
-
-                        <p className = "paymenthead">🔒Secure Payment Powered by PayHere</p>
-                        
+                    <div className="QServices">
+                        <button className="confirms" onClick={handlePay} disabled={loading}>
+                            {loading ? "Processing..." : `💳 Pay Rs. ${booking.rate || "0"}`}
+                        </button>
                     </div>
+
+                    <p className="paymenthead">🔒 Secure Payment Powered by PayHere</p>
 
                 </div>
             </div>
         </>
-    )
+    );
 }
 
 export default MakePayment;
