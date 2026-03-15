@@ -9,10 +9,10 @@ function ProfileDashboard() {
     const [user, setUser] = useState(null); // store user data
 
     useEffect(() => {
-        const userId = localStorage.getItem("userId") || sessionStorage.getItem("userId");
-        if (!userId) return navigate("/serviceproviderlogin"); // redirect if not logged in
+        const providerId = localStorage.getItem("providerId") || sessionStorage.getItem("providerId");
+        if (!providerId) return navigate("/serviceproviderloginpage"); // redirect if not logged in
 
-        fetch(`http://localhost:5000/api/service/${userId}`)
+        fetch(`http://localhost:5000/api/service/${providerId}`)
             .then(res => res.json())
             .then(data => setUser(data))
             .catch(err => console.error("Fetch error:", err));
