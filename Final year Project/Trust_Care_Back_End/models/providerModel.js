@@ -37,10 +37,11 @@ const providerSchema = new mongoose.Schema({
         required: true
     },
 
-    serviceType: {
-        type: ["ElderCare", "ChildCare", "HospitalPatientCare", "HomePatientCare"],
-        required: true
-    },
+    serviceType: [{
+        type: String,
+        enum: ["ElderCare", "ChildCare", "HospitalPatientCare", "HomePatientCare"]
+    }],
+
 
     year: {
         type: String,

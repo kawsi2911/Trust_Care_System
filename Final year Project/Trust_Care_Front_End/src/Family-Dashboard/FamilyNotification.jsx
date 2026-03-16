@@ -1,85 +1,156 @@
+
 import Header from "../Header/Header";
 import { useNavigate } from "react-router-dom";
 import "./Familynotification.css";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
+function FamilyNotification() {
 
-function FamilyNotification(){
+  const navigate = useNavigate();
+  const [notifications, setNotifications] = useState([]);
 
-    const navigate = useNavigate();
+  useEffect(() => {
 
-    return(
-        <>
-            <Header />
+    const fetchNotifications = async () => {
 
-            <div className = "ServiceProviderSection">
-                <div className = "ServiceProviderSection2">
+      const familyId =
+        localStorage.getItem("userId") ||
+        sessionStorage.getItem("userId");
 
-                    <div className = "name">
-                        <div className="heading-head">
-                             <p className = "Head">Service Taker Dashboard</p>
-                        </div>
-                       
-                         <div className = "Logout">
-                            <button onClick = {()=>navigate("/")}>➜] Logout</button>
-                        </div>
-                    </div>
+      if (!familyId) {
+        console.log("No familyId found");
+        return;
+      }
 
-                    <div className = "button-section">
-                        <button onClick={()=>navigate("/familyhome")}> Home </button>
-                        <button onClick = {()=>navigate("/familyservice")}> Service </button>
-                        <button onClick = {()=>navigate("/familynotification")}> Notifications </button>
-                        <button onClick = { ()=>navigate("/familyactivity")}> Activity </button>
-                        <button onClick = {()=>navigate("/familyprofiles")}> Profile </button>
-                    </div>
+      try {
 
-                    <div className = "callprovider">
-                            <p className = "provider-name"><strong> ✔️Request Received !</strong></p>
+        const response = await axios.get(
+          `http://localhost:5000/api/notifications/${familyId}`
+        );
 
-                            <div className="summary">
-                                <p> Your Service request has been sent to nearby provider</p>
-                                <p>5 minutes ago</p>
-                            </div>
-                    </div>
+        setNotifications(response.data);
 
-                    <div className = "NewService">
-                        <div className = "service-content">
-                            <div>
-                                <p className = "text">🔔Providers Available!!</p>
-                                <p> 4 caregivers have responded to your request</p>
-                                <button className = "view-providers" onClick={()=>navigate("/caregiver")}> View Available Providers </button>
-                                <p>2 minutes ago</p>
-                            </div>
+      } catch (error) {
+        console.error("Error fetching notifications", error);
+      }
+    };
 
-                        </div>
-                    </div>
+    fetchNotifications();
 
-                    <div className = "callprovider">
-                        <p className = "provider-name"><strong> 🎉Booking Confirmed !</strong></p>
+    // auto refresh every 5 seconds
+    const interval = setInterval(fetchNotifications, 5000);
 
-                            <div className="summary">
-                                <p>Zain Ferenando has been hired for Elder Care Service</p>
-                                <button className = "view-details" onClick = {()=>navigate("/familyactivity")}> View Details </button>
-                                <p>Just Now</p>
-                            </div>
-                    </div>
+    return () => clearInterval(interval);
 
-                    <div className = "booking-container">
-                            
-                            <p className = "provider-name"><strong>✉️ Message from Provider</strong></p>
+  }, []);
 
-                            <div className="summary">
-                                <p>Zain Fernando: "Thank you for choosing me. I'LL contact you tommorrow morning"</p>
-                                <p>yesterday</p>
-                            </div>
+  return (
+    <>
+      <Header />
 
-                    </div>
+      <div className="ServiceProviderSection">
+        <div className="ServiceProviderSection2">
 
+          <div className="name">
 
-                </div>
+            <div className="heading-head">
+              <p className="Head">Service Taker Dashboard</p>
             </div>
 
-        </>
-    )
+            <div className="Logout">
+              <button onClick={() => navigate("/")}>➜ Logout</button>
+            </div>
+
+          </div>
+
+          <div className="button-section">
+            <button onClick={() => navigate("/familyhome")}>Home</button>
+            <button onClick={() => navigate("/familyservice")}>Service</button>
+            <button onClick={() => navigate("/familynotification")}>Notifications</button>
+            <button onClick={() => navigate("/familyactivity")}>Activity</button>
+            <button onClick={() => navigate("/familyprofiles")}>Profile</button>
+          </div>
+
+          {/* General Notifications */}
+
+          {notifications.length > 0 ? (
+            notifications.map((note) => (
+
+              <div className="callprovider" key={note._id}>
+
+                <p className="provider-name">
+                  <strong>🔔 {note.title}</strong>
+                </p>
+
+                <div className="summary">
+                  <p>{note.message}</p>
+
+                  {note.createdAt && (
+                    <p>{new Date(note.createdAt).toLocaleString()}</p>
+                  )}
+                </div>
+
+              </div>
+
+            ))
+          ) : (
+            <p style={{ textAlign: "center", marginTop: "20px" }}>
+              No Notifications Yet
+            </p>
+          )}
+
+          {/* Provider Accepted Section */}
+          {notifications
+            .filter(note => note.title === "Booking Confirmed")
+            .map((note) => (
+
+            <div className="booking-container" key={note._id}>
+
+            <p className="provider-name">
+              <strong>📞 Provider Accepted Your Request</strong>
+            </p>
+
+            <div className="summary">
+              <p>{note.message}</p>
+
+              {note.providerName && (
+                <p><strong>Provider:</strong> {note.providerName}</p>
+              )}
+
+              {note.providerPhone && (
+                <p><strong>Phone:</strong> {note.providerPhone}</p>
+              )}
+
+              {note.createdAt && (
+                <p>{new Date(note.createdAt).toLocaleString()}</p>
+              )}
+            </div>
+
+            {/* NEW BUTTON */}
+            <div className="inprogress">
+
+            <button
+              className="confirm"
+              onClick={() =>
+                navigate("/familyactivity", { 
+                  state:{
+                      requestId: note.requestId
+                    } 
+                  })
+                }
+                >
+                View Request
+              </button>
+          </div>
+        </div>
+      ))}
+
+        </div>
+      </div>
+
+    </>
+  );
 }
 
 export default FamilyNotification;

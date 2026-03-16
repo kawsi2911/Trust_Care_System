@@ -105,10 +105,11 @@ function FamilyServiceRequest2() {
       );
 
       console.log("Service Request Saved:", response.data);
+      localStorage.setItem("requestId", response.data.requestId);
 
       localStorage.removeItem("form1Data");
 
-      navigate("/findingcareprovider", { state: response.data });
+      navigate("/findingcareprovider", { state: combinedData });
 
     } catch (error) {
 

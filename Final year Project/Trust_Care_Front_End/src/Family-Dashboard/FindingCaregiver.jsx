@@ -1,60 +1,89 @@
 import Header from "../Header/Header";
 import { useNavigate } from "react-router-dom";
-import { useLocation } from "react-router-dom";
 import "./FindingCaregiver.css";
 import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
-function FindingCaregiver(){
+function FindingCaregiver() {
 
-    const navigate = useNavigate();
-    const location = useLocation();
-    const requestData = location.state || {};
+  const navigate = useNavigate();
+  const location = useLocation();
 
-    useEffect(() =>{
-        const timer = setTimeout(()=>{
-            navigate("/availableprovider", {
-                state: {
-                    userLocation: requestData.SLocation // matches Availableprovider
-                }
-            });
-        },60000);
-        return() =>clearTimeout(timer);
-    }, [navigate]);
+  const requestData = location.state || {};
 
-    return(
-        <>
-            <Header/>
-            <div className = 'ServiceSection'>
-                <div className = 'Service_container'>
+  useEffect(() => {
 
-                    <p className = 'para'>Finding Caregivers........</p>
+    const timer = setTimeout(() => {
 
-                    
+      navigate("/availableprovider", {
+        state: {
+          userLocation: requestData.SLocation
+        }
+      });
 
-                    <div className = "body01">
-                        
-                        <p className = "refresh">🔃</p>
-                        
-                        <p className = "paragraph">Searching for provider near you.............</p>
+    }, 5000); // 1 minute
 
-                        <div className="details">
-                            <p><strong>Location :</strong> {requestData.SLocation || "N/A"}</p>
-                            <p><strong>Service Type :</strong> {requestData.Service || "N/A"}</p>
-                            <p><strong>Search Radius :</strong> 10 km</p>
-                        </div>
-                    
-                    </div>
+    return () => clearTimeout(timer);
 
-                    <div className = "body022">
-                        <p className ="title"> ✔️ Request sent by nearest providers</p>
-                        <p className ="body-title"> ✔️ Waiting for the responses....</p>
-                        <p className = "footer-body">This is Takes 1 - 3 Minutes</p>
-                    </div>
+  }, [navigate, requestData.SLocation]);
 
-                </div>
+  return (
+    <>
+      <Header />
+
+      <div className="ServiceSection">
+        <div className="Service_container">
+
+          <p className="para">Finding Caregivers...</p>
+
+          <div className="body01">
+
+            <p className = "refresh">🔃</p>
+
+            <p className="paragraph">
+              Searching for providers near you...
+            </p>
+
+            <div className="details">
+
+              <p>
+                <strong>Location :</strong>{" "}
+                {requestData.SLocation || "N/A"}
+              </p>
+
+              <p>
+                <strong>Service Type :</strong>{" "}
+                {requestData.Service || "N/A"}
+              </p>
+
+              <p>
+                <strong>Search Radius :</strong> 10 km
+              </p>
+
             </div>
-        </>
-    )
 
+          </div>
+
+          <div className="body022">
+
+            <p className="title">
+              ✔️ Request sent to nearest providers
+            </p>
+
+            <p className="body-title">
+              ✔️ Waiting for responses...
+            </p>
+
+            <p className="footer-body">
+              This may take 1–3 minutes
+            </p>
+
+          </div>
+
+        </div>
+      </div>
+    </>
+  );
 }
+
 export default FindingCaregiver;
