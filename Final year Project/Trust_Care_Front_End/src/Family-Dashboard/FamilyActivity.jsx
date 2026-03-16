@@ -11,6 +11,8 @@ function FamilyActivity(){
     const [bookings, setBookings] = useState([]);
     const [stats, setStats] = useState({ totalServices: 0, activeNow: 0, completed: 0 });
     const [loading, setLoading] = useState(true);
+    const [contactModal, setContactModal] = useState(null);
+    const [detailsModal, setDetailsModal] = useState(null);
 
     const familyData = JSON.parse(localStorage.getItem("familyData") || "{}");
     const familyId = localStorage.getItem("userId") || 
@@ -28,7 +30,9 @@ function FamilyActivity(){
                 setStats({
                     totalServices: res.data.totalServices,
                     activeNow: res.data.activeNow,
-                    completed: res.data.completed,
+                    completed: res.data.bookings.filter(b => 
+                        ["completed", "paid", "reviewed"].includes(b.status)
+                    ).length,
                 });
             } catch (err) {
                 console.error("Failed to fetch bookings:", err);
@@ -53,6 +57,114 @@ function FamilyActivity(){
     return(
         <>
             <Header/>
+
+            {/* ── Contact Provider Modal ── */}
+            {contactModal && (
+                <div style={{
+                    position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+                    background: "rgba(0,0,0,0.5)", zIndex: 1000,
+                    display: "flex", alignItems: "center", justifyContent: "center"
+                }}>
+                    <div style={{
+                        background: "white", borderRadius: "12px",
+                        padding: "30px", width: "340px", textAlign: "center",
+                        boxShadow: "0 10px 40px rgba(0,0,0,0.2)"
+                    }}>
+                        <div style={{ fontSize: "3rem", marginBottom: "10px" }}>👨‍⚕️</div>
+                        <h3 style={{ color: "#2196f3", marginBottom: "16px" }}>Contact Provider</h3>
+                        <div style={{ textAlign: "left", marginBottom: "20px" }}>
+                            <p style={{ marginBottom: "10px" }}>
+                                <strong>Name:</strong> {contactModal.FullName || "N/A"}
+                            </p>
+                            <p style={{ marginBottom: "10px" }}>
+                                <strong>📞 Phone:</strong>{" "}
+                                <a href={`tel:${contactModal.phone}`} style={{ color: "#2196f3" }}>
+                                    {contactModal.phone || "N/A"}
+                                </a>
+                            </p>
+                            <p style={{ marginBottom: "10px" }}>
+                                <strong>✉️ Email:</strong>{" "}
+                                <a href={`mailto:${contactModal.email}`} style={{ color: "#2196f3" }}>
+                                    {contactModal.email || "N/A"}
+                                </a>
+                            </p>
+                            <p style={{ marginBottom: "10px" }}>
+                                <strong>📍 Location:</strong> {contactModal.location || "N/A"}
+                            </p>
+                        </div>
+                        <button
+                            onClick={() => setContactModal(null)}
+                            style={{
+                                padding: "10px 30px", background: "#2196f3",
+                                color: "white", border: "none", borderRadius: "8px",
+                                fontSize: "1rem", fontWeight: "600", cursor: "pointer"
+                            }}
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* ── View Details Modal ── */}
+            {detailsModal && (
+                <div style={{
+                    position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+                    background: "rgba(0,0,0,0.5)", zIndex: 1000,
+                    display: "flex", alignItems: "center", justifyContent: "center"
+                }}>
+                    <div style={{
+                        background: "white", borderRadius: "12px",
+                        padding: "30px", width: "360px",
+                        boxShadow: "0 10px 40px rgba(0,0,0,0.2)"
+                    }}>
+                        <h3 style={{ color: "#2196f3", marginBottom: "16px", textAlign: "center" }}>
+                            📋 Booking Details
+                        </h3>
+                        <div style={{ marginBottom: "20px" }}>
+                            <p style={{ marginBottom: "8px" }}>
+                                <strong>Service:</strong> {detailsModal.serviceRequestId?.PatientType || detailsModal.patientType || "N/A"}
+                            </p>
+                            <p style={{ marginBottom: "8px" }}>
+                                <strong>Provider:</strong> {detailsModal.providerId?.FullName || "N/A"}
+                            </p>
+                            <p style={{ marginBottom: "8px" }}>
+                                <strong>Location:</strong> {detailsModal.location || "N/A"}
+                            </p>
+                            <p style={{ marginBottom: "8px" }}>
+                                <strong>Duration:</strong> {detailsModal.duration || "N/A"}
+                            </p>
+                            <p style={{ marginBottom: "8px" }}>
+                                <strong>Rate:</strong> Rs. {detailsModal.rate || "N/A"}
+                            </p>
+                            <p style={{ marginBottom: "8px" }}>
+                                <strong>Started:</strong> {new Date(detailsModal.startDate || detailsModal.createdAt).toLocaleDateString()}
+                            </p>
+                            <p style={{ marginBottom: "8px" }}>
+                                <strong>Status:</strong>{" "}
+                                <span style={{
+                                    padding: "3px 10px", borderRadius: "20px",
+                                    background: detailsModal.status === "active" ? "#4caf50" : "#2196f3",
+                                    color: "white", fontSize: "0.85rem"
+                                }}>
+                                    {detailsModal.status}
+                                </span>
+                            </p>
+                        </div>
+                        <button
+                            onClick={() => setDetailsModal(null)}
+                            style={{
+                                width: "100%", padding: "10px",
+                                background: "#2196f3", color: "white",
+                                border: "none", borderRadius: "8px",
+                                fontSize: "1rem", fontWeight: "600", cursor: "pointer"
+                            }}
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <div className="ServiceProviderSection">
                 <div className="ServiceProviderSection2">
@@ -118,8 +230,14 @@ function FamilyActivity(){
                                     {/* Active booking */}
                                     {booking.status === "active" && (
                                         <div className="button-row">
-                                            <button className="contactprovider">Contact Provider</button>
-                                            <button className="markCompletes">View Details</button>
+                                            <button className="contactprovider"
+                                                onClick={() => setContactModal(booking.providerId)}>
+                                                Contact Provider
+                                            </button>
+                                            <button className="markCompletes"
+                                                onClick={() => setDetailsModal(booking)}>
+                                                View Details
+                                            </button>
                                         </div>
                                     )}
 
@@ -132,7 +250,7 @@ function FamilyActivity(){
                                         </button>
                                     )}
 
-                                    {/* Already paid - show rate button */}
+                                    {/* Already paid */}
                                     {booking.status === "paid" && (
                                         <button className="makepayment" onClick={() => navigate("/rate", {
                                             state: booking
@@ -141,7 +259,7 @@ function FamilyActivity(){
                                         </button>
                                     )}
 
-                                    {/* Already reviewed - show completed */}
+                                    {/* Already reviewed */}
                                     {booking.status === "reviewed" && (
                                         <p style={{ color: "#4caf50", fontWeight: "600" }}>
                                             ✅ Review Submitted
