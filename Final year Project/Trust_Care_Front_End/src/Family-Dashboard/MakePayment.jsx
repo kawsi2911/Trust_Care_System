@@ -1,302 +1,258 @@
 import Header from "../Header/Header";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./MakePayment.css";
-<<<<<<< HEAD
-=======
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "axios";
->>>>>>> mumthaj
 
+function MakePayment() {
 
-function MakePayment(){
+  const navigate = useNavigate();
+  const location = useLocation();
 
-<<<<<<< HEAD
-    const navigate = useNavigate();
+  const booking = location.state || {};
+  const provider = booking.providerId || {};
 
-    return(
-=======
-    const navigate  = useNavigate();
-    const location  = useLocation();
+  const [paymentMethod, setPaymentMethod] = useState("card");
+  const [loading, setLoading] = useState(false);
 
-    const booking  = location.state || {};
-    const provider = booking.providerId || {};
+  const [cardData, setCardData] = useState({
+    cardNumber: "",
+    expiryDate: "",
+    cvv: "",
+    cardHolder: ""
+  });
 
-    const [paymentMethod, setPaymentMethod] = useState("card");
-    const [loading, setLoading] = useState(false);
-    const [cardData, setCardData] = useState({
-        cardNumber: "", expiryDate: "", cvv: "", cardHolder: ""
-    });
-    const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({});
 
-    // ── Get family info from localStorage ────────────────────────────────────
-    const familyId   = localStorage.getItem("userId");
-    const familyName = localStorage.getItem("familyFullName") || "Family User";
+  const familyId = localStorage.getItem("userId");
+  const familyName = localStorage.getItem("familyFullName") || "Family User";
 
-    const handleCardChange = (e) => {
-        setCardData({ ...cardData, [e.target.name]: e.target.value });
-    };
+  const handleCardChange = (e) => {
+    setCardData({ ...cardData, [e.target.name]: e.target.value });
+  };
 
-    const validateCard = () => {
-        const newErrors = {};
-        if (paymentMethod === "card") {
-            if (!cardData.cardNumber.trim() || cardData.cardNumber.replace(/\s/g, "").length < 16)
-                newErrors.cardNumber = "Enter a valid 16-digit card number";
-            if (!cardData.expiryDate.trim() || !/^\d{2}\/\d{2}$/.test(cardData.expiryDate))
-                newErrors.expiryDate = "Enter valid expiry (MM/YY)";
-            if (!cardData.cvv.trim() || cardData.cvv.length < 3)
-                newErrors.cvv = "Enter valid CVV";
-            if (!cardData.cardHolder.trim())
-                newErrors.cardHolder = "Enter cardholder name";
+  const validateCard = () => {
+    const newErrors = {};
+
+    if (paymentMethod === "card") {
+
+      if (!cardData.cardNumber.trim() || cardData.cardNumber.replace(/\s/g, "").length < 16)
+        newErrors.cardNumber = "Enter valid 16 digit card number";
+
+      if (!cardData.expiryDate.trim() || !/^\d{2}\/\d{2}$/.test(cardData.expiryDate))
+        newErrors.expiryDate = "Enter expiry as MM/YY";
+
+      if (!cardData.cvv.trim() || cardData.cvv.length < 3)
+        newErrors.cvv = "Enter valid CVV";
+
+      if (!cardData.cardHolder.trim())
+        newErrors.cardHolder = "Enter card holder name";
+    }
+
+    setErrors(newErrors);
+    return newErrors;
+  };
+
+  const handlePay = async () => {
+
+    if (paymentMethod === "card") {
+      const validationErrors = validateCard();
+      if (Object.keys(validationErrors).length > 0) return;
+    }
+
+    if (!booking._id) {
+      alert("Booking data missing");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+
+      const res = await axios.post(
+        "http://localhost:5000/api/payments/initiate",
+        {
+          serviceId: booking._id,
+          familyId: familyId,
+          providerId: provider._id,
+          familyName: familyName,
+          providerName: provider.FullName || "Provider",
+          serviceType: booking.serviceRequestId?.PatientType || "Care Service",
+          amount: booking.rate || 0,
+          paymentMethod:
+            paymentMethod === "card"
+              ? "Card"
+              : paymentMethod === "online"
+              ? "Bank Transfer"
+              : "Cash",
+          familyEmail: localStorage.getItem("familyEmail") || "customer@trustcare.lk",
+          familyPhone: localStorage.getItem("familyPhone") || "0771234567"
         }
-        setErrors(newErrors);
-        return newErrors;
-    };
+      );
 
-    // ── Handle Pay button ─────────────────────────────────────────────────────
-    const handlePay = async () => {
-        if (paymentMethod === "card") {
-            const validationErrors = validateCard();
-            if (Object.keys(validationErrors).length > 0) return;
-        }
+      const { payhereData, checkoutUrl } = res.data;
 
-        if (!booking._id) {
-            alert("Booking data missing. Please go back and try again.");
-            return;
-        }
+      if (paymentMethod === "cash") {
 
-        setLoading(true);
+        await axios.put(
+          `http://localhost:5000/api/service-request/mark-paid/${booking._id}`
+        );
 
-        try {
-            // ── Step 1: Initiate payment on backend ───────────────────────────
-            const res = await axios.post("http://localhost:5000/api/payments/initiate", {
-                serviceId:    booking._id,
-                familyId:     familyId,
-                providerId:   provider._id,
-                familyName:   familyName,
-                providerName: provider.FullName || "Provider",
-                serviceType:  booking.serviceRequestId?.PatientType || booking.patientType || "Care Service",
-                amount:       booking.rate || 0,
-                paymentMethod: paymentMethod === "card" ? "Card"
-                             : paymentMethod === "online" ? "Bank Transfer"
-                             : "Cash",
-                familyEmail:  localStorage.getItem("familyEmail") || "customer@trustcare.lk",
-                familyPhone:  localStorage.getItem("familyPhone") || "0771234567",
-            });
+        alert("Cash payment recorded ✅");
+        navigate("/familyactivity");
+        return;
+      }
 
-            const { payhereData, checkoutUrl } = res.data;
+      if (paymentMethod === "online") {
 
-            if (paymentMethod === "cash") {
-                // ── Cash payment — mark directly as paid ─────────────────────
-                await axios.put(
-                    `http://localhost:5000/api/service-request/mark-paid/${booking._id}`
-                );
-                alert("Cash payment recorded! ✅");
-                navigate("/familyactivity");
-                return;
-            }
+        alert(
+          "Transfer Rs." +
+            booking.rate +
+            "\nBank: People's Bank\nAccount: 0012345678\nReference: TRUSTCARE-" +
+            booking._id.slice(-6).toUpperCase()
+        );
 
-            if (paymentMethod === "online") {
-                // ── Bank transfer — show details and mark pending ─────────────
-                alert("Please transfer Rs. " + booking.rate + " to:\nBank: People's Bank\nAccount: 0012345678\nReference: TRUSTCARE-" + booking._id?.slice(-6)?.toUpperCase());
-                navigate("/familyactivity");
-                return;
-            }
+        navigate("/familyactivity");
+        return;
+      }
 
-            // ── Step 2: Redirect to PayHere (card payment) ───────────────────
-            // Create a hidden form and submit to PayHere
-            const form = document.createElement("form");
-            form.method = "POST";
-            form.action = checkoutUrl;
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = checkoutUrl;
 
-            // Add all PayHere fields as hidden inputs
-            Object.entries(payhereData).forEach(([key, value]) => {
-                const input = document.createElement("input");
-                input.type  = "hidden";
-                input.name  = key;
-                input.value = value;
-                form.appendChild(input);
-            });
+      Object.entries(payhereData).forEach(([key, value]) => {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = key;
+        input.value = value;
+        form.appendChild(input);
+      });
 
-            document.body.appendChild(form);
-            form.submit();
+      document.body.appendChild(form);
+      form.submit();
 
-        } catch (err) {
-            console.error("Payment error:", err);
-            alert(err.response?.data?.message || "Payment failed. Please try again.");
-        } finally {
-            setLoading(false);
-        }
-    };
+    } catch (err) {
 
-    const handleLogout = () => {
-        localStorage.removeItem("userId");
-        sessionStorage.removeItem("userId");
-        navigate("/familylogin");
-    };
+      console.error("Payment error:", err);
+      alert("Payment failed");
 
-    return (
->>>>>>> mumthaj
-        <>
-            <Header />
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            <div className = "ServiceProviderSection">
-                <div className = "ServiceProviderSection2">
+  return (
+    <>
+      <Header />
 
-                    <div className = "name">
-                        
-                        <div className="heading-head">
-                            <p className = "Head">Make the Payment</p>
-                        </div>
+      <div className="ServiceProviderSection">
+        <div className="ServiceProviderSection2">
 
-                        <div className = "Logout">
-                            <button onClick = {()=>navigate("/")}>➜] Logout</button>
-                        </div>
-                    </div>
+          <p className="Head">Make Payment</p>
 
-<<<<<<< HEAD
-                    <div className = "booking-container">
-                            
-                        <p className = "provider-name"><strong>Service Summary</strong></p>
+          <div className="booking-container">
 
-=======
-                    {/* Service Summary */}
-                    <div className="booking-container">
-                        <p className="provider-name"><strong>Service Summary</strong></p>
->>>>>>> mumthaj
-                        <div className="summary">
-                            <p><strong>Service Type : </strong>Hospital Patient Care</p>
-                            <p><strong>Provider : </strong>Mr.kaerhick</p>
-                            <p><strong>Duration : </strong>1 week </p>
-                            <p><strong>Rate : </strong>Rs.24000/week</p>
-                        </div>
+            <p className="provider-name"><strong>Service Summary</strong></p>
 
-                        <div className="cost">
-                            <span>Total Cost:</span>
-                            <span className="price">Rs. 24,000 / month</span>
-                        </div>
-                           
-                    </div>
-
-<<<<<<< HEAD
-                    <div className = "options">
-                        
-                        <p className = "heading-options">Preferred Caregiver Payment</p>
-                        
-                        <div className = 'card-options'>
-                            <input type = 'radio' id = 'card' name = 'payment' /> <label htmlFor = 'card'>Credit / Debit Card</label>
-                            <input type = 'radio' id = 'online' name = 'payment' /> <label htmlFor = 'online'>Bank Transfer</label>
-                            <input type = 'radio' id = 'cash' name = 'payment' /> <label htmlFor = 'cash'>Cash on Services</label>
-=======
-                    {/* Payment Method Selector */}
-                    <div className="options">
-                        <p className="heading-options">Select Payment Method</p>
-                        <div className="card-options">
-                            <input type="radio" id="card"   name="payment" value="card"
-                                checked={paymentMethod === "card"}   onChange={() => setPaymentMethod("card")} />
-                            <label htmlFor="card">Credit / Debit Card</label>
-
-                            <input type="radio" id="online" name="payment" value="online"
-                                checked={paymentMethod === "online"} onChange={() => setPaymentMethod("online")} />
-                            <label htmlFor="online">Bank Transfer</label>
-
-                            <input type="radio" id="cash"   name="payment" value="cash"
-                                checked={paymentMethod === "cash"}   onChange={() => setPaymentMethod("cash")} />
-                            <label htmlFor="cash">Cash on Service</label>
->>>>>>> mumthaj
-                        </div>
-
-                    </div>
-
-<<<<<<< HEAD
-                    <div className = "options">
-
-                        <div className="form-group">
-                            <p className = "heading-options">Card Number</p>
-                            <input type = 'text' id = 'cardnumber' name = 'cardnumber' placeholder = '1234 5678 0972 3456' /> 
-=======
-                    {/* Card Fields */}
-                    {paymentMethod === "card" && (
-                        <div className="options">
-                            <div className="form-group">
-                                <p className="heading-options">Card Number</p>
-                                <input type="text" name="cardNumber"
-                                    placeholder="1234 5678 9012 3456"
-                                    maxLength="19"
-                                    value={cardData.cardNumber}
-                                    onChange={handleCardChange}
-                                    className={errors.cardNumber ? "input-error" : ""} />
-                                {errors.cardNumber && <p className="error-text">{errors.cardNumber}</p>}
-                            </div>
-
-                            <div className="form-groups">
-                                <div className="firstgroup">
-                                    <p className="heading-options">Expiry Date</p>
-                                    <input type="text" name="expiryDate"
-                                        placeholder="MM/YY" maxLength="5"
-                                        value={cardData.expiryDate}
-                                        onChange={handleCardChange}
-                                        className={errors.expiryDate ? "input-error" : ""} />
-                                    {errors.expiryDate && <p className="error-text">{errors.expiryDate}</p>}
-                                </div>
-                                <div className="secondgroup">
-                                    <p className="heading-options">CVV</p>
-                                    <input type="text" name="cvv"
-                                        placeholder="123" maxLength={3}
-                                        value={cardData.cvv}
-                                        onChange={handleCardChange}
-                                        className={errors.cvv ? "input-error" : ""} />
-                                    {errors.cvv && <p className="error-text">{errors.cvv}</p>}
-                                </div>
-                            </div>
-
-                            <div className="form-group">
-                                <p className="heading-options">Card Holder Name</p>
-                                <input type="text" name="cardHolder"
-                                    placeholder="Name on card"
-                                    value={cardData.cardHolder}
-                                    onChange={handleCardChange}
-                                    className={errors.cardHolder ? "input-error" : ""} />
-                                {errors.cardHolder && <p className="error-text">{errors.cardHolder}</p>}
-                            </div>
-
-                            {/* Sandbox test card hint */}
-                            <div style={{ background: "#e8f5e9", padding: "10px", borderRadius: "8px", marginTop: "8px", fontSize: "0.82rem", color: "#2e7d32" }}>
-                                🧪 <strong>Test Card:</strong> 4916217501611292 | Expiry: 12/25 | CVV: 100
-                            </div>
->>>>>>> mumthaj
-                        </div>
-
-                        <div className="form-groups">
-
-                            <div className = "firstgroup">
-                                <p className = "heading-options">Expiry Date</p>
-                                <input type="text" id="E-date" name="E-date" placeholder="MM/YY" pattern="\d{2}/\d{2}" maxLength="5"/>
-                            </div>  
-
-                            <div className = "secondgroup">
-                                <p className = "heading-options">CVV</p>
-                                <input type="text" id="cvv" name ="seconds" placeholder="123" maxLength={3}/>   
-                            </div>                          
-                        
-                        </div>
-
-                        <div className="form-group">
-                            <p className = "heading-options">Card Holder Name</p>
-                            <input type = 'text' id = 'cardnumber' name = 'cardnumber' placeholder = 'name of the card' /> 
-                        </div>
-
-                        <div className = "QServices">
-                            <button className = "confirms" onClick = {()=>navigate("/bookingconfirm")}> 💳Pay Rs.75000.00</button>
-                        </div>
-
-                        <p className = "paymenthead">🔒Secure Payment Powered by PayHere</p>
-                        
-                    </div>
-
-                </div>
+            <div className="summary">
+              <p><strong>Service :</strong> Hospital Patient Care</p>
+              <p><strong>Provider :</strong> {provider.FullName}</p>
+              <p><strong>Rate :</strong> Rs. {booking.rate}</p>
             </div>
-        </>
-    )
+
+          </div>
+
+          <div className="options">
+
+            <p className="heading-options">Select Payment Method</p>
+
+            <div className="card-options">
+
+              <input
+                type="radio"
+                checked={paymentMethod === "card"}
+                onChange={() => setPaymentMethod("card")}
+              />
+              <label>Credit / Debit Card</label>
+
+              <input
+                type="radio"
+                checked={paymentMethod === "online"}
+                onChange={() => setPaymentMethod("online")}
+              />
+              <label>Bank Transfer</label>
+
+              <input
+                type="radio"
+                checked={paymentMethod === "cash"}
+                onChange={() => setPaymentMethod("cash")}
+              />
+              <label>Cash on Service</label>
+
+            </div>
+
+          </div>
+
+          {paymentMethod === "card" && (
+
+            <div className="options">
+
+              <input
+                type="text"
+                name="cardNumber"
+                placeholder="Card Number"
+                value={cardData.cardNumber}
+                onChange={handleCardChange}
+              />
+
+              <input
+                type="text"
+                name="expiryDate"
+                placeholder="MM/YY"
+                value={cardData.expiryDate}
+                onChange={handleCardChange}
+              />
+
+              <input
+                type="text"
+                name="cvv"
+                placeholder="CVV"
+                value={cardData.cvv}
+                onChange={handleCardChange}
+              />
+
+              <input
+                type="text"
+                name="cardHolder"
+                placeholder="Card Holder Name"
+                value={cardData.cardHolder}
+                onChange={handleCardChange}
+              />
+
+            </div>
+
+          )}
+
+          <div className="QServices">
+
+            <button
+              className="confirms"
+              onClick={handlePay}
+              disabled={loading}
+            >
+              {loading ? "Processing..." : `💳 Pay Rs.${booking.rate || 0}`}
+            </button>
+
+          </div>
+
+          <p className="paymenthead">
+            🔒 Secure Payment Powered by PayHere
+          </p>
+
+        </div>
+      </div>
+    </>
+  );
 }
 
 export default MakePayment;

@@ -24,15 +24,26 @@ function NotificationDashboard() {
 
 
   // Mark notification as accepted
-  const handleAccept = async (noteId) => {
-    try {
-       await axios.put(`http://localhost:5000/api/notifications/accept/${noteId}`);
-      setNotifications(notifications.filter(n => n._id !== noteId));
-    } catch (err) {
-      console.error("Error accepting notification:", err);
-    }
-  };
+const handleAccept = async (note) => {
 
+  const providerId =
+    localStorage.getItem("userId") ||
+    sessionStorage.getItem("userId");
+
+  try {
+
+    await axios.put(
+      `http://localhost:5000/api/service-request/accept/${note.requestId}`,
+      { providerId }
+    );
+
+    // remove notification from UI
+    setNotifications(notifications.filter(n => n._id !== note._id));
+
+  } catch (err) {
+    console.error("Error accepting request:", err);
+  }
+};
   // Decline notification
  const handleDecline = async (noteId) => {
   try {
@@ -80,7 +91,7 @@ function NotificationDashboard() {
               </div>
 
               <div className="button-row">
-                <button className="cando" onClick={() => handleAccept(note._id)}>✔️ I Can Do</button>
+                <button className="cando" onClick={() => handleAccept(note)}>✔️ I Can Do</button>
                 <button className="decline" onClick={() => handleDecline(note._id)}>❌ Decline</button>
               </div>
             </div>

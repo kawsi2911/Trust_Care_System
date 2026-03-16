@@ -130,16 +130,17 @@ function FamilyNotification() {
             {/* NEW BUTTON */}
             <div className="inprogress">
 
-              <button
-                  className="confirm"
-                  onClick={() =>
-                    navigate("/booking", { 
-                      state:{
-                        providerId: note.providerId,
-                      } 
-                    })
-                  }
-                > View Request
+            <button
+              className="confirm"
+              onClick={() =>
+                navigate("/familyactivity", { 
+                  state:{
+                      requestId: note.requestId
+                    } 
+                  })
+                }
+                >
+                View Request
               </button>
           </div>
         </div>
