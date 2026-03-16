@@ -1,4 +1,3 @@
-
 import Header from "../Header/Header";
 import { useNavigate } from "react-router-dom";
 import "./Familynotification.css";
@@ -24,11 +23,10 @@ function FamilyNotification() {
       }
 
       try {
-
+        // ✅ CHANGED: use /family/ route to get all family notifications
         const response = await axios.get(
-          `http://localhost:5000/api/notifications/${familyId}`
+          `http://localhost:5000/api/notifications/family/${familyId}`
         );
-
         setNotifications(response.data);
 
       } catch (error) {
@@ -40,10 +38,18 @@ function FamilyNotification() {
 
     // auto refresh every 5 seconds
     const interval = setInterval(fetchNotifications, 5000);
-
     return () => clearInterval(interval);
 
   }, []);
+
+  const getIcon = (title) => {
+    if (title?.includes("Booking")) return "🔔";
+    if (title?.includes("Payment")) return "💳";
+    if (title?.includes("Declined")) return "❌";
+    if (title?.includes("Review")) return "⭐";
+    if (title?.includes("Pending")) return "⏳";
+    return "🔔";
+  };
 
   return (
     <>
@@ -53,15 +59,12 @@ function FamilyNotification() {
         <div className="ServiceProviderSection2">
 
           <div className="name">
-
             <div className="heading-head">
               <p className="Head">Service Taker Dashboard</p>
             </div>
-
             <div className="Logout">
               <button onClick={() => navigate("/")}>➜ Logout</button>
             </div>
-
           </div>
 
           <div className="button-section">
@@ -72,32 +75,11 @@ function FamilyNotification() {
             <button onClick={() => navigate("/familyprofiles")}>Profile</button>
           </div>
 
-          {/* General Notifications */}
-
-          {notifications.length > 0 ? (
-            notifications.map((note) => (
-
-              <div className="callprovider" key={note._id}>
-
-                <p className="provider-name">
-                  <strong>🔔 {note.title}</strong>
-                </p>
-
-                <div className="summary">
-                  <p>{note.message}</p>
-
-                  {note.createdAt && (
-                    <p>{new Date(note.createdAt).toLocaleString()}</p>
-                  )}
-                </div>
-
-              </div>
-
-            ))
-          ) : (
-            <p style={{ textAlign: "center", marginTop: "20px" }}>
+          {notifications.length === 0 ? (
+            <p style={{ textAlign: "center", marginTop: "20px", color: "#999" }}>
               No Notifications Yet
             </p>
+<<<<<<< HEAD
           )}
 
           {/* Provider Accepted Section */}
@@ -145,10 +127,32 @@ function FamilyNotification() {
           </div>
         </div>
       ))}
+=======
+          ) : (
+            notifications.map((note) => (
+              <div className="callprovider" key={note._id} style={{
+                borderLeft: note.title?.includes("Declined") ? "4px solid #ef5350" :
+                            note.title?.includes("Payment") ? "4px solid #4caf50" :
+                            "4px solid #2196f3"
+              }}>
+                <p className="provider-name">
+                  <strong>{getIcon(note.title)} {note.title}</strong>
+                </p>
+                <div className="summary">
+                  <p>{note.message}</p>
+                  {note.createdAt && (
+                    <p style={{ color: "#999", fontSize: "0.82rem" }}>
+                      {new Date(note.createdAt).toLocaleString()}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+>>>>>>> mumthaj
 
         </div>
       </div>
-
     </>
   );
 }

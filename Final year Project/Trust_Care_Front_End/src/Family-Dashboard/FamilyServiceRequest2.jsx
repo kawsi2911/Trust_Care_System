@@ -100,12 +100,14 @@ function FamilyServiceRequest2() {
       console.log("Sending Data:", combinedData);
 
       const response = await axios.post(
-        "http://localhost:5000/api/service-request/register",
+        "http://localhost:5000/api/service-request/new-request",
         combinedData
       );
 
       console.log("Service Request Saved:", response.data);
-      localStorage.setItem("requestId", response.data.requestId);
+
+      // ✅ CHANGED: was response.data.requestId (undefined), now response.data._id
+      localStorage.setItem("requestId", response.data._id);
 
       localStorage.removeItem("form1Data");
 
