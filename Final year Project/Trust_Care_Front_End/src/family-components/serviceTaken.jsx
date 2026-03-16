@@ -1,6 +1,6 @@
 import Header from "../Header/Header.jsx";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import "./serviceTaken.css";
 
@@ -16,6 +16,19 @@ function ServiceTaken() {
 
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [verified, setVerified] = useState(false);
+
+  // ✅ Check Step 1 on page load
+  useEffect(() => {
+    const familyData = JSON.parse(localStorage.getItem("familyData"));
+    if (!familyData) {
+      Swal.fire("Complete registration step 1 first").then(() => {
+        navigate("/familyregister");
+      });
+    }
+  }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -29,66 +42,92 @@ function ServiceTaken() {
   };
 
   const validate = () => {
-
     const newErrors = {};
-
-    if (!formData.username.trim()) {
-      newErrors.username = "Username is required";
-    }
-
-    if (!formData.createpassword.trim()) {
-      newErrors.createpassword = "Password is required";
-    }
-    else if (formData.createpassword.length < 6){
-      newErrors.createpassword = "Password must be at least 6 characters";
-    }
-      
-
-    if (!formData.confirmpassword.trim()) {
-      newErrors.confirmpassword = "Please confirm your password";
-    } 
-    else if (formData.createpassword !== formData.confirmpassword) {
-      newErrors.confirmpassword = "Passwords do not match";
-    }
-      
-
-    if (!formData.check) {
-       newErrors.check = "You must agree to Terms & Conditions";
-    } 
+    if (!formData.username.trim()) newErrors.username = "Username required";
+    if (!formData.createpassword.trim()) newErrors.createpassword = "Password required";
+    else if (formData.createpassword.length < 6) newErrors.createpassword = "Min 6 characters";
+    if (!formData.confirmpassword.trim()) newErrors.confirmpassword = "Confirm password";
+    else if (formData.createpassword !== formData.confirmpassword)
+      newErrors.confirmpassword = "Passwords not match";
+    if (!formData.check) newErrors.check = "Agree terms";
 
     setErrors(newErrors);
     return newErrors;
   };
 
+  // ============================
+  // SEND OTP
+  // ============================
+  const sendOTP = async () => {
+    const familyData = JSON.parse(localStorage.getItem("familyData"));
+    if (!familyData) return; // already redirected by useEffect
+
+    try {
+      const res = await fetch("http://localhost:5000/api/family/sendotp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: familyData.email }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        Swal.fire("OTP sent to email");
+        setOtpSent(true);
+      } else {
+        Swal.fire("Error sending OTP: " + (data.error || data.message));
+      }
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Network/server error");
+    }
+  };
+
+  // ============================
+  // VERIFY OTP
+  // ============================
+  const verifyOTP = async () => {
+    const familyData = JSON.parse(localStorage.getItem("familyData"));
+    if (!familyData) return;
+
+    try {
+      const res = await fetch("http://localhost:5000/api/family/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: familyData.email, otp }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        Swal.fire("Email verified successfully");
+        setVerified(true);
+      } else {
+        Swal.fire("OTP verification failed: " + (data.error || data.message));
+      }
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Network or server error");
+    }
+  };
+
+  // ============================
+  // REGISTER
+  // ============================
   const handleNext = async (e) => {
     e.preventDefault();
 
-    setTouched({ 
-      username: true, 
-      createpassword: true, 
-      confirmpassword: true, 
-      check: true 
-    });
-
+    setTouched({ username: true, createpassword: true, confirmpassword: true, check: true });
     const validationErrors = validate();
     if (Object.keys(validationErrors).length !== 0) return;
 
-    const familyData = JSON.parse(localStorage.getItem("familyData"));
-    if (!familyData) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Step 1 data missing. Please complete the first form.",
-      });
-      navigate("/familyregister");
+    if (!verified) {
+      Swal.fire("Verify email first");
       return;
     }
 
-    const finalData = {
-      ...familyData,
-      username: formData.username,
-      password: formData.createpassword,
-    };
+    const familyData = JSON.parse(localStorage.getItem("familyData"));
+    if (!familyData) return; // already redirected by useEffect
+
+    const finalData = { ...familyData, username: formData.username, password: formData.createpassword };
 
     try {
       const res = await fetch("http://localhost:5000/api/family/register", {
@@ -98,24 +137,14 @@ function ServiceTaken() {
       });
 
       const data = await res.json();
-
       if (res.ok) {
         localStorage.removeItem("familyData");
-        Swal.fire({
-          icon: "success",
-          title: "Registration Successful 🎉",
-          text: "Your account has been created successfully!",
-          confirmButtonText: "Go to Login",
-        }).then(() => navigate("/familylogin"));
+        Swal.fire({ icon: "success", title: "Registered" }).then(() => navigate("/familylogin"));
       } else {
-        Swal.fire({ icon: "error", title: "Error", text: data.message });
+        Swal.fire(data.message);
       }
     } catch (error) {
-      Swal.fire({ 
-        icon: "error", 
-        title: "Error", 
-        text: error.message || "Something went wrong" });
-      console.error(error);
+      Swal.fire("Error");
     }
   };
 
@@ -124,90 +153,26 @@ function ServiceTaken() {
       <Header />
       <div className="Servicelogin">
         <div className="login_Container">
-          <div className="First">
-            <p className="Head">✔️ Registration Complete!</p>
-            <p className="Body">Now Create your login credentials</p>
-          </div>
+          <p>Registration Step 2</p>
+          <form onSubmit={handleNext}>
+            <input name="username" placeholder="username" onChange={handleChange} />
+            <input type="password" name="createpassword" placeholder="password" onChange={handleChange} />
+            <input type="password" name="confirmpassword" placeholder="confirm" onChange={handleChange} />
 
-          <form className="form" onSubmit={handleNext}>
-            <div className="form-fill">
-              {/* Username */}
-              <div className="row">
-                <label htmlFor="username">
-                  Username : <span className="star">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="username"
-                  name="username"
-                  placeholder="Enter your username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={touched.username && errors.username ? "input-error" : ""}
-                />
-                {touched.username && errors.username && <p className="error-text">{errors.username}</p>}
-              </div>
+            <button type="button" onClick={sendOTP}>
+              Send OTP
+            </button>
 
-              {/* Create Password */}
-              <div className="row">
-                <label htmlFor="create_password">
-                  Create Password : <span className="star">*</span>
-                </label>
-                <input
-                  type="password"
-                  id="create_password"
-                  name="createpassword"
-                  placeholder="Enter a strong password"
-                  value={formData.createpassword}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={touched.createpassword && errors.createpassword ? "input-error" : ""}
-                />
-                {touched.createpassword && errors.createpassword && (
-                  <p className="error-text">{errors.createpassword}</p>
-                )}
-              </div>
+            {otpSent && (
+              <>
+                <input placeholder="Enter OTP" value={otp} onChange={(e) => setOtp(e.target.value)} />
+                <button type="button" onClick={verifyOTP}>
+                  Verify OTP
+                </button>
+              </>
+            )}
 
-              {/* Confirm Password */}
-              <div className="row">
-                <label htmlFor="confirmpassword">
-                  Confirm Password : <span className="star">*</span>
-                </label>
-                <input
-                  type="password"
-                  id="confirmpassword"
-                  name="confirmpassword"
-                  placeholder="Re-enter password"
-                  value={formData.confirmpassword}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={touched.confirmpassword && errors.confirmpassword ? "input-error" : ""}
-                />
-                {touched.confirmpassword && errors.confirmpassword && (
-                  <p className="error-text">{errors.confirmpassword}</p>
-                )}
-              </div>
-
-              {/* Checkbox */}
-              <div className="row checkbox-row">
-                <input
-                  type="checkbox"
-                  id="check"
-                  name="check"
-                  checked={formData.check}
-                  onChange={handleChange}
-                />
-                <p className="checked">
-                  I agree to <a href="">Terms & Conditions</a> and <a href="">Privacy Policy</a>
-                </p>
-                {touched.check && errors.check && <p className="error-text">{errors.check}</p>}
-              </div>
-
-              <button className="next" type="submit">
-                Create Account & Login
-              </button>
-            </div>
+            <button type="submit">Register</button>
           </form>
         </div>
       </div>
