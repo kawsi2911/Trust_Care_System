@@ -56,65 +56,85 @@ function ServiceProviderLogin(){
     }
 
    const handleNext = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    setTouched({ 
-        username: true, 
-        createpassword: true, 
-        confirmpassword: true, 
-        check: true 
+  // Mark all fields as touched for validation
+  setTouched({
+    username: true,
+    createpassword: true,
+    confirmpassword: true,
+    check: true,
+  });
+
+  // Validate form
+  const validationErrors = validate();
+  if (Object.keys(validationErrors).length !== 0) return;
+
+  // Ensure previous steps data exists
+  const previousData = JSON.parse(localStorage.getItem("serviceData"));
+  if (!previousData) {
+    Swal.fire({
+      icon: "error",
+      title: "No Service Data Found",
+      text: "Please complete the previous steps before creating login credentials",
+    });
+    navigate("/serviceprovider1");
+    return;
+  }
+
+  // Combine previous data with login info
+  const combinedData = {
+    ...previousData,
+    username: formData.username,
+    password: formData.createpassword,
+  };
+
+  console.log("Sending to backend:", combinedData);
+
+  try {
+    // ✅ Call the backend exactly at /api/service/providerregister
+    const res = await fetch("http://localhost:5000/api/service/providerregister", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(combinedData),
     });
 
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length !== 0) return;
+    // First, check response type
+    const text = await res.text();
 
-    const previousData = JSON.parse(localStorage.getItem("serviceData"));
-    if(!previousData){ 
-        Swal.fire({
-            icon: 'error',
-            title: 'No Service Data Found',
-            text: 'Please complete the previous steps before creating login credentials'
-        });
-        navigate("/serviceprovider1");
-        return;
+    // Try parsing JSON
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (err) {
+      console.error("Invalid JSON response:", text);
+      Swal.fire({
+        icon: "error",
+        title: "Server Error",
+        text: "Received invalid response from server",
+      });
+      return;
     }
 
-    const combinedData = { 
-        ...previousData, 
-        username: formData.username,
-        password: formData.createpassword    
-    };
-
-    console.log("Sending to backend:", combinedData); // check data
-
-    try{
-        const res = await fetch("http://localhost:5000/api/service/providerregister", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(combinedData)
-        });
-
-        const data = await res.json();
-
-        if(res.ok){
-            localStorage.removeItem("serviceData");
-            Swal.fire({
-                icon: "success",
-                title: "Registration Successful 🎉",
-                text: "Your account has been created successfully!",
-                confirmButtonText: "Go to Login"
-            }).then(() => navigate("/serviceproviderloginpage"));
-        } else {
-            Swal.fire({ icon: "error", title: "Error", text: data.message });
-        }
-    } catch (error) {
-        Swal.fire({ 
-            icon: "error", 
-            title: "Error", 
-            text: error.message || "Something went wrong" 
-        });
-        console.error(error);
+    if (res.ok) {
+      localStorage.removeItem("serviceData");
+      Swal.fire({
+        icon: "success",
+        title: "Registration Successful 🎉",
+        text: "Your account has been created successfully!",
+        confirmButtonText: "Go to Login",
+      }).then(() => navigate("/serviceproviderloginpage"));
+    } else {
+      Swal.fire({ icon: "error", title: "Error", text: data.message || "Something went wrong" });
     }
+  } catch (error) {
+    console.error("Network or server error:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: error.message || "Something went wrong",
+    });
+  }
 };
 
     return(

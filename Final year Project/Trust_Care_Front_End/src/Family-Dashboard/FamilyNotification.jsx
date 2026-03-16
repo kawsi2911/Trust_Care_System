@@ -79,55 +79,6 @@ function FamilyNotification() {
             <p style={{ textAlign: "center", marginTop: "20px", color: "#999" }}>
               No Notifications Yet
             </p>
-<<<<<<< HEAD
-          )}
-
-          {/* Provider Accepted Section */}
-          {notifications
-            .filter(note => note.title === "Booking Confirmed")
-            .map((note) => (
-
-            <div className="booking-container" key={note._id}>
-
-            <p className="provider-name">
-              <strong>📞 Provider Accepted Your Request</strong>
-            </p>
-
-            <div className="summary">
-              <p>{note.message}</p>
-
-              {note.providerName && (
-                <p><strong>Provider:</strong> {note.providerName}</p>
-              )}
-
-              {note.providerPhone && (
-                <p><strong>Phone:</strong> {note.providerPhone}</p>
-              )}
-
-              {note.createdAt && (
-                <p>{new Date(note.createdAt).toLocaleString()}</p>
-              )}
-            </div>
-
-            {/* NEW BUTTON */}
-            <div className="inprogress">
-
-            <button
-              className="confirm"
-              onClick={() =>
-                navigate("/familyactivity", { 
-                  state:{
-                      requestId: note.requestId
-                    } 
-                  })
-                }
-                >
-                View Request
-              </button>
-          </div>
-        </div>
-      ))}
-=======
           ) : (
             notifications.map((note) => (
               <div className="callprovider" key={note._id} style={{
@@ -149,7 +100,6 @@ function FamilyNotification() {
               </div>
             ))
           )}
->>>>>>> mumthaj
 
         </div>
       </div>

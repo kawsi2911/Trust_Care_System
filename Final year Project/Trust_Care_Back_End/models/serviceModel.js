@@ -7,7 +7,7 @@ const serviceSchema = new mongoose.Schema({
   },
   serviceType: {
     type: String,
-    enum: ["Elder Care", "Child Care", "Home Patient Care", "Hospital Patient Care"],
+    enum: ["ElderCare", "ChildCare", "HomePatientCare", "HospitalPatientCare"],
     required: true,
   },
   provider: {

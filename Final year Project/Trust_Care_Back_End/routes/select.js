@@ -1,9 +1,5 @@
 import express from "express";
-<<<<<<< HEAD
-import Notification from  "../models/notificationModel.js";
-=======
 import Notification from "../models/notificationModel.js";
->>>>>>> mumthaj
 
 const router = express.Router();
 
