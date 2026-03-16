@@ -25,6 +25,8 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
 app.use(express.json());
+// ✅ ADDED: needed for PayHere notify webhook (sends form-urlencoded data)
+app.use(express.urlencoded({ extended: true }));
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI)

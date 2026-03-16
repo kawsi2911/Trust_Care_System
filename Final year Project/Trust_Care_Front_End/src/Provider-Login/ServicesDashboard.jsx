@@ -16,11 +16,22 @@ function ServicesDashboard(){
 
     useEffect(() => {
         const fetchServices = async () => {
+            if (!providerId) { setLoading(false); return; }
             try {
-                const res = await axios.get(
+                // Fetch active bookings
+                const activeRes = await axios.get(
                     `http://localhost:5000/api/service-request/provider-services/${providerId}`
                 );
-                setBookings(res.data);
+                // Fetch completed bookings
+                const completedRes = await axios.get(
+                    `http://localhost:5000/api/service-request/provider-activity/${providerId}`
+                );
+
+                const activeBookings = (activeRes.data || []).map(b => ({ ...b, status: "active" }));
+                const completedBookings = (completedRes.data?.bookings || []);
+
+                // Show all bookings together
+                setBookings([...activeBookings, ...completedBookings]);
             } catch (err) {
                 console.error("Failed to fetch services:", err);
             } finally {
@@ -28,17 +39,19 @@ function ServicesDashboard(){
             }
         };
 
-        if (providerId) fetchServices();
-        else setLoading(false);
+        fetchServices();
     }, [providerId]);
 
-    const handleMarkComplete = async (bookingId, familyId, patientType, rate) => {
+    const handleMarkComplete = async (bookingId) => {
         try {
             await axios.put(
                 `http://localhost:5000/api/service-request/complete/${bookingId}`
             );
-            setBookings(bookings.filter(b => b._id !== bookingId));
-            alert("Service marked as complete! Family has been notified to make payment. ✅");
+            // ✅ CHANGED: update badge from "In Progress" to "Completed" — stays in list
+            setBookings(prev => prev.map(b =>
+                b._id === bookingId ? { ...b, status: "completed" } : b
+            ));
+            alert("Service marked as complete! Family has been notified. ✅");
         } catch (err) {
             console.error("Failed to mark complete:", err);
             alert("Failed to mark complete. Please try again.");
@@ -80,14 +93,11 @@ function ServicesDashboard(){
                                 </a>
                             </p>
                         </div>
-                        <button
-                            onClick={() => setContactModal(null)}
-                            style={{
-                                padding: "10px 30px", background: "#2196f3",
-                                color: "white", border: "none", borderRadius: "8px",
-                                fontSize: "1rem", fontWeight: "600", cursor: "pointer"
-                            }}
-                        >
+                        <button onClick={() => setContactModal(null)} style={{
+                            padding: "10px 30px", background: "#2196f3",
+                            color: "white", border: "none", borderRadius: "8px",
+                            fontSize: "1rem", fontWeight: "600", cursor: "pointer"
+                        }}>
                             Close
                         </button>
                     </div>
@@ -120,42 +130,51 @@ function ServicesDashboard(){
                         </div>
                     ) : bookings.length === 0 ? (
                         <div style={{ textAlign: "center", padding: "40px", color: "#999" }}>
-                            No active services found.
+                            No services found.
                         </div>
                     ) : (
                         bookings.map((booking, idx) => (
                             <div className="container" key={idx}>
                                 <div className="containers">
                                     <p className="service-title">
-                                        ⚡ Active – {booking.serviceRequestId?.PatientType || booking.patientType || "Care Service"}
+                                        {booking.status === "active" ? "⚡" : "✔️"} {booking.status === "active" ? "Active" : "Completed"} – {booking.serviceRequestId?.PatientType || booking.patientType || "Care Service"}
                                     </p>
                                     <p><strong>Client:</strong> {booking.familyId?.familyFullName || "N/A"}</p>
                                     <p><strong>Location:</strong> {booking.location || "N/A"}</p>
                                     <p><strong>Started:</strong> {new Date(booking.startDate || booking.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p>
                                     <p><strong>Duration:</strong> {booking.duration || "N/A"}</p>
-                                    <p><strong>Rate:</strong> Rs. {booking.rate || "N/A"}</p>
-                                    <button className="inProgress">In Progress</button>
+                                    <p><strong>Rate:</strong> Rs. {booking.rate || "N/A"}/month</p>
+
+                                    {/* ✅ Badge changes based on status */}
+                                    {booking.status === "active" && (
+                                        <button className="inProgress">In Progress</button>
+                                    )}
+                                    {["completed", "paid", "reviewed"].includes(booking.status) && (
+                                        <button className="inProgress" style={{
+                                            background: "#4caf50", cursor: "default"
+                                        }}>
+                                            ✔️ Completed
+                                        </button>
+                                    )}
                                 </div>
 
-                                <div className="button-row">
-                                    <button
-                                        className="contactFamily"
-                                        onClick={() => setContactModal(booking.familyId)}
-                                    >
-                                        Contact Family
-                                    </button>
-                                    <button
-                                        className="markComplete"
-                                        onClick={() => handleMarkComplete(
-                                            booking._id,
-                                            booking.familyId?._id,
-                                            booking.serviceRequestId?.PatientType || booking.patientType,
-                                            booking.rate
-                                        )}
-                                    >
-                                        Mark Complete
-                                    </button>
-                                </div>
+                                {/* Action buttons only for active bookings */}
+                                {booking.status === "active" && (
+                                    <div className="button-row">
+                                        <button
+                                            className="contactFamily"
+                                            onClick={() => setContactModal(booking.familyId)}
+                                        >
+                                            Contact Family
+                                        </button>
+                                        <button
+                                            className="markComplete"
+                                            onClick={() => handleMarkComplete(booking._id)}
+                                        >
+                                            Mark Complete
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         ))
                     )}

@@ -68,9 +68,18 @@ router.get("/dashboard/:userId", async (req, res) => {
         const provider = await ServiceProvider.findById(userId);
         if (!provider) return res.status(404).json({ error: "Provider not found" });
 
-        const totalJobs   = await Booking.countDocuments({ providerId: userId });
-        const activeJobs  = await Booking.countDocuments({ providerId: userId, status: "active" });
-        const pendingJobs = await Booking.countDocuments({ providerId: userId, status: "pending" });
+        // ✅ FIXED: count all bookings for total
+        const totalJobs  = await Booking.countDocuments({ providerId: userId });
+
+        // ✅ FIXED: count active bookings
+        const activeJobs = await Booking.countDocuments({ providerId: userId, status: "active" });
+
+        // ✅ FIXED: count pending notifications instead of pending bookings
+        const pendingJobs = await Notification.countDocuments({
+            receiverId: userId,
+            role: "provider",
+            status: "pending"
+        });
 
         const latestRequest = await ServiceRequest.findOne({
             SLocation: { $regex: new RegExp(provider.location, "i") },
@@ -154,7 +163,7 @@ router.post("/accept/:requestId", async (req, res) => {
             message: `Your service request has been confirmed with ${provider.FullName}. They will contact you shortly.`,
             serviceType: request.PatientType,
             requestId: request._id,
-            status: "accepted",
+            status: "pending",
         });
 
         await ServiceRequest.findByIdAndUpdate(req.params.requestId, {
@@ -187,7 +196,7 @@ router.post("/decline/:requestId", async (req, res) => {
                 role: "family",
                 title: "Request Declined",
                 message: `${provider?.FullName || "A provider"} has declined your service request. Don't worry, other providers may still accept it.`,
-                status: "declined",
+                status: "pending",
             });
         }
 
@@ -208,9 +217,9 @@ router.get("/family-bookings/:familyId", async (req, res) => {
             .populate("serviceRequestId", "PatientType SLocation Service PName")
             .sort({ createdAt: -1 });
 
-        const totalServices  = bookings.length;
-        const activeNow      = bookings.filter(b => b.status === "active").length;
-        const completed      = bookings.filter(b => ["completed", "paid", "reviewed"].includes(b.status)).length;
+        const totalServices = bookings.length;
+        const activeNow     = bookings.filter(b => b.status === "active").length;
+        const completed     = bookings.filter(b => ["completed", "paid", "reviewed"].includes(b.status)).length;
 
         res.json({ bookings, totalServices, activeNow, completed });
 
@@ -225,10 +234,10 @@ router.get("/family-bookings/:familyId", async (req, res) => {
 // ─────────────────────────────────────────
 router.get("/family-dashboard/:familyId", async (req, res) => {
     try {
-        const totalJobs   = await Booking.countDocuments({ familyId: req.params.familyId });
-        const activeNow   = await Booking.countDocuments({ familyId: req.params.familyId, status: "active" });
-        const completed   = await Booking.countDocuments({ 
-            familyId: req.params.familyId, 
+        const totalJobs  = await Booking.countDocuments({ familyId: req.params.familyId });
+        const activeNow  = await Booking.countDocuments({ familyId: req.params.familyId, status: "active" });
+        const completed  = await Booking.countDocuments({
+            familyId: req.params.familyId,
             status: { $in: ["completed", "paid", "reviewed"] }
         });
 
@@ -277,6 +286,16 @@ router.put("/complete/:bookingId", async (req, res) => {
         );
         if (!booking) return res.status(404).json({ error: "Booking not found" });
 
+        // ✅ Send payment pending notification to family
+        await Notification.create({
+            receiverId: booking.familyId,
+            familyId: booking.familyId,
+            role: "family",
+            title: "Payment Pending 💳",
+            message: `Your ${booking.patientType || "care"} service is completed. Please make the payment of Rs. ${booking.rate}.`,
+            status: "pending",
+        });
+
         res.json({ message: "Booking marked as completed", booking });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -289,9 +308,10 @@ router.put("/complete/:bookingId", async (req, res) => {
 // ─────────────────────────────────────────
 router.get("/provider-activity/:providerId", async (req, res) => {
     try {
+        // ✅ FIXED: include paid and reviewed in completed activity
         const bookings = await Booking.find({
             providerId: req.params.providerId,
-            status: "completed"
+            status: { $in: ["completed", "paid", "reviewed"] }
         })
         .populate("familyId", "familyFullName")
         .populate("serviceRequestId", "PatientType")
@@ -299,7 +319,12 @@ router.get("/provider-activity/:providerId", async (req, res) => {
 
         const completed   = bookings.length;
         const totalEarned = bookings.reduce((sum, b) => sum + (Number(b.rate) || 0), 0);
-        const avgRating   = 0;
+
+        // Calculate avg rating from reviewed bookings
+        const ratedBookings = bookings.filter(b => b.rating > 0);
+        const avgRating = ratedBookings.length > 0
+            ? (ratedBookings.reduce((sum, b) => sum + b.rating, 0) / ratedBookings.length).toFixed(1)
+            : 0;
 
         res.json({
             stats: { completed, totalEarned, avgRating },
@@ -312,8 +337,8 @@ router.get("/provider-activity/:providerId", async (req, res) => {
 
 
 // ─────────────────────────────────────────
-// PUT /api/service-request/mark-paid/:bookingId  ← NEW
-// MakePayment — mark booking as paid (cash/bank)
+// PUT /api/service-request/mark-paid/:bookingId
+// MakePayment — mark booking as paid
 // ─────────────────────────────────────────
 router.put("/mark-paid/:bookingId", async (req, res) => {
     try {
