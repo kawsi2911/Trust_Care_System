@@ -5,11 +5,11 @@ const serviceSchema = new mongoose.Schema({
     type: String,
     unique: true,
   },
-  serviceType: {
+
+  serviceType: [{
     type: String,
-    enum: ["ElderCare", "ChildCare", "HomePatientCare", "HospitalPatientCare"],
-    required: true,
-  },
+    enum: ["ElderCare", "ChildCare", "HomePatientCare", "HospitalPatientCare"]
+  }],
   provider: {
     name: { type: String, required: true },
     email: { type: String },
