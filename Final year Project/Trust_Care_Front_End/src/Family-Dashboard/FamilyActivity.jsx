@@ -13,7 +13,10 @@ function FamilyActivity(){
     const [loading, setLoading] = useState(true);
 
     const familyData = JSON.parse(localStorage.getItem("familyData") || "{}");
-    const familyId = familyData._id || familyData.id || localStorage.getItem("userId");
+    const familyId = localStorage.getItem("userId") || 
+                     sessionStorage.getItem("userId") || 
+                     familyData._id || 
+                     familyData.id;
 
     useEffect(() => {
         const fetchBookings = async () => {
