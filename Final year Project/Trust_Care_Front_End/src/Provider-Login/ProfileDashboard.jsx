@@ -36,7 +36,7 @@ function ProfileDashboard() {
                                 localStorage.removeItem("FullName");
                                 sessionStorage.removeItem("userId");
                                 sessionStorage.removeItem("FullName");
-                                navigate("/serviceproviderlogin");
+                                navigate("/");
                             }}>➜ Logout</button>
                         </div>
                     </div>
