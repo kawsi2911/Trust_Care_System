@@ -14,6 +14,11 @@ function Rate(){
     const booking = location.state || {};
     const provider = booking.providerId || {};
 
+    // ✅ FIXED: extract providerId correctly whether it's an object or string
+    const providerIdStr = provider._id
+        ? (typeof provider._id === "object" ? provider._id.toString() : provider._id)
+        : (typeof booking.providerId === "string" ? booking.providerId : null);
+
     const [rating, setRating] = useState(5);
     const [hoverRating, setHoverRating] = useState(0);
     const [review, setReview] = useState("");
@@ -53,10 +58,11 @@ function Rate(){
 
         setLoading(true);
         try {
+            // ✅ FIXED: use providerIdStr instead of provider._id
             await axios.post("http://localhost:5000/api/service-request/submit-review", {
                 bookingId: booking._id,
                 familyId,
-                providerId: provider._id,
+                providerId: providerIdStr,
                 rating,
                 review,
                 recommend,
@@ -67,7 +73,6 @@ function Rate(){
             navigate("/familyactivity");
         } catch (err) {
             console.error("Failed to submit review:", err);
-            // Even if API fails, navigate away
             alert("Review submitted! ⭐");
             navigate("/familyactivity");
         } finally {
