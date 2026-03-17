@@ -20,7 +20,7 @@ function ServiceTaken() {
   const [otpSent, setOtpSent] = useState(false);
   const [verified, setVerified] = useState(false);
 
-  // ✅ Check Step 1 on page load
+  // ✅ Ensure Step 1 exists
   useEffect(() => {
     const familyData = JSON.parse(localStorage.getItem("familyData"));
     if (!familyData) {
@@ -46,10 +46,10 @@ function ServiceTaken() {
     if (!formData.username.trim()) newErrors.username = "Username required";
     if (!formData.createpassword.trim()) newErrors.createpassword = "Password required";
     else if (formData.createpassword.length < 6) newErrors.createpassword = "Min 6 characters";
-    if (!formData.confirmpassword.trim()) newErrors.confirmpassword = "Confirm password";
+    if (!formData.confirmpassword.trim()) newErrors.confirmpassword = "Confirm password required";
     else if (formData.createpassword !== formData.confirmpassword)
-      newErrors.confirmpassword = "Passwords not match";
-    if (!formData.check) newErrors.check = "Agree terms";
+      newErrors.confirmpassword = "Passwords do not match";
+    if (!formData.check) newErrors.check = "Agree to terms";
 
     setErrors(newErrors);
     return newErrors;
@@ -60,7 +60,7 @@ function ServiceTaken() {
   // ============================
   const sendOTP = async () => {
     const familyData = JSON.parse(localStorage.getItem("familyData"));
-    if (!familyData) return; // already redirected by useEffect
+    if (!familyData) return;
 
     try {
       const res = await fetch("http://localhost:5000/api/family/sendotp", {
@@ -97,9 +97,10 @@ function ServiceTaken() {
       });
 
       const data = await res.json();
-      if (res.ok) {
+      if (res.ok && data.success) {
         Swal.fire("Email verified successfully");
         setVerified(true);
+        setOtpSent(false); // hide OTP input
       } else {
         Swal.fire("OTP verification failed: " + (data.error || data.message));
       }
@@ -125,9 +126,13 @@ function ServiceTaken() {
     }
 
     const familyData = JSON.parse(localStorage.getItem("familyData"));
-    if (!familyData) return; // already redirected by useEffect
+    if (!familyData) return;
 
-    const finalData = { ...familyData, username: formData.username, password: formData.createpassword };
+    const finalData = {
+      email: familyData.email,
+      username: formData.username,
+      password: formData.createpassword,
+    };
 
     try {
       const res = await fetch("http://localhost:5000/api/family/register", {
@@ -139,12 +144,15 @@ function ServiceTaken() {
       const data = await res.json();
       if (res.ok) {
         localStorage.removeItem("familyData");
-        Swal.fire({ icon: "success", title: "Registered" }).then(() => navigate("/familylogin"));
+        Swal.fire({ icon: "success", title: "Registered successfully" }).then(() =>
+          navigate("/familylogin")
+        );
       } else {
         Swal.fire(data.message);
       }
     } catch (error) {
-      Swal.fire("Error");
+      console.error(error);
+      Swal.fire("Registration failed");
     }
   };
 
@@ -155,24 +163,56 @@ function ServiceTaken() {
         <div className="login_Container">
           <p>Registration Step 2</p>
           <form onSubmit={handleNext}>
-            <input name="username" placeholder="username" onChange={handleChange} />
-            <input type="password" name="createpassword" placeholder="password" onChange={handleChange} />
-            <input type="password" name="confirmpassword" placeholder="confirm" onChange={handleChange} />
+            <input
+              name="username"
+              placeholder="Username"
+              onChange={handleChange}
+              onBlur={handleBlur}
+            />
+            <input
+              type="password"
+              name="createpassword"
+              placeholder="Password"
+              onChange={handleChange}
+              onBlur={handleBlur}
+            />
+            <input
+              type="password"
+              name="confirmpassword"
+              placeholder="Confirm Password"
+              onChange={handleChange}
+              onBlur={handleBlur}
+            />
+            <label>
+              <input type="checkbox" name="check" onChange={handleChange} /> Agree to terms
+            </label>
 
-            <button type="button" onClick={sendOTP}>
-              Send OTP
-            </button>
-
-            {otpSent && (
-              <>
-                <input placeholder="Enter OTP" value={otp} onChange={(e) => setOtp(e.target.value)} />
-                <button type="button" onClick={verifyOTP}>
-                  Verify OTP
+            {/* OTP / Send OTP / Verify */}
+            {!verified ? (
+              otpSent ? (
+                <>
+                  <input
+                    placeholder="Enter OTP"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                  />
+                  <button type="button" onClick={verifyOTP}>
+                    Verify OTP
+                  </button>
+                </>
+              ) : (
+                <button type="button" onClick={sendOTP}>
+                  Send OTP
                 </button>
-              </>
+              )
+            ) : (
+              <p style={{ color: "green" }}>Email verified ✅</p>
             )}
 
-            <button type="submit">Register</button>
+            {/* Register button only enabled if verified */}
+            <button type="submit" disabled={!verified}>
+              Register
+            </button>
           </form>
         </div>
       </div>
