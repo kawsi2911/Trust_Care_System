@@ -46,6 +46,6 @@ app.use("/api/select", selectRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/payments", paymentRoutes);
 
-app.use("/api/verify-email", verifyEmailRoute);
+//app.use("/api/verify-email", verifyEmailRoute);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
