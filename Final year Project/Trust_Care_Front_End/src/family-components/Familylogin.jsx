@@ -12,6 +12,8 @@ function Familylogin() {
     });
     const [errors, setErrors] = useState({});
     const [touched, setTouched] = useState({});
+    // ✅ NEW: show/hide password state
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -48,7 +50,6 @@ function Familylogin() {
                 const data = await res.json();
 
                 if (res.status === 200) {
-                    // Store _id
                     if (formData.check) localStorage.setItem("userId", data.userId);
                     else sessionStorage.setItem("userId", data.userId);
 
@@ -84,13 +85,49 @@ function Familylogin() {
 
                             <div className='row'>
                                 <label htmlFor='username'>User Name : <span className='star'>*</span></label>
-                                <input type='text' id='username' name='username' placeholder='Enter your username' value={formData.username} onChange={handleChange} onBlur={handleBlur} className={touched.username && errors.username ? 'input-error' : ''} />
+                                <input
+                                    type='text'
+                                    id='username'
+                                    name='username'
+                                    placeholder='Enter your username'
+                                    value={formData.username}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    className={touched.username && errors.username ? 'input-error' : ''}
+                                />
                                 {touched.username && errors.username && <p className="error-text">{errors.username}</p>}
                             </div>
 
+                            {/* ✅ CHANGED: Password field with eye toggle */}
                             <div className='row'>
                                 <label htmlFor='password'>Password : <span className='star'>*</span></label>
-                                <input type='password' id='password' name='password' placeholder='Enter your password' value={formData.password} onChange={handleChange} onBlur={handleBlur} className={touched.password && errors.password ? 'input-error' : ''} />
+                                <div style={{ position: "relative", width: "100%" }}>
+                                    <input
+                                        type={showPassword ? "text" : "password"}
+                                        id='password'
+                                        name='password'
+                                        placeholder='Enter your password'
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        className={touched.password && errors.password ? 'input-error' : ''}
+                                        style={{ width: "100%", paddingRight: "40px", boxSizing: "border-box" }}
+                                    />
+                                    <span
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        style={{
+                                            position: "absolute",
+                                            right: "12px",
+                                            top: "50%",
+                                            transform: "translateY(-50%)",
+                                            cursor: "pointer",
+                                            fontSize: "1.1rem",
+                                            userSelect: "none"
+                                        }}
+                                    >
+                                        {showPassword ? "🙈" : "👁️"}
+                                    </span>
+                                </div>
                                 {touched.password && errors.password && <p className="error-text">{errors.password}</p>}
                             </div>
 

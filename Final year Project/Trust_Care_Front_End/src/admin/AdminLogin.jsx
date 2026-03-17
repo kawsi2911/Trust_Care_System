@@ -9,6 +9,8 @@ const AdminLogin = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  // ✅ NEW: show/hide password state
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -48,7 +50,7 @@ const AdminLogin = () => {
   return (
     <div className="admin-login-page">
 
-      {/* ✅ Logo on left corner, TRUST CARE centered */}
+      {/* Logo on left corner, TRUST CARE centered */}
       <div className="admin-login-header">
         <img src={logo} alt="Trust Care Logo" className="admin-login-logo" />
         <h1 className="admin-login-title">TRUST CARE</h1>
@@ -74,16 +76,34 @@ const AdminLogin = () => {
             />
           </div>
 
+          {/* ✅ CHANGED: Password field with eye toggle */}
           <div className="form-group">
             <label>Password <span className="required">*</span></label>
-            <input
-              type="password"
-              name="password"
-              placeholder="Enter your password"
-              value={formData.password}
-              onChange={handleChange}
-              autoComplete="current-password"
-            />
+            <div style={{ position: "relative", flex: 1 }}>
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Enter your password"
+                value={formData.password}
+                onChange={handleChange}
+                autoComplete="current-password"
+                style={{ width: "100%", paddingRight: "40px", boxSizing: "border-box" }}
+              />
+              <span
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: "absolute",
+                  right: "12px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  cursor: "pointer",
+                  fontSize: "1.1rem",
+                  userSelect: "none"
+                }}
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </span>
+            </div>
           </div>
 
           <div className="remember-row">
