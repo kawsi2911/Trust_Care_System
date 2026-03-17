@@ -182,6 +182,7 @@ function FamilyRegister() {
               <label htmlFor="city">City *</label>
               <input
                 id="city"
+                type="text"
                 name="city"
                 placeholder="Enter city"
                 value={formData.city}
@@ -192,9 +193,11 @@ function FamilyRegister() {
               {touched.city && errors.city && <p className="error-text">{errors.city}</p>}
             </div>
 
-            <button type="submit" className="next">
-              Next Step
-            </button>
+            <div className="row">
+              <button type="submit" className="next">
+                Next Step
+              </button>
+            </div>
           </form>
         </div>
       </div>
