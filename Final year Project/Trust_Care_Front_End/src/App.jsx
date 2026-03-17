@@ -39,16 +39,6 @@ import AdminDashboard from "./admin/AdminDashboard.jsx";
 // ✅ NEW: Payment pages
 import PaymentSuccess from "./Family-Dashboard/PaymentSuccess.jsx";
 import PaymentCancel from "./Family-Dashboard/PaymentCancel.jsx";
-<<<<<<< HEAD
-<<<<<<< HEAD
-// email varification
-//import EmailVerified from "./components/EmailVerified.jsx";
-=======
->>>>>>> parent of 563f153 (update all)
-=======
->>>>>>> parent of 563f153 (update all)
-
-
 
 function App() {
   return (
@@ -108,14 +98,7 @@ function App() {
         <Route path="/admin" element={<AdminLogin />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
-<<<<<<< HEAD
-<<<<<<< HEAD
-         {/* Email routes 
-        <Route path="/email-verified" element={<EmailVerified />} />*/}
-=======
->>>>>>> parent of 563f153 (update all)
-=======
->>>>>>> parent of 563f153 (update all)
+
 
       </Routes>
       
