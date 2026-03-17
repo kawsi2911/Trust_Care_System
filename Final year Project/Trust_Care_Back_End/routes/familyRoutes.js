@@ -5,7 +5,32 @@ import { sendOTP } from "../utils/sendEmail.js";
 
 const router = express.Router();
 
-/* ── Step 1: Create Temp Family ── */
+/* ── Send OTP ── */
+router.post("/sendotp", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await Family.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "Complete registration step 1 first" });
+    }
+
+    const otp = otpGenerator.generate(6, { upperCase: false, specialChars: false });
+    const expire = new Date(Date.now() + 5 * 60 * 1000);
+
+    user.otp = otp;
+    user.otpExpire = expire;
+    await user.save();
+
+    await sendOTP(email, otp);
+
+    res.json({ message: "OTP sent" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// family routes
 router.post("/create-temp", async (req, res) => {
   try {
     const { familyFullName, familynic, phone, email, gender, address, city } = req.body;
@@ -18,31 +43,8 @@ router.post("/create-temp", async (req, res) => {
 
     res.json({ message: "Step 1 completed", userId: tempUser._id });
   } catch (err) {
-    console.error("Create temp error:", err);
+    console.error(err);
     res.status(500).json({ message: "Server error" });
-  }
-});
-
-/* ── Send OTP ── */
-router.post("/sendotp", async (req, res) => {
-  try {
-    const { email } = req.body;
-    const user = await Family.findOne({ email });
-    if (!user) return res.status(400).json({ message: "Complete registration step 1 first" });
-
-    const otp = otpGenerator.generate(6, { upperCase: false, specialChars: false });
-    const expire = new Date(Date.now() + 5 * 60 * 1000); // 5 min
-
-    user.otp = otp;
-    user.otpExpire = expire;
-    await user.save();
-
-    await sendOTP(email, otp);
-
-    res.json({ message: "OTP sent" });
-  } catch (err) {
-    console.error("Send OTP error:", err);
-    res.status(500).json({ error: err.message });
   }
 });
 
@@ -50,6 +52,7 @@ router.post("/sendotp", async (req, res) => {
 router.post("/verify-otp", async (req, res) => {
   try {
     const { email, otp } = req.body;
+
     const user = await Family.findOne({ email });
     if (!user) return res.status(400).json({ success: false, message: "User not found" });
 
@@ -68,47 +71,42 @@ router.post("/verify-otp", async (req, res) => {
   }
 });
 
-/* ── Register Step 2 ── */
+/* ── Register Family ── */
 router.post("/register", async (req, res) => {
   try {
-    const { email, username, password } = req.body;
+    const { email, password, familyFullName, phone } = req.body;
+
     const user = await Family.findOne({ email });
+    if (!user || !user.isVerified) {
+      return res.status(400).json({ success: false, message: "Email not verified" });
+    }
 
-    if (!user) return res.status(400).json({ success: false, message: "User not found" });
-    if (!user.isVerified) return res.status(400).json({ success: false, message: "Email not verified" });
-
-    // Update Step 2 fields
-    user.username = username;
-    user.password = password; // hash later
+    // Update user details
+    user.familyFullName = familyFullName;
+    user.password = password; // Later: hash password
+    user.phone = phone;
     await user.save();
 
     res.json({ success: true, message: "Family registered successfully", userId: user._id });
   } catch (err) {
-    console.error("Register error:", err);
+    console.error("Registration error:", err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
-/* ================= LOGIN ================= */
+/* ── Login ── */
 router.post("/login", async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
-    const user = await Family.findOne({ username });
+    const user = await Family.findOne({ email });
+    if (!user) return res.status(400).json({ success: false, message: "User not found" });
+    if (user.password !== password) return res.status(400).json({ success: false, message: "Wrong password" });
 
-    if (!user) return res.status(400).json({ message: "User not found" });
-
-    if (user.password !== password)
-      return res.status(400).json({ message: "Wrong password" });
-
-    res.json({
-      message: "Login successful",
-      userId: user._id,
-      familyFullName: user.familyFullName
-    });
-
+    res.json({ success: true, message: "Login successful", userId: user._id, familyFullName: user.familyFullName });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("Login error:", err);
+    res.status(500).json({ success: false, error: err.message });
   }
 });
 
