@@ -85,7 +85,6 @@ function ProfileDashboard() {
 
                     <div className="QServices">
                         <button className="viewall" onClick={() => navigate("/serviceproviderprofileedit")}> Edit Profile </button>
-                        <button className="updates"> Update Availability </button>
                         <button className="logouts" onClick={() => {
                             localStorage.removeItem("userId");
                             sessionStorage.removeItem("userId");
