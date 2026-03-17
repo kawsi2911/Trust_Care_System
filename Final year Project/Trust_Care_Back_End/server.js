@@ -45,8 +45,11 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/payments", paymentRoutes);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 //app.use("/api/verify-email", verifyEmailRoute);
 
+=======
+>>>>>>> parent of 563f153 (update all)
 =======
 >>>>>>> parent of 563f153 (update all)
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
