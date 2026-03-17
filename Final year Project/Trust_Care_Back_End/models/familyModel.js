@@ -48,10 +48,21 @@ const userSchema = new mongoose.Schema({
     required: true
   },
 
-  // ✅ ADDED: status field for admin to activate/deactivate families
+  // ✅ status field for admin to activate/deactivate families
   status: {
     type: String,
     default: "Active"
+  },
+
+  // ✅ ADDED: email verification fields
+  isVerified: {
+    type: Boolean,
+    default: false
+  },
+
+  verificationToken: {
+    type: String,
+    default: null
   },
 
 }, {

@@ -14,6 +14,8 @@ import selectRoutes from "./routes/select.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 
+import verifyEmailRoute from "./routes/verifyEmailRoute.js";
+
 dotenv.config();
 
 const app = express();
@@ -43,5 +45,7 @@ app.use("/api/select", selectRoutes);
 // ── Admin API routes ──────────────────────────────────────────────────────────
 app.use("/api/admin", adminRoutes);
 app.use("/api/payments", paymentRoutes);
+
+app.use("/api/verify-email", verifyEmailRoute);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

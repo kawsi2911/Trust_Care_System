@@ -88,10 +88,21 @@ const providerSchema = new mongoose.Schema({
         required: true
     },
 
-    // ✅ ADDED: status field for admin to approve/reject providers
+    // ✅ status field for admin to approve/reject providers
     status: {
         type: String,
         default: "Pending"
+    },
+
+    // ✅ ADDED: email verification fields
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
+
+    verificationToken: {
+        type: String,
+        default: null
     },
 
 }, {
