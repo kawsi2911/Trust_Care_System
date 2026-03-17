@@ -14,8 +14,6 @@ import selectRoutes from "./routes/select.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 
-import verifyEmailRoute from "./routes/verifyEmailRoute.js";
-
 dotenv.config();
 
 const app = express();
@@ -46,6 +44,9 @@ app.use("/api/select", selectRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/payments", paymentRoutes);
 
+<<<<<<< HEAD
 //app.use("/api/verify-email", verifyEmailRoute);
 
+=======
+>>>>>>> parent of 563f153 (update all)
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

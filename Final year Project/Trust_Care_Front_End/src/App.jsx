@@ -36,11 +36,14 @@ import FamilyProfieEdit from "./family-components/FamilyProfieEdit.jsx";
 // Admin imports
 import AdminLogin from "./admin/AdminLogin.jsx";
 import AdminDashboard from "./admin/AdminDashboard.jsx";
-// Payment pages
+// ✅ NEW: Payment pages
 import PaymentSuccess from "./Family-Dashboard/PaymentSuccess.jsx";
 import PaymentCancel from "./Family-Dashboard/PaymentCancel.jsx";
+<<<<<<< HEAD
 // email varification
 //import EmailVerified from "./components/EmailVerified.jsx";
+=======
+>>>>>>> parent of 563f153 (update all)
 
 
 
@@ -102,8 +105,11 @@ function App() {
         <Route path="/admin" element={<AdminLogin />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
+<<<<<<< HEAD
          {/* Email routes 
         <Route path="/email-verified" element={<EmailVerified />} />*/}
+=======
+>>>>>>> parent of 563f153 (update all)
 
       </Routes>
       
