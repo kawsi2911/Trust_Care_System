@@ -20,7 +20,7 @@ function ServiceTaken() {
   const [otpSent, setOtpSent] = useState(false);
   const [verified, setVerified] = useState(false);
 
-  // ✅ Ensure Step 1 exists
+  // Check if step 1 is completed
   useEffect(() => {
     const familyData = JSON.parse(localStorage.getItem("familyData"));
     if (!familyData) {
@@ -55,9 +55,7 @@ function ServiceTaken() {
     return newErrors;
   };
 
-  // ============================
   // SEND OTP
-  // ============================
   const sendOTP = async () => {
     const familyData = JSON.parse(localStorage.getItem("familyData"));
     if (!familyData) return;
@@ -82,12 +80,15 @@ function ServiceTaken() {
     }
   };
 
-  // ============================
   // VERIFY OTP
-  // ============================
   const verifyOTP = async () => {
     const familyData = JSON.parse(localStorage.getItem("familyData"));
     if (!familyData) return;
+
+    if (!otp.trim()) {
+      Swal.fire("Enter OTP first");
+      return;
+    }
 
     try {
       const res = await fetch("http://localhost:5000/api/family/verify-otp", {
@@ -110,18 +111,22 @@ function ServiceTaken() {
     }
   };
 
-  // ============================
   // REGISTER
-  // ============================
   const handleNext = async (e) => {
     e.preventDefault();
 
+    // mark all fields as touched
     setTouched({ username: true, createpassword: true, confirmpassword: true, check: true });
+
+    // validate form
     const validationErrors = validate();
-    if (Object.keys(validationErrors).length !== 0) return;
+    if (Object.keys(validationErrors).length !== 0) {
+      Swal.fire("Please fix the errors before proceeding");
+      return;
+    }
 
     if (!verified) {
-      Swal.fire("Verify email first");
+      Swal.fire("Verify your email first");
       return;
     }
 
@@ -148,71 +153,127 @@ function ServiceTaken() {
           navigate("/familylogin")
         );
       } else {
-        Swal.fire(data.message);
+        Swal.fire(data.message || "Registration failed");
       }
     } catch (error) {
       console.error(error);
-      Swal.fire("Registration failed");
+      Swal.fire("Registration failed, try again");
     }
   };
 
   return (
     <>
       <Header />
-      <div className="Servicelogin">
+      <div className='Servicelogin'>
         <div className="login_Container">
-          <p>Registration Step 2</p>
-          <form onSubmit={handleNext}>
-            <input
-              name="username"
-              placeholder="Username"
-              onChange={handleChange}
-              onBlur={handleBlur}
-            />
-            <input
-              type="password"
-              name="createpassword"
-              placeholder="Password"
-              onChange={handleChange}
-              onBlur={handleBlur}
-            />
-            <input
-              type="password"
-              name="confirmpassword"
-              placeholder="Confirm Password"
-              onChange={handleChange}
-              onBlur={handleBlur}
-            />
-            <label>
-              <input type="checkbox" name="check" onChange={handleChange} /> Agree to terms
-            </label>
 
-            {/* OTP / Send OTP / Verify */}
-            {!verified ? (
-              otpSent ? (
-                <>
-                  <input
-                    placeholder="Enter OTP"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                  />
-                  <button type="button" onClick={verifyOTP}>
-                    Verify OTP
+          {/* Header */}
+          <div className="First">
+            <p className="Head">✔️ Registration Complete!</p>
+            <p className="Body">Now create your login credentials</p>
+          </div>
+
+          <form onSubmit={handleNext} className='form-fill'>
+
+            {/* Username */}
+            <div className='row'>
+              <label htmlFor='username'>Username : <span className='star'>*</span></label>
+              <input 
+                type='text' 
+                id='username'
+                name='username' 
+                placeholder='Enter your username' 
+                value={formData.username} 
+                onChange={handleChange}  
+                onBlur={handleBlur} 
+                className={touched.username && errors.username ? 'input-error' : ''}
+              />
+              {touched.username && errors.username && (
+                <p className="error-text">{errors.username}</p>
+              )}
+            </div>
+
+            {/* Create Password */}
+            <div className='row'>
+              <label htmlFor='create_password'>Create Password : <span className='star'>*</span></label>
+              <input 
+                type='password' 
+                id='create_password' 
+                name='createpassword' 
+                placeholder='Enter a strong password' 
+                value={formData.createpassword} 
+                onChange={handleChange} 
+                onBlur={handleBlur} 
+                className={touched.createpassword && errors.createpassword ? 'input-error' : ''}
+              />
+              {touched.createpassword && errors.createpassword && (
+                <p className="error-text">{errors.createpassword}</p>
+              )}
+            </div>
+
+            {/* Confirm Password */}
+            <div className='row'>
+              <label htmlFor='confirmpassword'>Confirm Password : <span className='star'>*</span></label>
+              <input 
+                type='password' 
+                id='confirmpassword' 
+                name='confirmpassword' 
+                placeholder='Re-enter password' 
+                value={formData.confirmpassword} 
+                onChange={handleChange} 
+                onBlur={handleBlur} 
+                className={touched.confirmpassword && errors.confirmpassword ? 'input-error' : ''}
+              />
+              {touched.confirmpassword && errors.confirmpassword && (
+                <p className="error-text">{errors.confirmpassword}</p>
+              )}
+            </div>
+
+            {/* Checkbox */}
+            <div className='row'>
+              <input 
+                type='checkbox' 
+                id='check' 
+                name='check' 
+                checked={formData.check}  
+                onChange={handleChange}
+              />
+              <p className="checked">
+                I agree to <a href="">Terms & Conditions</a> and <a href="">Privacy Policy</a>
+              </p>
+              {touched.check && errors.check && (
+                <p className="error-text">{errors.check}</p>
+              )}
+            </div>
+
+            {/* OTP */}
+            <div className='row otp-row'>
+              {!verified ? (
+                otpSent ? (
+                  <>
+                    <input
+                      placeholder="Enter OTP"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                    />
+                    <button type="button" onClick={verifyOTP} className="otp-btn">
+                      Verify OTP
+                    </button>
+                  </>
+                ) : (
+                  <button type="button"  onClick={sendOTP} className="otp-btn">
+                    Send OTP
                   </button>
-                </>
+                )
               ) : (
-                <button type="button" onClick={sendOTP}>
-                  Send OTP
-                </button>
-              )
-            ) : (
-              <p style={{ color: "green" }}>Email verified ✅</p>
-            )}
+                <p className="verified">Email verified ✅</p>
+              )}
+            </div>
 
-            {/* Register button only enabled if verified */}
-            <button type="submit" disabled={!verified}>
-              Register
+            <button type="submit" className='next'>
+              Create Account & Login
             </button>
+
           </form>
         </div>
       </div>

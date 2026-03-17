@@ -13,3 +13,33 @@
     align-items: center;
     gap: 8px;
 }
+
+.otp-btn {
+  padding: 10px 20px;
+  margin: 5px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.send-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+.verify-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.resend-btn {
+  background-color: #ffc107;
+  color: black;
+}
+
+.otp-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
