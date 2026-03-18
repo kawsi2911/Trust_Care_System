@@ -1,6 +1,6 @@
 const { MongoClient, ServerApiVersion } = require('mongodb');
 
-const uri = "mongodb+srv://mumthaj:mumthaj@cluster0.dcqiwjd.mongodb.net/?appName=Cluster0";
+const uri = "mongodb+srv://diluni:diluni@cluster0.yr4kwou.mongodb.net/trustcare?retryWrites=true&w=majority";
 
 
 const client = new MongoClient(uri,{
