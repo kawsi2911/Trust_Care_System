@@ -22,9 +22,11 @@ function familyprofile(){
         // Fetch family profile
         fetch(`http://localhost:5000/api/family/${userId}`)
             .then(res => res.json())
-            .then(data => setUser(data))
+            .then(data => {
+                if (data.success && data.user) setUser(data.user);
+            })
             .catch(err => console.log(err));
-
+            
         // ✅ Fetch real stats from bookings
         fetch(`http://localhost:5000/api/service-request/family-bookings/${userId}`)
             .then(res => res.json())

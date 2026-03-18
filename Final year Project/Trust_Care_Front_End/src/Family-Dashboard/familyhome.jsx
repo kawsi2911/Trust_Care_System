@@ -9,30 +9,31 @@ function FamilyHome() {
   const [stats, setStats] = useState({ totalJobs: 0, activeNow: 0, completed: 0 });
   const [recentBookings, setRecentBookings] = useState([]);
 
-  useEffect(() => {
-    const userId = localStorage.getItem("userId") || sessionStorage.getItem("userId");
-    if (!userId) return navigate("/familylogin");
+ useEffect(() => {
+  const userId = localStorage.getItem("userId") || sessionStorage.getItem("userId");
+  if (!userId) return navigate("/familylogin");
 
-    // Fetch family name
-    fetch(`http://localhost:5000/api/family/${userId}`)
-      .then(res => res.json())
-      .then(data => setFullName(data.familyFullName))
-      .catch(err => console.error(err));
+  // Fetch family name
+  fetch(`http://localhost:5000/api/family/${userId}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.success && data.user) setFullName(data.user.familyFullName);
+    })
+    .catch(err => console.error(err));
 
-    // Fetch real dashboard stats + recent activity
-    fetch(`http://localhost:5000/api/service-request/family-dashboard/${userId}`)
-      .then(res => res.json())
-      .then(data => {
-        setStats({
-          totalJobs: data.totalJobs || 0,
-          activeNow: data.activeNow || 0,
-          completed: data.completed || 0,
-        });
-        setRecentBookings(data.recentBookings || []);
-      })
-      .catch(err => console.error(err));
-  }, [navigate]);
-
+  // Fetch real dashboard stats + recent activity
+  fetch(`http://localhost:5000/api/service-request/family-dashboard/${userId}`)
+    .then(res => res.json())
+    .then(data => {
+      setStats({
+        totalJobs: data.totalJobs || 0,
+        activeNow: data.activeNow || 0,
+        completed: data.completed || 0,
+      });
+      setRecentBookings(data.recentBookings || []);
+    })
+    .catch(err => console.error(err));
+}, [navigate]);
   const handleLogout = () => {
     localStorage.removeItem("userId");
     sessionStorage.removeItem("userId");

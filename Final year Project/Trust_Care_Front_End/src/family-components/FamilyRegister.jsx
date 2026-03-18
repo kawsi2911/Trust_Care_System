@@ -47,31 +47,31 @@ function FamilyRegister() {
     return newErrors;
   };
 
-  const handleNext = (e) => {
-    e.preventDefault();
+  const handleNext = async (e) => {
+  e.preventDefault();
 
-    setTouched({
-      familyFullName: true,
-      familynic: true,
-      phone: true,
-      email: true,
-      gender: true,
-      address: true,
-      city: true,
+  const validationErrors = validate();
+  if (Object.keys(validationErrors).length !== 0) return;
+
+  try {
+    const res = await fetch("http://localhost:5000/api/family/create-temp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
     });
 
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length !== 0) return;
+    const data = await res.json();
 
-    // Save Step 1 data in localStorage
-    localStorage.setItem("familyData", JSON.stringify(formData));
-
-    Swal.fire({
-      icon: "success",
-      title: "Step 1 Completed",
-      text: "Proceed to next step",
-    }).then(() => navigate("/servicetaken"));
-  };
+    if (res.ok) {
+      localStorage.setItem("userId", data.userId);
+      Swal.fire("Step 1 completed").then(() => navigate("/servicetaken"));
+    } else {
+      Swal.fire(data.message);
+    }
+  } catch (err) {
+    Swal.fire("Error");
+  }
+};
 
   return (
     <>

@@ -11,8 +11,8 @@ const userSchema = new mongoose.Schema({
   address: { type: String, required: true },
   city: { type: String, required: true },
 
-  username: { type: String, required: true },
-  password: { type: String, required: true },
+  username: { type: String, unique: true, sparse: true }, 
+  password: { type: String },
 
   status: { type: String, default: "Active" },
 

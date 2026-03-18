@@ -115,25 +115,25 @@ function FamilyProfieEdit(){
 
     fetch(`http://localhost:5000/api/family/${userId}`)
         .then(res => res.json())
-        .then(data => {
+       .then(data => {
+  if (data.success && data.user) {
+    setUser(data.user);
 
-            setUser(data);
-
-            setFormData({
-                familyFullName: data.familyFullName || "",
-                familynic: data.familynic || "",
-                phone: data.phone || "",
-                email: data.email || "",
-                gender: data.gender || "",
-                address: data.address || "",
-                city: data.city || "",
-                username: data.username || "",
-                createpassword: "",
-                confirmpassword: "",
-                check: true
-            });
-
-        })
+    setFormData({
+      familyFullName: data.user.familyFullName || "",
+      familynic: data.user.familynic || "",
+      phone: data.user.phone || "",
+      email: data.user.email || "",
+      gender: data.user.gender || "",
+      address: data.user.address || "",
+      city: data.user.city || "",
+      username: data.user.username || "",
+      createpassword: "",
+      confirmpassword: "",
+      check: true
+    });
+  }
+})
         .catch(err => console.log(err));
 
 }, [navigate]);

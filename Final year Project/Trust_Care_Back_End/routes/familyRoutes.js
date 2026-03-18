@@ -5,15 +5,30 @@ import { sendOTP } from "../utils/sendEmail.js";
 
 const router = express.Router();
 
-/* ── Send OTP ── */
+/* ── Step 1: Create Temp Family ── */
+router.post("/create-temp", async (req, res) => {
+  try {
+    const { familyFullName, familynic, phone, email, gender, address, city } = req.body;
+
+    const existing = await Family.findOne({ familynic });
+    if (existing) return res.status(400).json({ message: "NIC already exists" });
+
+    const tempUser = new Family({ familyFullName, familynic, phone, email, gender, address, city });
+    await tempUser.save();
+
+    res.json({ message: "Step 1 completed", userId: tempUser._id });
+  } catch (err) {
+    console.error("Step1 Error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* ── Send OTP using userId ── */
 router.post("/sendotp", async (req, res) => {
   try {
-    const { email } = req.body;
-
-    const user = await Family.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: "Complete registration step 1 first" });
-    }
+    const { userId } = req.body;
+    const user = await Family.findById(userId);
+    if (!user) return res.status(400).json({ message: "Complete Step 1 first" });
 
     const otp = otpGenerator.generate(6, { upperCase: false, specialChars: false });
     const expire = new Date(Date.now() + 5 * 60 * 1000);
@@ -22,84 +37,64 @@ router.post("/sendotp", async (req, res) => {
     user.otpExpire = expire;
     await user.save();
 
-    await sendOTP(email, otp);
+    await sendOTP(user.email, otp);
 
     res.json({ message: "OTP sent" });
   } catch (err) {
+    console.error("Send OTP Error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// family routes
-router.post("/create-temp", async (req, res) => {
-  try {
-    const { familyFullName, familynic, phone, email, gender, address, city } = req.body;
-
-    const existing = await Family.findOne({ email });
-    if (existing) return res.status(400).json({ message: "Email already exists" });
-
-    const tempUser = new Family({ familyFullName, familynic, phone, email, gender, address, city });
-    await tempUser.save();
-
-    res.json({ message: "Step 1 completed", userId: tempUser._id });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-/* ── Verify OTP ── */
+/* ── Verify OTP using userId ── */
 router.post("/verify-otp", async (req, res) => {
   try {
-    const { email, otp } = req.body;
+    const { userId, otp } = req.body;
+    const user = await Family.findById(userId);
+    if (!user) return res.status(400).json({ message: "User not found" });
 
-    const user = await Family.findOne({ email });
-    if (!user) return res.status(400).json({ success: false, message: "User not found" });
-
-    if (user.otp !== otp) return res.status(400).json({ success: false, message: "Wrong OTP" });
-    if (user.otpExpire < new Date()) return res.status(400).json({ success: false, message: "OTP expired" });
+    if (user.otp !== otp) return res.status(400).json({ message: "Wrong OTP" });
+    if (user.otpExpire < new Date()) return res.status(400).json({ message: "OTP expired" });
 
     user.isVerified = true;
     user.otp = null;
     user.otpExpire = null;
     await user.save();
 
-    res.json({ success: true, message: "OTP verified successfully" });
+    res.json({ message: "OTP verified successfully" });
   } catch (err) {
-    console.error("Verify OTP error:", err);
-    res.status(500).json({ success: false, error: err.message });
+    console.error("Verify OTP Error:", err);
+    res.status(500).json({ error: err.message });
   }
 });
 
-/* ── Register Family ── */
-router.post("/register", async (req, res) => {
+/* ── Step 2: Register Family ── */
+router.post("/providerregister", async (req, res) => {
   try {
-    const { email, password, familyFullName, phone } = req.body;
+    const { userId, username, password } = req.body;
+    const user = await Family.findById(userId);
+    if (!user) return res.status(400).json({ message: "User not found" });
+    if (!user.isVerified) return res.status(400).json({ message: "Email not verified" });
 
-    const user = await Family.findOne({ email });
-    if (!user || !user.isVerified) {
-      return res.status(400).json({ success: false, message: "Email not verified" });
-    }
+    const existingUsername = await Family.findOne({ username });
+    if (existingUsername) return res.status(400).json({ message: "Username already exists" });
 
-    // Update user details
-    user.familyFullName = familyFullName;
-    user.password = password; // Later: hash password
-    user.phone = phone;
+    user.username = username;
+    user.password = password; // hash later
     await user.save();
 
-    res.json({ success: true, message: "Family registered successfully", userId: user._id });
+    res.json({ message: "Registration completed successfully", userId: user._id });
   } catch (err) {
-    console.error("Registration error:", err);
-    res.status(500).json({ success: false, error: err.message });
+    console.error("Register Step2 Error:", err);
+    res.status(500).json({ error: err.message });
   }
 });
 
 /* ── Login ── */
 router.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
-
-    const user = await Family.findOne({ email });
+    const { username, password } = req.body; // use username
+    const user = await Family.findOne({ username }); // search by username
     if (!user) return res.status(400).json({ success: false, message: "User not found" });
     if (user.password !== password) return res.status(400).json({ success: false, message: "Wrong password" });
 
