@@ -181,6 +181,7 @@ function FamilyRegister() {
             <div className="row">
               <label htmlFor="city">City *</label>
               <input
+                type="text"
                 id="city"
                 name="city"
                 placeholder="Enter city"
