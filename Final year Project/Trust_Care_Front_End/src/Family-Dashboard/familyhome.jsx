@@ -5,24 +5,64 @@ import "./familyhome.css";
 
 function FamilyHome() {
   const navigate = useNavigate();
-    const [fullName, setFullName] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [stats, setStats] = useState({ totalJobs: 0, activeNow: 0, completed: 0 });
+  const [recentBookings, setRecentBookings] = useState([]);
 
-    useEffect(() => {
-        const userId = localStorage.getItem("userId") || sessionStorage.getItem("userId");
-        if (!userId) return navigate("/familylogin");
+  useEffect(() => {
+    const userId = localStorage.getItem("userId") || sessionStorage.getItem("userId");
+    if (!userId) return navigate("/familylogin");
 
-        fetch(`http://localhost:5000/api/family/${userId}`)
-            .then(res => res.json())
-            .then(data => setFullName(data.familyFullName))
-            .catch(err => console.error(err));
-    }, [navigate]);
+    // Fetch family name
+    fetch(`http://localhost:5000/api/family/${userId}`)
+      .then(res => res.json())
+      .then(data => setFullName(data.familyFullName))
+      .catch(err => console.error(err));
 
-    const handleLogout = () => {
-        localStorage.removeItem("userId");
-        sessionStorage.removeItem("userId");
-        navigate("/familylogin");
-    };
+    // Fetch real dashboard stats + recent activity
+    fetch(`http://localhost:5000/api/service-request/family-dashboard/${userId}`)
+      .then(res => res.json())
+      .then(data => {
+        setStats({
+          totalJobs: data.totalJobs || 0,
+          activeNow: data.activeNow || 0,
+          completed: data.completed || 0,
+        });
+        setRecentBookings(data.recentBookings || []);
+      })
+      .catch(err => console.error(err));
+  }, [navigate]);
 
+  const handleLogout = () => {
+    localStorage.removeItem("userId");
+    sessionStorage.removeItem("userId");
+    navigate("/familylogin");
+  };
+
+  const getActivityIcon = (status) => {
+    if (status === "completed" || status === "paid" || status === "reviewed") return "✔️";
+    if (status === "active") return "⌛";
+    if (status === "pending") return "📝";
+    if (status === "cancelled") return "❌";
+    return "📋";
+  };
+
+  const getActivityLabel = (status) => {
+    if (status === "completed") return "Completed";
+    if (status === "paid") return "Paid";
+    if (status === "reviewed") return "Reviewed";
+    if (status === "active") return "In Progress";
+    if (status === "pending") return "Scheduled";
+    if (status === "cancelled") return "Cancelled";
+    return status;
+  };
+
+  const getTimeAgo = (date) => {
+    const diff = Math.floor((new Date() - new Date(date)) / 1000 / 60);
+    if (diff < 60) return `${diff} minutes ago`;
+    if (diff < 1440) return `${Math.floor(diff / 60)} hours ago`;
+    return `${Math.floor(diff / 1440)} days ago`;
+  };
 
   return (
     <>
@@ -39,7 +79,7 @@ function FamilyHome() {
           </div>
 
           <div className="First">
-            <p className="Head"> Welcome, {fullName} 👋</p>
+            <p className="Head">Welcome, {fullName} 👋</p>
           </div>
 
           <div className="button-section">
@@ -60,32 +100,44 @@ function FamilyHome() {
             </div>
           </div>
 
+          {/* ✅ Real stats from MongoDB */}
           <div className="job-group">
             <div className="job1">
               <p className="number">
-                15 <p className="text">Total Jobs</p>
+                {stats.totalJobs} <p className="text">Total Jobs</p>
               </p>
             </div>
             <div className="job2">
               <p className="number">
-                3 <p className="text">Active Now</p>
+                {stats.activeNow} <p className="text">Active Now</p>
               </p>
             </div>
             <div className="job3">
               <p className="number">
-                2 <p className="text">Total Jobs</p>
+                {stats.completed} <p className="text">Completed</p>
               </p>
             </div>
           </div>
 
+          {/* ✅ Real recent activity from MongoDB */}
           <div className="container">
             <div className="containers">
               <p className="service-title">Recent Activity</p>
-              <p>✔️ Elder Care - Completed (3 days ago)</p>
-              <p>⌛ Child Care - Inprogress</p>
-              <p>📝 Hospital Care - Scheduled</p>
+              {recentBookings.length === 0 ? (
+                <p style={{ color: "#999" }}>No recent activity found.</p>
+              ) : (
+                recentBookings.map((booking, idx) => (
+                  <p key={idx}>
+                    {getActivityIcon(booking.status)}{" "}
+                    {booking.serviceRequestId?.PatientType || booking.patientType || "Care Service"} -{" "}
+                    {getActivityLabel(booking.status)}{" "}
+                    ({getTimeAgo(booking.createdAt)})
+                  </p>
+                ))
+              )}
             </div>
           </div>
+
         </div>
       </div>
     </>

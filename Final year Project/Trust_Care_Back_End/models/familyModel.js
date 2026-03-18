@@ -47,8 +47,14 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-}
-, {
+
+  // ✅ ADDED: status field for admin to activate/deactivate families
+  status: {
+    type: String,
+    default: "Active"
+  },
+
+}, {
   timestamps: true  
 });
 

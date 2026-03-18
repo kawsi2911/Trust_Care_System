@@ -36,6 +36,9 @@ import FamilyProfieEdit from "./family-components/FamilyProfieEdit.jsx";
 // Admin imports
 import AdminLogin from "./admin/AdminLogin.jsx";
 import AdminDashboard from "./admin/AdminDashboard.jsx";
+// ✅ NEW: Payment pages
+import PaymentSuccess from "./Family-Dashboard/PaymentSuccess.jsx";
+import PaymentCancel from "./Family-Dashboard/PaymentCancel.jsx";
 
 
 
@@ -57,7 +60,6 @@ function App() {
         {/*service Provider login screen*/}
         <Route path = "/serviceproviderloginpage" element = {<ServiceProviderLoginPage />}/>
         <Route path = "/serviceproviderforget" element = {<ServiceProviderForget/>}/>
-
 
         {/*service Provider Dashboard */}
         <Route path = "/serviceproviderdashboard" element = {<ServiceProviderDashboard />}/>
@@ -89,7 +91,11 @@ function App() {
         <Route path = "/familyprofiles" element ={<FamilyProfile/>}/>
         <Route path = "/familyforget" element ={<Familyforget/>}/>
         <Route path = "/familyprofieedit" element = {<FamilyProfieEdit/>}/>
-        
+
+        {/* Payment result pages */}
+        <Route path = "/payment-success" element = {<PaymentSuccess/>}/>
+        <Route path = "/payment-cancel" element = {<PaymentCancel/>}/>
+
         {/* Admin routes */}
         <Route path="/admin" element={<AdminLogin />} />
         <Route path="/admin/login" element={<AdminLogin />} />

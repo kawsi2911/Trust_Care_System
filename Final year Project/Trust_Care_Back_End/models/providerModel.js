@@ -42,7 +42,6 @@ const providerSchema = new mongoose.Schema({
         enum: ["ElderCare", "ChildCare", "HospitalPatientCare", "HomePatientCare"]
     }],
 
-
     year: {
         type: String,
         required: true
@@ -87,6 +86,12 @@ const providerSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
+    },
+
+    // ✅ ADDED: status field for admin to approve/reject providers
+    status: {
+        type: String,
+        default: "Pending"
     },
 
 }, {

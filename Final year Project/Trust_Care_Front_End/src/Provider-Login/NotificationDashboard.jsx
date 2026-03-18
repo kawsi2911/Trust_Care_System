@@ -8,53 +8,39 @@ function NotificationDashboard() {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
 
- useEffect(() => {
+  useEffect(() => {
+    // ✅ FIXED: provider login saves as providerId not userId
+    const providerId =
+      localStorage.getItem("providerId") ||
+      sessionStorage.getItem("providerId");
 
- const providerId =
-   localStorage.getItem("userId") ||
-   sessionStorage.getItem("userId");
+    if (!providerId) return;
 
- if (!providerId) return;
+    axios.get(`http://localhost:5000/api/notifications/${providerId}`)
+      .then(res => setNotifications(res.data))
+      .catch(err => console.log(err));
 
- axios.get(`http://localhost:5000/api/notifications/${providerId}`)
-   .then(res => setNotifications(res.data))
-   .catch(err => console.log(err));
-
-}, []);
-
+  }, []);
 
   // Mark notification as accepted
-const handleAccept = async (note) => {
+  const handleAccept = async (noteId) => {
+    try {
+      await axios.put(`http://localhost:5000/api/notifications/accept/${noteId}`);
+      setNotifications(notifications.filter(n => n._id !== noteId));
+    } catch (err) {
+      console.error("Error accepting notification:", err);
+    }
+  };
 
-  const providerId =
-    localStorage.getItem("userId") ||
-    sessionStorage.getItem("userId");
-
-  try {
-
-    await axios.put(
-      `http://localhost:5000/api/service-request/accept/${note.requestId}`,
-      { providerId }
-    );
-
-    // remove notification from UI
-    setNotifications(notifications.filter(n => n._id !== note._id));
-
-  } catch (err) {
-    console.error("Error accepting request:", err);
-  }
-};
   // Decline notification
- const handleDecline = async (noteId) => {
-  try {
-    await axios.put(`http://localhost:5000/api/notifications/decline/${noteId}`);
-    
-    setNotifications(notifications.filter(n => n._id !== noteId));
-
-  } catch (err) {
-    console.error("Error declining notification:", err);
-  }
-};
+  const handleDecline = async (noteId) => {
+    try {
+      await axios.put(`http://localhost:5000/api/notifications/decline/${noteId}`);
+      setNotifications(notifications.filter(n => n._id !== noteId));
+    } catch (err) {
+      console.error("Error declining notification:", err);
+    }
+  };
 
   return (
     <>
@@ -67,7 +53,7 @@ const handleAccept = async (note) => {
               <p className="Head">Service Provider Dashboard</p>
             </div>
             <div className="Logout">
-              <button onClick={() => navigate("/")}>➜] Logout</button>
+              <button onClick={() => navigate("/")}>➜ Logout</button>
             </div>
           </div>
 
@@ -79,21 +65,29 @@ const handleAccept = async (note) => {
             <button onClick={() => navigate("/profiledashboard")}>Profile</button>
           </div>
 
-          {/* Dynamic Notifications */}
-          {notifications.length === 0 && <p>No new notifications.</p>}
+          {notifications.length === 0 && (
+            <p style={{ textAlign: "center", marginTop: "20px", color: "#999" }}>
+              No new notifications.
+            </p>
+          )}
 
           {notifications.map((note) => (
             <div className="container" key={note._id}>
               <div className="containers">
                 <p className="service-title">🔔 {note.title}</p>
                 <p>{note.message}</p>
+                {note.serviceType && <p><strong>Service:</strong> {note.serviceType}</p>}
                 <p><strong>Posted:</strong> {new Date(note.createdAt).toLocaleString()}</p>
               </div>
 
-              <div className="button-row">
-                <button className="cando" onClick={() => handleAccept(note)}>✔️ I Can Do</button>
-                <button className="decline" onClick={() => handleDecline(note._id)}>❌ Decline</button>
-              </div>
+              {/* ✅ FIXED: only show buttons for service requests, not reviews */}
+              {note.title === "New Service Request!" && (
+                <div className="button-row">
+                  <button className="cando" onClick={() => handleAccept(note._id)}>✔️ I Can Do</button>
+                  <button className="decline" onClick={() => handleDecline(note._id)}>❌ Decline</button>
+                </div>
+              )}
+
             </div>
           ))}
 

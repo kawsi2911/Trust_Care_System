@@ -36,7 +36,7 @@ function ProfileDashboard() {
                                 localStorage.removeItem("FullName");
                                 sessionStorage.removeItem("userId");
                                 sessionStorage.removeItem("FullName");
-                                navigate("/serviceproviderlogin");
+                                navigate("/");
                             }}>➜ Logout</button>
                         </div>
                     </div>
@@ -85,7 +85,6 @@ function ProfileDashboard() {
 
                     <div className="QServices">
                         <button className="viewall" onClick={() => navigate("/serviceproviderprofileedit")}> Edit Profile </button>
-                        <button className="updates"> Update Availability </button>
                         <button className="logouts" onClick={() => {
                             localStorage.removeItem("userId");
                             sessionStorage.removeItem("userId");

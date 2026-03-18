@@ -6,51 +6,12 @@ const router = express.Router();
 // Registration
 router.post("/providerregister", async (req, res) => {
   try {
-    const {
-      FullName,
-      NIC,
-      phone,
-      email,
-      gender,
-      dob,
-      fulladdress,
-      serviceType,
-      year,
-      qualifications,
-      uploadprofile,
-      location,
-      workRadius,
-      available,
-      hourlyRate,
-      username,
-      password
-    } = req.body;
-
-    const existing = await Service.findOne({ username });
+    const existing = await Service.findOne({ username: req.body.username });
     if (existing) {
       return res.status(400).json({ message: "Username already taken" });
     }
 
-    const newService = new Service({
-      FullName,
-      NIC,
-      phone,
-      email,
-      gender,
-      dob,
-      fulladdress,
-      serviceType,
-      year,
-      qualifications,
-      uploadprofile,
-      location,
-      workRadius,
-      available,
-      hourlyRate,
-      username,
-      password
-    });
-
+    const newService = new Service(req.body);
     const saved = await newService.save();
 
     res.json({
@@ -106,7 +67,6 @@ router.get("/:id", async (req, res) => {
 
 router.put("/:id", async (req, res) => {
   try {
-
     const { id } = req.params;
 
     const updatedUser = await Service.findByIdAndUpdate(
@@ -134,17 +94,46 @@ router.put("/:id", async (req, res) => {
 });
 
 
+// ✅ CHANGED: only show Active (admin-approved) providers to families
 router.post("/nearby-providers", async (req, res) => {
   try {
-    const { userLocation } = req.body; // e.g., "jaffna"
+    const { userLocation } = req.body;
     console.log("Searching providers near:", userLocation);
     const providers = await Service.find({
-      location: { $regex: new RegExp(userLocation, "i") } // case-insensitive match
+      location: { $regex: new RegExp(userLocation, "i") },
+      status: "Active"  // ✅ ADDED: only admin-approved providers visible
     });
     res.json({ providers });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+
+// ─────────────────────────────────────────
+// PUT /api/service/reset-password
+// ─────────────────────────────────────────
+router.put("/reset-password", async (req, res) => {
+    try {
+        const { username, newPassword } = req.body;
+
+        if (!username || !newPassword) {
+            return res.status(400).json({ message: "Username and new password are required" });
+        }
+
+        const provider = await Service.findOne({ username });
+        if (!provider) {
+            return res.status(404).json({ message: "No account found with that username" });
+        }
+
+        provider.password = newPassword;
+        await provider.save();
+
+        res.json({ message: "Password reset successfully" });
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 export default router;

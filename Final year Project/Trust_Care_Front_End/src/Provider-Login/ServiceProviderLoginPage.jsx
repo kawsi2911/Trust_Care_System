@@ -15,8 +15,9 @@ function ServiceProviderLoginPage() {
 
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
+  // ✅ NEW: show/hide password state
+  const [showPassword, setShowPassword] = useState(false);
 
-  // Validation function
   const validate = (data = formData) => {
     let newErrors = {};
     if (!data.username.trim()) newErrors.username = "Username is required";
@@ -26,25 +27,20 @@ function ServiceProviderLoginPage() {
     return newErrors;
   };
 
-  // Handle input changes
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     const newData = { ...formData, [name]: type === "checkbox" ? checked : value };
     setFormData(newData);
-    // Live validation if field has been touched
     if (touched[name]) validate(newData);
   };
 
-  // Handle blur
   const handleBlur = (e) => {
     const { name } = e.target;
     setTouched(prev => ({ ...prev, [name]: true }));
     validate(formData);
   };
 
-  // Handle login
   const handleLogin = async () => {
-    // Mark all fields as touched
     setTouched({ username: true, password: true, check: true });
 
     const validationErrors = validate();
@@ -59,7 +55,6 @@ function ServiceProviderLoginPage() {
             password: formData.password })
       });
 
-      // Safe parsing of response
       const text = await response.text();
       let data;
       try { data = JSON.parse(text); } catch { data = { message: text }; }
@@ -69,14 +64,11 @@ function ServiceProviderLoginPage() {
         return;
       }
 
-      // Store user info depending on "Remember Me"
       if (formData.check) {
         localStorage.setItem("providerId", data.userId);
         localStorage.setItem("FullName", data.FullName);
         localStorage.setItem("role", "provider");
-
       } else {
-
         sessionStorage.setItem("providerId", data.userId);
         sessionStorage.setItem("FullName", data.FullName);
         sessionStorage.setItem("role", "provider");
@@ -120,16 +112,36 @@ function ServiceProviderLoginPage() {
                 {touched.username && errors.username && <p className="error-text">{errors.username}</p>}
               </div>
 
+              {/* ✅ CHANGED: Password field with eye toggle */}
               <div className='row'>
                 <label htmlFor='password'>Password : <span className='star'>*</span></label>
-                <input
-                  type='password' id='password' name='password'
-                  placeholder='Enter your password'
-                  value={formData.password}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={touched.password && errors.password ? 'input-error' : ''}
-                />
+                <div style={{ position: "relative", width: "100%" }}>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    id='password'
+                    name='password'
+                    placeholder='Enter your password'
+                    value={formData.password}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={touched.password && errors.password ? 'input-error' : ''}
+                    style={{ width: "100%", paddingRight: "40px", boxSizing: "border-box" }}
+                  />
+                  <span
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{
+                      position: "absolute",
+                      right: "12px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      cursor: "pointer",
+                      fontSize: "1.1rem",
+                      userSelect: "none"
+                    }}
+                  >
+                    {showPassword ? "🙈" : "👁️"}
+                  </span>
+                </div>
                 {touched.password && errors.password && <p className="error-text">{errors.password}</p>}
               </div>
 
