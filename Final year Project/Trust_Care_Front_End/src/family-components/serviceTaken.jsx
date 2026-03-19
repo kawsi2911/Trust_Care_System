@@ -153,70 +153,113 @@ function ServiceTaken() {
     }
   };
 
-  return (
-    <>
-      <Header />
-      <div className="Servicelogin">
-        <div className="login_Container">
-          <p>Registration Step 2</p>
-          <form onSubmit={handleNext}>
+ return (
+  <>
+    <Header />
+    <div className="Servicelogin">
+      <div className="login_Container">
+
+        <div className="First">
+          <p className="Head">✔️ Registration Step 2</p>
+          <p className="Body">Create your login & verify OTP</p>
+        </div>
+
+        <form onSubmit={handleNext} className="form-fill">
+
+          {/* Username */}
+          <div className="row">
+            <label>Username *</label>
             <input
               name="username"
-              placeholder="Username"
+              placeholder="Enter username"
               value={formData.username}
               onChange={handleChange}
               onBlur={handleBlur}
+              className={touched.username && errors.username ? "input-error" : ""}
             />
+            {touched.username && errors.username && (
+              <p className="error-text">{errors.username}</p>
+            )}
+          </div>
+
+          {/* Password */}
+          <div className="row">
+            <label>Password *</label>
             <input
               type="password"
               name="createpassword"
-              placeholder="Password"
+              placeholder="Enter password"
               value={formData.createpassword}
               onChange={handleChange}
               onBlur={handleBlur}
+              className={touched.createpassword && errors.createpassword ? "input-error" : ""}
             />
+            {touched.createpassword && errors.createpassword && (
+              <p className="error-text">{errors.createpassword}</p>
+            )}
+          </div>
+
+          {/* Confirm Password */}
+          <div className="row">
+            <label>Confirm Password *</label>
             <input
               type="password"
               name="confirmpassword"
-              placeholder="Confirm Password"
+              placeholder="Confirm password"
               value={formData.confirmpassword}
               onChange={handleChange}
               onBlur={handleBlur}
+              className={touched.confirmpassword && errors.confirmpassword ? "input-error" : ""}
             />
-
-            <div>
-              <input
-                type="checkbox"
-                name="check"
-                checked={formData.check}
-                onChange={handleChange}
-              />
-              <label> I agree to terms and conditions </label>
-            </div>
-
-            <button type="button" onClick={sendOTP}>
-              Send OTP
-            </button>
-
-            {otpSent && (
-              <>
-                <input
-                  placeholder="Enter OTP"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                />
-                <button type="button" onClick={verifyOTP}>
-                  Verify OTP
-                </button>
-              </>
+            {touched.confirmpassword && errors.confirmpassword && (
+              <p className="error-text">{errors.confirmpassword}</p>
             )}
+          </div>
 
-            <button type="submit">Register</button>
-          </form>
-        </div>
+          {/* Checkbox */}
+          <div className="checkbox-row">
+            <input
+              type="checkbox"
+              name="check"
+              checked={formData.check}
+              onChange={handleChange}
+            />
+            <label>I agree to Terms & Conditions</label>
+          </div>
+          {touched.check && errors.check && (
+            <p className="error-text">{errors.check}</p>
+          )}
+
+          {/* Send OTP */}
+          <button type="button" className="next" onClick={sendOTP}>
+            Send OTP
+          </button>
+
+          {/* OTP Section */}
+          {otpSent && (
+            <div className="row">
+              <label>Enter OTP</label>
+              <input
+                placeholder="Enter OTP"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+              />
+              <button type="button" className="next" onClick={verifyOTP}>
+                Verify OTP
+              </button>
+            </div>
+          )}
+
+          {/* Submit */}
+          <button type="submit" className="next">
+            Register
+          </button>
+
+        </form>
       </div>
-    </>
-  );
+    </div>
+  </>
+);
 }
 
 export default ServiceTaken;
