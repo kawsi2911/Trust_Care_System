@@ -31,7 +31,7 @@ function ServiceProviderDashboard() {
             return;
         }
 
-        fetch(`http://localhost:5000/api/service-request/dashboard/${providerId}`)
+        fetch(`http://localhost:5000/api/service/${providerId}`)
             .then(res => res.json())
             .then(data => {
 

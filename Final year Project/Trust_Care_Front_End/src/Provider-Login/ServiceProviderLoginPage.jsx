@@ -12,9 +12,11 @@ function ServiceProviderLoginPage() {
     password: "",
     check: false
   });
-
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
+  const [showOTP, setShowOTP] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [token, setToken] = useState("");
 
   // Validation function
   const validate = (data = formData) => {
@@ -31,7 +33,6 @@ function ServiceProviderLoginPage() {
     const { name, value, type, checked } = e.target;
     const newData = { ...formData, [name]: type === "checkbox" ? checked : value };
     setFormData(newData);
-    // Live validation if field has been touched
     if (touched[name]) validate(newData);
   };
 
@@ -42,56 +43,86 @@ function ServiceProviderLoginPage() {
     validate(formData);
   };
 
-  // Handle login
+  // Handle login (send OTP)
   const handleLogin = async () => {
-    // Mark all fields as touched
-    setTouched({ username: true, password: true, check: true });
-
     const validationErrors = validate();
-    if (Object.keys(validationErrors).length !== 0) return;
+    setTouched({ username: true, password: true });
+
+    if (Object.keys(validationErrors).length === 0) {
+      try {
+        const response = await fetch("http://localhost:5000/api/service/providerlogin", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: formData.username,
+            password: formData.password
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.status === 200) {
+          setToken(data.token);    // save JWT token
+          setShowOTP(true);        // show OTP input
+
+          Swal.fire({
+            icon: "success",
+            title: "OTP Sent",
+            text: "Check your email",
+            timer: 1500,
+            showConfirmButton: false
+          });
+
+        } else {
+          Swal.fire({ icon: 'error', title: 'Login Failed', text: data.message });
+        }
+
+      } catch (err) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Backend error!' });
+      }
+    }
+  };
+
+  // Handle OTP verification
+  const handleVerifyOTP = async () => {
+    if (!otp.trim()) {
+      Swal.fire("Error", "Please enter OTP", "error");
+      return;
+    }
 
     try {
-      const response = await fetch("http://localhost:5000/api/service/providerlogin", {
+      const response = await fetch("http://localhost:5000/api/service/verify-login-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-            username: formData.username, 
-            password: formData.password })
+        body: JSON.stringify({ token, otp }),
       });
 
-      // Safe parsing of response
-      const text = await response.text();
-      let data;
-      try { data = JSON.parse(text); } catch { data = { message: text }; }
+      const data = await response.json();
 
-      if (!response.ok) {
-        Swal.fire({ icon: "error", title: "Login Failed", text: data.message || data.error });
-        return;
-      }
-
-      // Store user info depending on "Remember Me"
+      if (response.status === 200) {
+        // Save userId based on Remember Me
       if (formData.check) {
         localStorage.setItem("providerId", data.userId);
-        localStorage.setItem("FullName", data.FullName);
-        localStorage.setItem("role", "provider");
-
+        localStorage.setItem("FullName", data.fullName);
       } else {
-
         sessionStorage.setItem("providerId", data.userId);
-        sessionStorage.setItem("FullName", data.FullName);
-        sessionStorage.setItem("role", "provider");
+        sessionStorage.setItem("FullName", data.fullName);
       }
 
-      Swal.fire({
-        icon: "success",
-        title: "Login Successful",
-        text: `Welcome ${data.FullName}`,
-        timer: 1500,
-        showConfirmButton: false
-      }).then(() => navigate("/serviceproviderdashboard"));
+        Swal.fire({
+          icon: "success",
+          title: "Login Successful",
+          timer: 1500,
+          showConfirmButton: false
+        });
+
+        navigate("/serviceproviderdashboard");
+      } else {
+        Swal.fire("Error", data.message, "error");
+      }
 
     } catch (err) {
-      Swal.fire({ icon: "error", title: "Server Error", text: err.message });
+      Swal.fire("Error", "OTP verification failed", "error");
     }
   };
 
@@ -107,10 +138,13 @@ function ServiceProviderLoginPage() {
                 <span className='Subbody'>Access your Caregiver Dashboard</span>
               </div>
 
+              {/* LOGIN FORM - always visible */}
               <div className='row'>
                 <label htmlFor='username'>Username : <span className='star'>*</span></label>
                 <input
-                  type='text' id='username' name='username'
+                  type='text'
+                  id='username'
+                  name='username'
                   placeholder='Enter your username'
                   value={formData.username}
                   onChange={handleChange}
@@ -123,7 +157,9 @@ function ServiceProviderLoginPage() {
               <div className='row'>
                 <label htmlFor='password'>Password : <span className='star'>*</span></label>
                 <input
-                  type='password' id='password' name='password'
+                  type='password'
+                  id='password'
+                  name='password'
                   placeholder='Enter your password'
                   value={formData.password}
                   onChange={handleChange}
@@ -146,6 +182,23 @@ function ServiceProviderLoginPage() {
 
               <button className='next' onClick={handleLogin}>Login</button>
 
+              {/* OTP INPUT - shows only after login */}
+              {showOTP && (
+                <div className='row otp-row'>
+                  <label htmlFor='otp'>Enter OTP : <span className='star'>*</span></label>
+                  <input
+                    type='text'
+                    id='otp'
+                    name='otp'
+                    placeholder='Enter OTP sent to your email'
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    maxLength={6}
+                  />
+                  <button className='next' onClick={handleVerifyOTP}>Verify OTP</button>
+                </div>
+              )}
+
               <p className='forgotpassword'><Link to="/serviceproviderforget">Forgot Password?</Link></p>
               <p className='account'>Don't have an account? <Link to="/serviceprovider1">Register as Provider</Link></p>
             </div>
@@ -153,7 +206,7 @@ function ServiceProviderLoginPage() {
         </div>
       </div>
     </>
-  )
+  );
 }
 
 export default ServiceProviderLoginPage;
