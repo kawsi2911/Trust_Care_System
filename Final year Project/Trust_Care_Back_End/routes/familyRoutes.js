@@ -2,6 +2,8 @@ import express from "express";
 import Family from "../models/familyModel.js";
 import otpGenerator from "otp-generator";
 import { sendOTP } from "../utils/sendEmail.js";
+import jwt from "jsonwebtoken";
+
 
 const router = express.Router();
 
@@ -91,17 +93,67 @@ router.post("/providerregister", async (req, res) => {
 });
 
 /* ── Login ── */
+const JWT_SECRET = "57201a3808e5f4a71e3cc87c96667ac6e6cb9cc68a69b9fc976f719831ca26d9eb0fc356bec4255dc3d0008fae09e1f3e2fbb6124f165a743e680d0cf891efe5";
+
 router.post("/login", async (req, res) => {
   try {
-    const { username, password } = req.body; // use username
-    const user = await Family.findOne({ username }); // search by username
-    if (!user) return res.status(400).json({ success: false, message: "User not found" });
-    if (user.password !== password) return res.status(400).json({ success: false, message: "Wrong password" });
+    const { username, password } = req.body;
 
-    res.json({ success: true, message: "Login successful", userId: user._id, familyFullName: user.familyFullName });
+    const user = await Family.findOne({ username });
+    if (!user) return res.status(400).json({ message: "User not found" });
+
+    if (user.password !== password)
+      return res.status(400).json({ message: "Wrong password" });
+
+    // 🔹 Generate OTP
+    const otp = otpGenerator.generate(6, {
+      upperCase: false,
+      specialChars: false,
+    });
+
+    // 🔹 Create JWT with OTP
+    const token = jwt.sign(
+      { username, otp },
+      JWT_SECRET,
+      { expiresIn: "5m" } // OTP expires in 5 min
+    );
+
+    // 🔹 Send OTP via email
+    await sendOTP(user.email, otp);
+
+    res.json({
+      success: true,
+      message: "OTP sent",
+      token // 🔥 send token instead of storing OTP
+    });
+
   } catch (err) {
-    console.error("Login error:", err);
-    res.status(500).json({ success: false, error: err.message });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/* ── Verify Login OTP ── */
+router.post("/verify-login-otp", async (req, res) => {
+  try {
+    const { token, otp } = req.body;
+
+    // 🔹 Verify JWT
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    if (decoded.otp !== otp) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    const user = await Family.findOne({ username: decoded.username });
+
+    res.json({
+      success: true,
+      message: "Login successful",
+      userId: user._id
+    });
+
+  } catch (err) {
+    return res.status(400).json({ message: "OTP expired or invalid" });
   }
 });
 
