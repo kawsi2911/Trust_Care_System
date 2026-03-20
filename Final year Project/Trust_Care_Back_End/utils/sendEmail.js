@@ -26,7 +26,18 @@ export async function sendOTP(toEmail, otp) {
       from: `"Trust Care System" <${process.env.SMTP_EMAIL}>`,
       to: toEmail,
       subject: "Your OTP Code",
-      text: `Your OTP code is: ${otp}`,
+      html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+        <h2 style="color:#4CAF50;">Trust Care Support System</h2>
+        <p>Hello,</p>
+        <p>You are receiving this email because you requested an OTP to access your account.</p>
+        <p><strong>Your OTP code is:</strong> <span style="font-size: 1.2em; color:#000;">${otp}</span></p>
+        <p>This OTP is valid for <strong>5 minutes</strong>. Do not share it with anyone.</p>
+        <p>If you did not request this, please ignore this email or contact our support team.</p>
+        <br>
+        <p>Best regards,<br>Trust Care System Team</p>
+      </div>
+  `
     };
 
     const info = await transporter.sendMail(mailOptions);
