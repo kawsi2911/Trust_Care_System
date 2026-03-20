@@ -1,7 +1,44 @@
 import express from "express";
+import nodemailer from "nodemailer"; 
 import Service from "../models/providerModel.js";
+import otpGenerator from "otp-generator";
+import { sendOTP } from "../utils/sendEmail.js";
+
 
 const router = express.Router();
+
+// In-memory store for OTPs (use Redis or DB for production)
+let otpStore = {};
+
+// Send OTP
+router.post("/send-otp", async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ message: "Email required" });
+
+  const otp = Math.floor(100000 + Math.random() * 900000); // 6-digit OTP
+  otpStore[email] = otp;
+
+  try {
+    await sendOTP(email, otp);
+    res.json({ message: "OTP sent successfully" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Failed to send OTP" });
+  }
+});
+
+// Verify OTP
+router.post("/verify-otp", (req, res) => {
+  const { email, otp } = req.body;
+  if (!email || !otp) return res.status(400).json({ message: "Email and OTP required" });
+
+  if (otpStore[email] && parseInt(otp) === otpStore[email]) {
+    delete otpStore[email]; // remove OTP after successful verification
+    res.json({ message: "OTP verified" });
+  } else {
+    res.status(400).json({ message: "Invalid OTP" });
+  }
+});
 
 // ----------------------
 // REGISTER SERVICE PROVIDER

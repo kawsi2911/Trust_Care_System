@@ -4,7 +4,7 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom"; 
 import "./ServiceProviderLogin.css";
 
-function ServiceProviderLogin(){
+function ServiceProviderLoginWithOTP(){
 
     const navigate = useNavigate();
 
@@ -13,6 +13,11 @@ function ServiceProviderLogin(){
         createpassword: "",
         confirmpassword: "",
         check: false,
+    });
+
+    const [otpData, setOtpData] = useState({
+        otpSent: false,
+        otp: "",
     });
 
     const [errors, setErrors] = useState({});
@@ -55,142 +60,177 @@ function ServiceProviderLogin(){
         return newErrors;
     }
 
-   const handleNext = async (e) => {
-  e.preventDefault();
+    // Step 1: Send OTP
+    const sendOTP = async () => {
+        const previousData = JSON.parse(localStorage.getItem("serviceData"));
+        if (!previousData || !previousData.email) {
+            Swal.fire({
+                icon: "error",
+                title: "No Email Found",
+                text: "Please complete the previous steps first",
+            });
+            navigate("/serviceprovider1");
+            return;
+        }
 
-  // Mark all fields as touched for validation
-  setTouched({
-    username: true,
-    createpassword: true,
-    confirmpassword: true,
-    check: true,
-  });
+        try {
+            const res = await fetch("http://localhost:5000/api/service/send-otp", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: previousData.email })
+            });
 
-  // Validate form
-  const validationErrors = validate();
-  if (Object.keys(validationErrors).length !== 0) return;
+            const data = await res.json();
+            if (res.ok) {
+                setOtpData({ ...otpData, otpSent: true });
+                Swal.fire({ icon: "success", title: "OTP Sent", text: `Check your email: ${previousData.email}` });
+            } else {
+                Swal.fire({ icon: "error", title: "Error", text: data.message });
+            }
+        } catch (err) {
+            Swal.fire({ icon: "error", title: "Error", text: err.message });
+        }
+    };
 
-  // Ensure previous steps data exists
-  const previousData = JSON.parse(localStorage.getItem("serviceData"));
-  if (!previousData) {
-    Swal.fire({
-      icon: "error",
-      title: "No Service Data Found",
-      text: "Please complete the previous steps before creating login credentials",
-    });
-    navigate("/serviceprovider1");
-    return;
-  }
+    // Step 2: Verify OTP
+    const verifyOTPAndRegister = async () => {
+        const previousData = JSON.parse(localStorage.getItem("serviceData"));
+        if (!previousData || !previousData.email) return;
 
-  // Combine previous data with login info
-  const combinedData = {
-    ...previousData,
-    username: formData.username,
-    password: formData.createpassword,
-  };
+        try {
+            const res = await fetch("http://localhost:5000/api/service/verify-otp", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: previousData.email, otp: otpData.otp })
+            });
 
-  console.log("Sending to backend:", combinedData);
+            const data = await res.json();
+            if (!res.ok) {
+                Swal.fire({ icon: "error", title: "OTP Verification Failed", text: data.message });
+                return;
+            }
 
-  try {
-    // ✅ Call the backend exactly at /api/service/providerregister
-    const res = await fetch("http://localhost:5000/api/service/providerregister", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(combinedData),
-    });
+            // OTP verified → submit registration
+            await submitRegistration(previousData);
 
-    // First, check response type
-    const text = await res.text();
+        } catch (err) {
+            Swal.fire({ icon: "error", title: "Error", text: err.message });
+        }
+    };
 
-    // Try parsing JSON
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch (err) {
-      console.error("Invalid JSON response:", text);
-      Swal.fire({
-        icon: "error",
-        title: "Server Error",
-        text: "Received invalid response from server",
-      });
-      return;
-    }
+    // Step 3: Submit registration
+    const submitRegistration = async (previousData) => {
+        const combinedData = {
+            ...previousData,
+            username: formData.username,
+            password: formData.createpassword,
+        };
 
-    if (res.ok) {
-      localStorage.removeItem("serviceData");
-      Swal.fire({
-        icon: "success",
-        title: "Registration Successful 🎉",
-        text: "Your account has been created successfully!",
-        confirmButtonText: "Go to Login",
-      }).then(() => navigate("/serviceproviderloginpage"));
-    } else {
-      Swal.fire({ icon: "error", title: "Error", text: data.message || "Something went wrong" });
-    }
-  } catch (error) {
-    console.error("Network or server error:", error);
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: error.message || "Something went wrong",
-    });
-  }
-};
+        try {
+            const res = await fetch("http://localhost:5000/api/service/providerregister", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(combinedData),
+            });
+
+            const text = await res.text();
+            let data;
+            try { data = JSON.parse(text); } catch { data = { message: text }; }
+
+            if (res.ok) {
+                localStorage.removeItem("serviceData");
+                Swal.fire({
+                    icon: "success",
+                    title: "Registration Complete 🎉",
+                    text: "Your account has been created successfully",
+                    confirmButtonText: "Go to Login"
+                }).then(() => navigate("/serviceproviderloginpage"));
+            } else {
+                Swal.fire({ icon: "error", title: "Error", text: data.message || "Something went wrong" });
+            }
+
+        } catch (err) {
+            Swal.fire({ icon: "error", title: "Error", text: err.message });
+        }
+    };
+
+    const handleNext = async (e) => {
+        e.preventDefault();
+
+        setTouched({
+            username: true,
+            createpassword: true,
+            confirmpassword: true,
+            check: true,
+        });
+
+        const validationErrors = validate();
+        if (Object.keys(validationErrors).length !== 0) return;
+
+        if (!otpData.otpSent) {
+            // Send OTP first
+            await sendOTP();
+        } else {
+            // Verify OTP & register
+            await verifyOTPAndRegister();
+        }
+    };
 
     return(
         <>
             <Header />
-            <div className = 'Servicelogin'>
-                <div className = "login_Container">
+            <div className='Servicelogin'>
+                <div className="login_Container">
 
-                    <div className = "First">
-                        <p className = "Head"> ✔️Registration Complete!</p>
-                        <p className = "Body">Now Create your login credentials</p>
+                    <div className="First">
+                        <p className="Head"> ✔️Registration Complete!</p>
+                        <p className="Body">Create your login credentials & verify OTP</p>
                     </div>
 
-                      <div className = 'form'>
-                        <div className = 'form-fill'>
+                    <div className='form'>
+                        <div className='form-fill'>
 
                             <div className='row'>
-                                <label htmlFor='username'> Choose User Name : <span className='star'>*</span></label>
-                                <input type='text' id='username' name='username' placeholder='Enter your Full Name' value={formData.username} onChange={handleChange} onBlur={handleBlur} className={touched.username && errors.username ? "input-error" : ""} />
-                                {touched.username && errors.username && (
-                                    <p className="error-text">{errors.username}</p>
-                                )}
+                                <label htmlFor='username'>Choose Username: <span className='star'>*</span></label>
+                                <input type='text' id='username' name='username' placeholder='Enter your username' value={formData.username} onChange={handleChange} onBlur={handleBlur} className={touched.username && errors.username ? "input-error" : ""} />
+                                {touched.username && errors.username && <p className="error-text">{errors.username}</p>}
                             </div>
 
-                            <div className = 'row'>
-                                <label htmlFor = 'createpassword'>Create Password : <label className='star'> * </label> </label>
-                                <input type = 'password' id = 'createpassword' name = 'createpassword' placeholder = 'Enter Strong Password' value={formData.createpassword} onChange={handleChange} onBlur={handleBlur} className={touched.createpassword && errors.createpassword ? "input-error" : ""} />
-                                {touched.createpassword && errors.createpassword && (
-                                    <p className="error-text">{errors.createpassword}</p>
-                                )}
+                            <div className='row'>
+                                <label>Create Password: <span className='star'>*</span></label>
+                                <input type='password' name='createpassword' value={formData.createpassword} onChange={handleChange} onBlur={handleBlur} className={touched.createpassword && errors.createpassword ? "input-error" : ""} />
+                                {touched.createpassword && errors.createpassword && <p className="error-text">{errors.createpassword}</p>}
                             </div>
 
-                            <div className = 'row'>
-                                <label htmlFor = 'confirmpassword'>Confirm Password : <label className='star'> * </label> </label>
-                                <input type = 'password' id = 'confirmpassword' name = 'confirmpassword' placeholder = 'Re-enter password' value={formData.confirmpassword} onChange={handleChange} onBlur={handleBlur} className={touched.confirmpassword && errors.confirmpassword ? "input-error" : ""} />
-                                {touched.confirmpassword && errors.confirmpassword && (
-                                    <p className="error-text">{errors.confirmpassword}</p>
-                                )}
+                            <div className='row'>
+                                <label>Confirm Password: <span className='star'>*</span></label>
+                                <input type='password' name='confirmpassword' value={formData.confirmpassword} onChange={handleChange} onBlur={handleBlur} className={touched.confirmpassword && errors.confirmpassword ? "input-error" : ""} />
+                                {touched.confirmpassword && errors.confirmpassword && <p className="error-text">{errors.confirmpassword}</p>}
                             </div>
 
-                            <div className = 'row'>
-                                <input type = 'checkbox' id = 'check' name = 'check' checked={formData.check} onChange={handleChange}/> <p className="checked">I agree to <a href="">Terms & Conditions</a> and <a href="">Privacy Policy</a></p>
-                                {touched.check && errors.check && (
-                                    <p className="error-text">{errors.check}</p>
-                                )}
+                            <div className='row'>
+                                <input type='checkbox' name='check' checked={formData.check} onChange={handleChange} /> I agree to <a href="">Terms & Conditions</a> and <a href="">Privacy Policy</a>
+                                {touched.check && errors.check && <p className="error-text">{errors.check}</p>}
                             </div>
 
-                            <button className = 'next' onClick = { handleNext}> Create Account & Login </button>
-                            
+                            {/* OTP Input */}
+                            {otpData.otpSent && (
+                                <div className='row'>
+                                    <label>Enter OTP: <span className='star'>*</span></label>
+                                    <input type='text' name='otp' value={otpData.otp} onChange={(e) => setOtpData({ ...otpData, otp: e.target.value })} placeholder='Enter the 6-digit OTP' />
+                                </div>
+                            )}
+
+                            <button className='next' onClick={handleNext}>
+                                {otpData.otpSent ? "Verify OTP & Complete Registration" : "Send OTP"}
+                            </button>
+
                         </div>
                     </div>
-                
                 </div>
             </div>
         </>
     )
 }
 
-export default ServiceProviderLogin;
+export default ServiceProviderLoginWithOTP;
