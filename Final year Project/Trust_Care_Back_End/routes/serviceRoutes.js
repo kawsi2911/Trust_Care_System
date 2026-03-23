@@ -40,8 +40,7 @@ router.post("/verify-otp", (req, res) => {
   }
 });
 
-// ----------------------
-// REGISTER SERVICE PROVIDER
+// Register Service Provider
 router.post("/providerregister", async (req, res) => {
   try {
     const { username, FullName, email, password } = req.body;
@@ -67,8 +66,7 @@ router.post("/providerregister", async (req, res) => {
   }
 });
 
-// ----------------------
-// LOGIN SERVICE PROVIDER
+//login the user and send OTP
 const JWT_SECRET = "57201a3808e5f4a71e3cc87c96667ac6e6cb9cc68a69b9fc976f719831ca26d9eb0fc356bec4255dc3d0008fae09e1f3e2fbb6124f165a743e680d0cf891efe5";
 
 
@@ -93,7 +91,7 @@ router.post("/providerlogin", async (req, res) => {
       message: "OTP sent",
       token,
       userId: user._id,
-      fullName: user.FullName,  // send fullName for frontend storage
+      fullName: user.FullName,  
     });
 
   } catch (err) {
@@ -101,8 +99,7 @@ router.post("/providerlogin", async (req, res) => {
   }
 });
 
-// ----------------------
-// VERIFY LOGIN OTP
+//verify the otp for login
 router.post("/verify-login-otp", async (req, res) => {
   try {
     const { token, otp } = req.body;
@@ -117,15 +114,14 @@ router.post("/verify-login-otp", async (req, res) => {
       success: true,
       message: "Login successful",
       userId: user._id,
-      fullName: user.FullName,  // always send fullName
+      fullName: user.FullName, 
     });
   } catch (err) {
     res.status(400).json({ message: "OTP expired or invalid" });
   }
 });
 
-// ----------------------
-// RESET PASSWORD
+//reset password
 router.put("/reset-password", async (req, res) => {
   try {
     const { username, newPassword } = req.body;
@@ -143,8 +139,7 @@ router.put("/reset-password", async (req, res) => {
   }
 });
 
-// ----------------------
-// GET SERVICE PROVIDER BY ID
+//get service provider by id
 router.get("/:id", async (req, res) => {
   try {
     const user = await Service.findById(req.params.id);
@@ -155,8 +150,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// ----------------------
-// UPDATE SERVICE PROVIDER
+//update service provider 
 router.put("/:id", async (req, res) => {
   try {
     const updatedUser = await Service.findByIdAndUpdate(req.params.id, req.body, { new: true });

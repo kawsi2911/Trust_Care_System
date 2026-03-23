@@ -50,6 +50,13 @@ function FamilyRegister() {
   const handleNext = async (e) => {
   e.preventDefault();
 
+  const allTouched = {};
+  Object.keys(formData).forEach((key) => {
+    allTouched[key] = true;
+  });
+  setTouched(allTouched)
+
+
   const validationErrors = validate();
   if (Object.keys(validationErrors).length !== 0) return;
 
