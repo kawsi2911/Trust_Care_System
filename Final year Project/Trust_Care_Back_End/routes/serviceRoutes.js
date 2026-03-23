@@ -27,6 +27,19 @@ router.post("/send-otp", async (req, res) => {
   }
 });
 
+// Verify OTP
+router.post("/verify-otp", (req, res) => {
+  const { email, otp } = req.body;
+  if (!email || !otp) return res.status(400).json({ message: "Email and OTP required" });
+
+  if (otpStore[email] && parseInt(otp) === otpStore[email]) {
+    delete otpStore[email]; // remove OTP after successful verification
+    res.json({ message: "OTP verified" });
+  } else {
+    res.status(400).json({ message: "Invalid OTP" });
+  }
+});
+
 // ----------------------
 // REGISTER SERVICE PROVIDER
 router.post("/providerregister", async (req, res) => {
@@ -56,7 +69,8 @@ router.post("/providerregister", async (req, res) => {
 
 // ----------------------
 // LOGIN SERVICE PROVIDER
-const JWT_SECRET = "YOUR_JWT_SECRET_HERE";
+const JWT_SECRET = "57201a3808e5f4a71e3cc87c96667ac6e6cb9cc68a69b9fc976f719831ca26d9eb0fc356bec4255dc3d0008fae09e1f3e2fbb6124f165a743e680d0cf891efe5";
+
 
 router.post("/providerlogin", async (req, res) => {
   try {
