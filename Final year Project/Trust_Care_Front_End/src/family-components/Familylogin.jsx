@@ -130,73 +130,72 @@ function Familylogin() {
                             <div className='row'>
                                 <label>User Name :</label>
                                 <div style={{ position: "relative", width: "100%" }}>
-                                   
                                     <input
-                                        type='text'
-                                        name='username'
-                                        value={formData.username}
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        style={{
-                                            width: "100%",
-                                            paddingLeft: "40px",
-                                            boxSizing: "border-box",
-                                            border: "1px solid #ced4da",
-                                            borderRadius: "4px",
-                                            height: "42px",
-                                            fontSize: "1rem",
-                                            transition: "border-color 0.2s"
-                                        }}
-                                        onFocus={(e) => e.target.style.borderColor = "#86b7fe"}
-                                        onBlur={(e) => e.target.style.borderColor = "#ced4da"}
-                                    />
-                                </div>
-                                {touched.username && errors.username && <p className="error-text">{errors.username}</p>}
-                            </div>
+            type='text' name='username' value={formData.username} onChange={handleChange}       onFocus={(e) => e.target.style.borderColor = "#86b7fe"}
+            onBlur={(e) => {
+                e.target.style.borderColor = "#ced4da"; // reset border
+                handleBlur(e); // validation
+            }}
+            style={{
+                width: "100%",
+                paddingLeft: "40px",
+                boxSizing: "border-box",
+                border: "1px solid #ced4da",
+                borderRadius: "4px",
+                height: "42px",
+                fontSize: "1rem",
+                transition: "border-color 0.2s"
+            }}
+        />
+    </div>
+    {touched.username && errors.username && <p className="error-text">{errors.username}</p>}
+</div>
 
-                            {/* PASSWORD FIELD with lock icon + eye toggle */}
-                            <div className='row'>
-                                <label>Password :</label>
-                                <div style={{ position: "relative", width: "100%" }}>
-                                   
-                                    <input
-                                        type={showPassword ? "text" : "password"}
-                                        name='password'
-                                        value={formData.password}
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        style={{
-                                            width: "100%",
-                                            paddingLeft: "40px",
-                                            paddingRight: "40px",
-                                            boxSizing: "border-box",
-                                            border: "1px solid #ced4da",
-                                            borderRadius: "4px",
-                                            height: "42px",
-                                            fontSize: "1rem",
-                                            transition: "border-color 0.2s"
-                                        }}
-                                        onFocus={(e) => e.target.style.borderColor = "#86b7fe"}
-                                        onBlur={(e) => e.target.style.borderColor = "#ced4da"}
-                                    />
-                                    <span
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        style={{
-                                            position: "absolute",
-                                            right: "12px",
-                                            top: "50%",
-                                            transform: "translateY(-50%)",
-                                            cursor: "pointer",
-                                            fontSize: "1.1rem",
-                                            userSelect: "none",
-                                            color: "#6c757d"
-                                        }}
-                                    >
-                                        {showPassword ? "🙈" : "👁️"}
-                                    </span>
-                                </div>
-                                {touched.password && errors.password && <p className="error-text">{errors.password}</p>}
-                            </div>
+{/* PASSWORD FIELD with lock icon + eye toggle */}
+<div className='row'>
+    <label>Password :</label>
+    <div style={{ position: "relative", width: "100%" }}>
+        <input
+            type={showPassword ? "text" : "password"}
+            name='password'
+            value={formData.password}
+            onChange={handleChange}
+            onFocus={(e) => e.target.style.borderColor = "#86b7fe"}
+            onBlur={(e) => {
+                e.target.style.borderColor = "#ced4da"; // reset border
+                handleBlur(e); // validation
+            }}
+            style={{
+                width: "100%",
+                paddingLeft: "40px",
+                paddingRight: "40px",
+                boxSizing: "border-box",
+                border: "1px solid #ced4da",
+                borderRadius: "4px",
+                height: "42px",
+                fontSize: "1rem",
+                transition: "border-color 0.2s"
+            }}
+        />
+        <span
+            onClick={() => setShowPassword(!showPassword)}
+            style={{
+                position: "absolute",
+                right: "12px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                cursor: "pointer",
+                fontSize: "1.1rem",
+                userSelect: "none",
+                color: "#6c757d"
+            }}
+        >
+            {showPassword ? "🙈" : "👁️"}
+        </span>
+    </div>
+    {touched.password && errors.password && <p className="error-text">{errors.password}</p>}
+</div>
+
 
                             {/* REMEMBER ME */}
                             <div className='row checkbox-row1'>
