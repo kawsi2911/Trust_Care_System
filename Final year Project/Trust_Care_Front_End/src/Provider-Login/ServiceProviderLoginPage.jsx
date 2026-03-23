@@ -17,6 +17,7 @@ function ServiceProviderLoginPage() {
   const [showOTP, setShowOTP] = useState(false);
   const [otp, setOtp] = useState("");
   const [token, setToken] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   // Validation function
   const validate = (data = formData) => {
@@ -154,19 +155,13 @@ function ServiceProviderLoginPage() {
                 {touched.username && errors.username && <p className="error-text">{errors.username}</p>}
               </div>
 
-              <div className='row'>
+              <div className='row' style={{ position: 'relative', width: '100%' }}>
                 <label htmlFor='password'>Password : <span className='star'>*</span></label>
-                <input
-                  type='password'
-                  id='password'
-                  name='password'
-                  placeholder='Enter your password'
-                  value={formData.password}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={touched.password && errors.password ? 'input-error' : ''}
-                />
-                {touched.password && errors.password && <p className="error-text">{errors.password}</p>}
+                  <input type={showPassword ? "text" : "password"} id='password' name='password' placeholder='Enter your password' value={formData.password} onChange={handleChange} onBlur={handleBlur}className={touched.password && errors.password ? 'input-error' : ''} style={{ paddingRight: '40px' }}  />
+                    <span onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', fontSize: '1.2rem', color: '#6c757d', userSelect: 'none', }} >
+                      {showPassword ? '🙈' : '👁️'}
+                    </span>
+                      {touched.password && errors.password && <p className="error-text">{errors.password}</p>}
               </div>
 
               <div className='row checkbox-row'>
