@@ -36,7 +36,7 @@ import FamilyProfieEdit from "./family-components/FamilyProfieEdit.jsx";
 // Admin imports
 import AdminLogin from "./admin/AdminLogin.jsx";
 import AdminDashboard from "./admin/AdminDashboard.jsx";
-// ✅ NEW: Payment pages
+// payment
 import PaymentSuccess from "./Family-Dashboard/PaymentSuccess.jsx";
 import PaymentCancel from "./Family-Dashboard/PaymentCancel.jsx";
 

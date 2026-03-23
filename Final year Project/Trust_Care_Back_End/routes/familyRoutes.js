@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
-/* ── Step 1: Create Temp Family ── */
+//create a temporary user with basic details before OTP verification
 router.post("/create-temp", async (req, res) => {
   try {
     const { familyFullName, familynic, phone, email, gender, address, city } = req.body;
@@ -25,7 +25,7 @@ router.post("/create-temp", async (req, res) => {
   }
 });
 
-/* ── Send OTP using userId ── */
+//send OTP to user's email
 router.post("/sendotp", async (req, res) => {
   try {
     const { userId } = req.body;
@@ -48,7 +48,7 @@ router.post("/sendotp", async (req, res) => {
   }
 });
 
-/* ── Verify OTP using userId ── */
+//verify the otp and mark user as verified
 router.post("/verify-otp", async (req, res) => {
   try {
     const { userId, otp } = req.body;
@@ -70,7 +70,7 @@ router.post("/verify-otp", async (req, res) => {
   }
 });
 
-/* ── Step 2: Register Family ── */
+//register the family user with username and password after OTP verification
 router.post("/providerregister", async (req, res) => {
   try {
     const { userId, username, password } = req.body;
@@ -92,7 +92,7 @@ router.post("/providerregister", async (req, res) => {
   }
 });
 
-/* ── Login ── */
+//login the user and send OTP
 const JWT_SECRET = "57201a3808e5f4a71e3cc87c96667ac6e6cb9cc68a69b9fc976f719831ca26d9eb0fc356bec4255dc3d0008fae09e1f3e2fbb6124f165a743e680d0cf891efe5";
 
 router.post("/login", async (req, res) => {
@@ -105,26 +105,26 @@ router.post("/login", async (req, res) => {
     if (user.password !== password)
       return res.status(400).json({ message: "Wrong password" });
 
-    // 🔹 Generate OTP
+    // Generate OTP
     const otp = otpGenerator.generate(6, {
       upperCase: false,
       specialChars: false,
     });
 
-    // 🔹 Create JWT with OTP
+    //Create JWT with OTP
     const token = jwt.sign(
       { username, otp },
       JWT_SECRET,
-      { expiresIn: "5m" } // OTP expires in 5 min
+      { expiresIn: "5m" }
     );
 
-    // 🔹 Send OTP via email
+    //Send OTP via email
     await sendOTP(user.email, otp);
 
     res.json({
       success: true,
       message: "OTP sent",
-      token // 🔥 send token instead of storing OTP
+      token 
     });
 
   } catch (err) {
@@ -132,7 +132,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-/* ── Verify Login OTP ── */
+//verify the otp for login
 router.post("/verify-login-otp", async (req, res) => {
   try {
     const { token, otp } = req.body;
@@ -157,7 +157,7 @@ router.post("/verify-login-otp", async (req, res) => {
   }
 });
 
-/* ── Get Profile ── */
+//get family user by id
 router.get("/:id", async (req, res) => {
   try {
     const user = await Family.findById(req.params.id);
@@ -170,7 +170,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-/* ── Update Profile ── */
+//update family user
 router.put("/:id", async (req, res) => {
   try {
     const updatedUser = await Family.findByIdAndUpdate(req.params.id, req.body, { new: true });
