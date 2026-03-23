@@ -60,7 +60,7 @@ router.post("/create", async (req, res) => {
 
 // ─────────────────────────────────────────
 // PUT /api/notifications/decline/:id
-// Decline a notification
+// Decline a notification — notifies family with provider name
 // ─────────────────────────────────────────
 router.put("/decline/:id", async (req, res) => {
   try {
@@ -70,18 +70,36 @@ router.put("/decline/:id", async (req, res) => {
     notification.status = "declined";
     await notification.save();
 
-    // ✅ NEW: Send declined notification to family
-    await Notification.create({
-      receiverId: notification.familyId,
-      familyId: notification.familyId,
-      role: "family",
-      title: "Request Declined",
-      message: `Sorry, a provider declined your ${notification.serviceType || "care"} request. Please try another provider.`,
-      status: "pending",
-    });
+    // ✅ SAFE: Get provider name without crashing if providerId is null
+    let providerName = "The provider";
+    try {
+      if (notification.providerId) {
+        const provider = await providerModel.findById(notification.providerId);
+        if (provider) {
+          providerName = provider.FullName || provider.fullName || "The provider";
+        }
+      }
+    } catch (e) {
+      console.warn("Could not fetch provider name:", e.message);
+    }
+
+    // ✅ SAFE: Only create family notification if familyId exists
+    if (notification.familyId) {
+      await Notification.create({
+        receiverId: notification.familyId,
+        familyId: notification.familyId,
+        role: "family",
+        title: "❌ Request Declined",
+        message: `${providerName} has declined your ${notification.serviceType || "care"} request. Please search for another provider.`,
+        status: "pending",
+      });
+    } else {
+      console.warn("⚠️ familyId is null on notification:", notification._id, " — family not notified");
+    }
 
     res.json({ message: "Notification declined" });
   } catch (error) {
+    console.error("Decline error:", error.message);
     res.status(500).json({ error: error.message });
   }
 });
@@ -106,7 +124,7 @@ router.put("/accept/:id", async (req, res) => {
       return res.status(404).json({ message: "Provider not found" });
     }
 
-    // ✅ NEW: Create booking in bookings collection
+    // Create booking in bookings collection
     const booking = await Booking.create({
       serviceRequestId: note.requestId,
       providerId: note.providerId,
@@ -119,7 +137,7 @@ router.put("/accept/:id", async (req, res) => {
       startDate: new Date(),
     });
 
-    // ✅ Send booking confirmation notification to family
+    // Send booking confirmation notification to family
     await Notification.create({
       receiverId: note.familyId,
       familyId: note.familyId,
