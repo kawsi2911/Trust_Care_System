@@ -40,6 +40,8 @@ import AdminDashboard from "./admin/AdminDashboard.jsx";
 import PaymentSuccess from "./Family-Dashboard/PaymentSuccess.jsx";
 import PaymentCancel from "./Family-Dashboard/PaymentCancel.jsx";
 
+import EmailVerified from "./components/EmailVerified.jsx";
+
 
 
 function App() {
@@ -100,6 +102,8 @@ function App() {
         <Route path="/admin" element={<AdminLogin />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
+
+        <Route path="/email-verified" element={<EmailVerified />} />
 
       </Routes>
       

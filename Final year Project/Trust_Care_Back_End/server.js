@@ -14,6 +14,8 @@ import selectRoutes from "./routes/select.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 
+import verifyEmailRoute from "./routes/verifyEmailRoute.js";
+
 dotenv.config();
 
 const app = express();
@@ -24,9 +26,10 @@ app.use(cors({
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
-app.use(express.json());
-// ✅ ADDED: needed for PayHere notify webhook (sends form-urlencoded data)
-app.use(express.urlencoded({ extended: true }));
+
+// ✅ CHANGED: increased limit to 10mb to handle base64 profile images
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI)
@@ -43,5 +46,7 @@ app.use("/api/select", selectRoutes);
 // ── Admin API routes ──────────────────────────────────────────────────────────
 app.use("/api/admin", adminRoutes);
 app.use("/api/payments", paymentRoutes);
+
+app.use("/api/verify-email", verifyEmailRoute);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
